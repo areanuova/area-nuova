@@ -1,0 +1,14 @@
+---
+interface Props {
+  variante?: 'primary' | 'accent' | 'neutro';
+}
+const { variante = 'neutro' } = Astro.props;
+const stili = {
+  primary: 'bg-primary-50 text-primary-700',
+  accent: 'bg-accent-50 text-accent-800',
+  neutro: 'bg-slate-100 text-slate-700',
+};
+---
+<span class:list={['inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold', stili[variante]]}>
+  <slot />
+</span>

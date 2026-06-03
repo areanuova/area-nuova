@@ -1,0 +1,34 @@
+---
+interface Props {
+  url: string;
+  titolo: string;
+  altezza?: number;
+}
+const { url, titolo, altezza = 1200 } = Astro.props;
+const configurato = url && !url.includes('INCOLLA_QUI');
+---
+
+<div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+  {configurato ? (
+    <iframe
+      src={url}
+      title={titolo}
+      width="100%"
+      height={altezza}
+      frameborder="0"
+      marginheight="0"
+      marginwidth="0"
+      loading="lazy"
+      class="block w-full"
+    >
+      Caricamento del modulo…
+    </iframe>
+  ) : (
+    <div class="p-8 text-center">
+      <p class="font-display text-lg font-semibold text-slate-900">Modulo non ancora configurato</p>
+      <p class="mt-2 text-sm text-slate-600">
+        Incolla il link del tuo Google Form nel file <code class="rounded bg-slate-100 px-1.5 py-0.5">src/data/sito.json</code> per attivarlo.
+      </p>
+    </div>
+  )}
+</div>

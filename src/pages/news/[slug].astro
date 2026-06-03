@@ -1,0 +1,40 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formattaData } from '../../lib/utils';
+
+export async function getStaticPaths() {
+  const news = await getCollection('news', ({ data }) => !data.bozza);
+  return news.map((n) => ({ params: { slug: n.slug }, props: { articolo: n } }));
+}
+
+interface Props { articolo: CollectionEntry<'news'>; }
+const { articolo } = Astro.props;
+const { titolo, data, autore, copertina, tag, estratto } = articolo.data;
+const { Content } = await articolo.render();
+---
+
+<BaseLayout titolo={titolo} descrizione={estratto}>
+  <article class="container-site max-w-3xl py-16">
+    <a href="/news" class="text-sm font-semibold text-primary-800 hover:underline">← Tutte le news</a>
+    <p class="mt-6 text-sm font-medium uppercase tracking-wide text-slate-500">
+      {formattaData(data)}{autore ? ` · ${autore}` : ''}
+    </p>
+    <h1 class="mt-2 text-3xl font-bold sm:text-4xl">{titolo}</h1>
+
+    {copertina && (
+      <Image src={copertina} alt={titolo} width={900} height={500} class="mt-8 w-full rounded-2xl object-cover" />
+    )}
+
+    <div class="prose prose-slate mt-8 max-w-none prose-headings:font-display prose-a:text-primary-800">
+      <Content />
+    </div>
+
+    {tag.length > 0 && (
+      <div class="mt-8 flex flex-wrap gap-2">
+        {tag.map((t) => <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">#{t}</span>)}
+      </div>
+    )}
+  </article>
+</BaseLayout>

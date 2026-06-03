@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/ui/PageHeader.astro';
+import FormEmbed from '../components/forms/FormEmbed.astro';
+import sito from '../data/sito.json';
+---
+
+<BaseLayout titolo="Segnalazioni studenti" descrizione="Segnala un problema o una proposta ad Area Nuova.">
+  <PageHeader
+    occhiello="La tua voce conta"
+    titolo="Segnalazioni studenti"
+    sottotitolo="Hai riscontrato un problema con la didattica, i servizi o gli spazi? Raccontacelo: ce ne occupiamo noi."
+  />
+
+  <section class="container-site py-16">
+    <div class="grid gap-10 lg:grid-cols-3">
+      <div class="space-y-4 text-slate-700">
+        <h2 class="text-xl font-bold">Come funziona</h2>
+        <ol class="space-y-3 text-sm">
+          <li class="flex gap-3"><span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary-800 text-xs font-bold text-white">1</span> Compili il modulo qui accanto.</li>
+          <li class="flex gap-3"><span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary-800 text-xs font-bold text-white">2</span> Riceviamo la segnalazione e la valutiamo.</li>
+          <li class="flex gap-3"><span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary-800 text-xs font-bold text-white">3</span> La portiamo nell'organo competente.</li>
+        </ol>
+        <p class="rounded-xl bg-slate-100 p-4 text-sm text-slate-600">
+          Le segnalazioni vengono trattate con riservatezza. Puoi anche scriverci a
+          <a href={`mailto:${sito.email}`} class="font-semibold text-primary-800 hover:underline">{sito.email}</a>.
+        </p>
+      </div>
+      <div class="lg:col-span-2">
+        <FormEmbed url={sito.form.segnalazioni} titolo="Modulo segnalazioni" altezza={1300} />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

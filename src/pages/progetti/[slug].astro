@@ -1,0 +1,42 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Badge from '../../components/ui/Badge.astro';
+import { formattaData } from '../../lib/utils';
+
+export async function getStaticPaths() {
+  const progetti = await getCollection('progetti');
+  return progetti.map((p) => ({ params: { slug: p.slug }, props: { progetto: p } }));
+}
+
+interface Props { progetto: CollectionEntry<'progetti'>; }
+const { progetto } = Astro.props;
+const { titolo, descrizione, stato, categoria, dataInizio, dataFine, copertina } = progetto.data;
+const { Content } = await progetto.render();
+---
+
+<BaseLayout titolo={titolo} descrizione={descrizione}>
+  <article class="container-site max-w-3xl py-16">
+    <a href="/progetti" class="text-sm font-semibold text-primary-800 hover:underline">← Tutti i progetti</a>
+
+    <div class="mt-6 flex flex-wrap items-center gap-2">
+      <Badge variante={stato === 'attivo' ? 'accent' : 'neutro'}>{stato === 'attivo' ? 'In corso' : 'Concluso'}</Badge>
+      <Badge variante="primary">{categoria}</Badge>
+    </div>
+
+    <h1 class="mt-4 text-3xl font-bold sm:text-4xl">{titolo}</h1>
+    <p class="mt-2 text-sm text-slate-500">
+      Dal {formattaData(dataInizio)}{dataFine ? ` al ${formattaData(dataFine)}` : ''}
+    </p>
+    <p class="mt-4 text-lg text-slate-600">{descrizione}</p>
+
+    {copertina && (
+      <Image src={copertina} alt={titolo} width={900} height={500} class="mt-8 w-full rounded-2xl object-cover" />
+    )}
+
+    <div class="prose prose-slate mt-8 max-w-none prose-headings:font-display prose-a:text-primary-800">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

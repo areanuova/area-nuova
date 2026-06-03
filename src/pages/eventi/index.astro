@@ -1,0 +1,39 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import EventoCard from '../../components/ui/EventoCard.astro';
+import { eFuturo } from '../../lib/utils';
+
+const tutti = await getCollection('eventi');
+const prossimi = tutti
+  .filter((e) => eFuturo(e.data.data))
+  .sort((a, b) => a.data.data.getTime() - b.data.data.getTime());
+const passati = tutti
+  .filter((e) => !eFuturo(e.data.data))
+  .sort((a, b) => b.data.data.getTime() - a.data.data.getTime());
+---
+
+<BaseLayout titolo="Eventi" descrizione="Gli eventi organizzati da Area Nuova.">
+  <PageHeader occhiello="Calendario" titolo="Eventi" sottotitolo="Incontri, assemblee e iniziative aperte agli studenti." />
+
+  <section class="container-site py-16">
+    <h2 class="mb-6 text-2xl font-bold">Prossimi eventi</h2>
+    {prossimi.length === 0 ? (
+      <p class="text-slate-500">Nessun evento in programma al momento.</p>
+    ) : (
+      <div class="grid gap-6 md:grid-cols-2">
+        {prossimi.map((e) => <EventoCard evento={e} />)}
+      </div>
+    )}
+
+    {passati.length > 0 && (
+      <>
+        <h2 class="mb-6 mt-16 text-2xl font-bold">Eventi passati</h2>
+        <div class="grid gap-6 md:grid-cols-2">
+          {passati.map((e) => <EventoCard evento={e} />)}
+        </div>
+      </>
+    )}
+  </section>
+</BaseLayout>

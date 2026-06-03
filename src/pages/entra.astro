@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/ui/PageHeader.astro';
+import FormEmbed from '../components/forms/FormEmbed.astro';
+import sito from '../data/sito.json';
+
+const motivi = [
+  'Partecipi attivamente alle decisioni dell\'Ateneo',
+  'Sviluppi competenze di lavoro in team e public speaking',
+  'Crei una rete con studenti di tutti i dipartimenti',
+  'Lasci un impatto concreto sulla vita universitaria',
+];
+---
+
+<BaseLayout titolo="Entra in Area Nuova" descrizione="Unisciti ad Area Nuova: candidati e partecipa.">
+  <PageHeader
+    occhiello="Unisciti a noi"
+    titolo="Entra in Area Nuova"
+    sottotitolo="Cerchi un modo per migliorare l'università  e crescere insieme ad altri studenti? Questo è il posto giusto."
+  />
+
+  <section class="container-site py-16">
+    <div class="grid gap-10 lg:grid-cols-3">
+      <div class="space-y-4">
+        <h2 class="text-xl font-bold">Perché unirsi</h2>
+        <ul class="space-y-3">
+          {motivi.map((m) => (
+            <li class="flex gap-3 text-sm text-slate-700">
+              <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-accent-500"></span>
+              {m}
+            </li>
+          ))}
+        </ul>
+        <div class="rounded-xl bg-accent-50 p-4 text-sm text-accent-800">
+          Aperto a tutte le studentesse e gli studenti dell'Università  di Foggia, di ogni corso e anno.
+        </div>
+      </div>
+      <div class="lg:col-span-2">
+        <FormEmbed url={sito.form.entra} titolo="Modulo di iscrizione" altezza={1300} />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

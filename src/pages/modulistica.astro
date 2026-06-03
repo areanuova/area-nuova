@@ -1,0 +1,70 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/ui/PageHeader.astro';
+import Badge from '../components/ui/Badge.astro';
+
+const documenti = (await getCollection('documenti')).sort((a, b) => b.data.anno - a.data.anno);
+const moduli = documenti.filter((d) => d.data.tipo === 'modulo');
+const mozioni = documenti.filter((d) => d.data.tipo !== 'modulo');
+
+const etichettaTipo: Record<string, string> = {
+  modulo: 'Modulo',
+  mozione: 'Mozione',
+  documento: 'Documento',
+};
+---
+
+<BaseLayout titolo="Modulistica" descrizione="Moduli, mozioni e documenti ufficiali di Area Nuova.">
+  <PageHeader
+    occhiello="Documenti"
+    titolo="Modulistica e mozioni"
+    sottotitolo="Scarica i moduli utili e consulta le mozioni e i documenti ufficiali dell'associazione."
+  />
+
+  <section class="container-site py-16">
+    <!-- MODULI -->
+    <h2 class="mb-6 text-2xl font-bold">Moduli da scaricare</h2>
+    {moduli.length === 0 ? (
+      <p class="text-slate-500">Nessun modulo disponibile al momento.</p>
+    ) : (
+      <div class="grid gap-4 sm:grid-cols-2">
+        {moduli.map((d) => (
+          <a href={d.data.file} target="_blank" rel="noopener" class="flex items-start gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition-shadow hover:shadow-md">
+            <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary-50 text-primary-800">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </span>
+            <div>
+              <h3 class="font-bold text-slate-900">{d.data.titolo}</h3>
+              {d.data.descrizione && <p class="mt-1 text-sm text-slate-600">{d.data.descrizione}</p>}
+              <span class="mt-2 inline-block text-sm font-semibold text-primary-800">Scarica ↓</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+
+    <!-- MOZIONI / DOCUMENTI -->
+    <h2 class="mb-6 mt-16 text-2xl font-bold">Mozioni e documenti</h2>
+    {mozioni.length === 0 ? (
+      <p class="text-slate-500">Nessun documento disponibile al momento.</p>
+    ) : (
+      <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+        <ul class="divide-y divide-slate-100">
+          {mozioni.map((d) => (
+            <li class="flex flex-wrap items-center justify-between gap-3 p-5 hover:bg-slate-50">
+              <div class="flex items-center gap-3">
+                <Badge variante={d.data.tipo === 'mozione' ? 'accent' : 'neutro'}>{etichettaTipo[d.data.tipo]}</Badge>
+                <div>
+                  <h3 class="font-semibold text-slate-900">{d.data.titolo}</h3>
+                  <p class="text-xs text-slate-500">{d.data.categoria} · {d.data.anno}</p>
+                </div>
+              </div>
+              <a href={d.data.file} target="_blank" rel="noopener" class="text-sm font-semibold text-primary-800 hover:underline">Apri →</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </section>
+</BaseLayout>

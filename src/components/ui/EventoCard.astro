@@ -1,0 +1,36 @@
+---
+import { formattaData, eFuturo } from '../../lib/utils';
+import Badge from './Badge.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  evento: CollectionEntry<'eventi'>;
+}
+const { evento } = Astro.props;
+const { titolo, data, oraInizio, luogo, descrizione, linkIscrizione } = evento.data;
+const futuro = eFuturo(data);
+const giorno = data.getDate();
+const mese = new Intl.DateTimeFormat('it-IT', { month: 'short' }).format(data);
+---
+
+<article class="flex gap-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+  <div class="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-xl bg-primary-50 text-primary-800">
+    <span class="font-display text-2xl font-bold leading-none">{giorno}</span>
+    <span class="text-xs font-semibold uppercase">{mese}</span>
+  </div>
+  <div class="flex-1">
+    <div class="mb-2">
+      <Badge variante={futuro ? 'accent' : 'neutro'}>{futuro ? 'In programma' : 'Concluso'}</Badge>
+    </div>
+    <h3 class="text-lg font-bold">{titolo}</h3>
+    <p class="mt-1 text-sm text-slate-500">
+      {formattaData(data)}{oraInizio ? ` · ore ${oraInizio}` : ''} · {luogo}
+    </p>
+    <p class="mt-2 text-sm text-slate-600">{descrizione}</p>
+    {futuro && linkIscrizione && (
+      <a href={linkIscrizione} class="mt-3 inline-block text-sm font-semibold text-primary-800 hover:underline">
+        Iscriviti →
+      </a>
+    )}
+  </div>
+</article>

@@ -1,0 +1,38 @@
+---
+import '../styles/global.css';
+import Navbar from '../components/layout/Navbar.astro';
+import Footer from '../components/layout/Footer.astro';
+import sito from '../data/sito.json';
+
+interface Props {
+  titolo: string;
+  descrizione?: string;
+}
+
+const { titolo, descrizione = sito.descrizione } = Astro.props;
+const titoloPagina = `${titolo} · ${sito.nome}`;
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>{titoloPagina}</title>
+    <meta name="description" content={descrizione} />
+
+    <!-- Open Graph (anteprime sui social) -->
+    <meta property="og:title" content={titoloPagina} />
+    <meta property="og:description" content={descrizione} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="it_IT" />
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <Navbar />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

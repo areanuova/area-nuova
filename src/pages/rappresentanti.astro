@@ -1,0 +1,73 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/ui/PageHeader.astro';
+import FilterBar from '../components/ui/FilterBar.astro';
+import RappresentanteCard from '../components/ui/RappresentanteCard.astro';
+
+const rappresentanti = (await getCollection('rappresentanti', ({ data }) => data.attivo))
+  .sort((a, b) => a.data.ordine - b.data.ordine);
+
+// le etichette dei filtri devono combaciare con data-cat delle schede (organo)
+const filtri = ['senato', 'cda', 'dipartimento', 'corso'];
+const etichetteFiltro: Record<string, string> = {
+  senato: 'Senato',
+  cda: 'C.d.A.',
+  dipartimento: 'Dipartimenti',
+  corso: 'Corsi',
+};
+---
+
+<BaseLayout titolo="Rappresentanti" descrizione="Le persone di Area Nuova negli organi dell'Ateneo.">
+  <PageHeader
+    occhiello="Le persone"
+    titolo="I nostri rappresentanti"
+    sottotitolo="Chi porta la voce degli studenti negli organi dell'Università  di Foggia."
+  />
+
+  <section class="container-site py-16">
+    <!-- I bottoni del filtro: il valore data-filter combacia con data-cat (organo) -->
+    <div class="filter-bar mb-8 flex flex-wrap gap-2" data-target="lista-rappresentanti">
+      <button class="filter-btn rounded-full bg-primary-800 px-4 py-2 text-sm font-semibold text-white" data-filter="*" aria-pressed="true">Tutti</button>
+      {filtri.map((f) => (
+        <button class="filter-btn rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200" data-filter={f} aria-pressed="false">
+          {etichetteFiltro[f]}
+        </button>
+      ))}
+    </div>
+
+    {rappresentanti.length === 0 ? (
+      <p class="text-slate-500">Nessun rappresentante inserito al momento.</p>
+    ) : (
+      <div id="lista-rappresentanti" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {rappresentanti.map((r) => <RappresentanteCard rappresentante={r} />)}
+      </div>
+    )}
+  </section>
+
+  <script>
+    document.querySelectorAll<HTMLElement>('.filter-bar').forEach((bar) => {
+      const contenitore = document.getElementById(bar.dataset.target!);
+      if (!contenitore) return;
+      const elementi = contenitore.querySelectorAll<HTMLElement>('[data-cat]');
+      const bottoni = bar.querySelectorAll<HTMLButtonElement>('.filter-btn');
+      bar.addEventListener('click', (e) => {
+        const btn = (e.target as HTMLElement).closest('.filter-btn') as HTMLButtonElement | null;
+        if (!btn) return;
+        const filtro = btn.dataset.filter!;
+        bottoni.forEach((b) => {
+          const attivo = b === btn;
+          b.setAttribute('aria-pressed', String(attivo));
+          b.classList.toggle('bg-primary-800', attivo);
+          b.classList.toggle('text-white', attivo);
+          b.classList.toggle('bg-slate-100', !attivo);
+          b.classList.toggle('text-slate-700', !attivo);
+        });
+        elementi.forEach((el) => {
+          const cats = (el.dataset.cat || '').split('|');
+          el.classList.toggle('hidden', !(filtro === '*' || cats.includes(filtro)));
+        });
+      });
+    });
+  </script>
+</BaseLayout>

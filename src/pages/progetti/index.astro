@@ -1,0 +1,56 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import FilterBar from '../../components/ui/FilterBar.astro';
+import ProgettoCard from '../../components/ui/ProgettoCard.astro';
+import { formattaData } from '../../lib/utils';
+
+const progetti = (await getCollection('progetti'))
+  .sort((a, b) => b.data.dataInizio.getTime() - a.data.dataInizio.getTime());
+
+const risultati = (await getCollection('risultati'))
+  .sort((a, b) => b.data.data.getTime() - a.data.data.getTime());
+
+// categorie uniche per i filtri
+const categorie = [...new Set(progetti.map((p) => p.data.categoria))];
+---
+
+<BaseLayout titolo="Progetti" descrizione="L'archivio dei progetti e dei risultati ottenuti da Area Nuova.">
+  <PageHeader
+    occhiello="Cosa facciamo"
+    titolo="Progetti e risultati"
+    sottotitolo="Le iniziative che portiamo avanti e i traguardi raggiunti per gli studenti."
+  />
+
+  <section class="container-site py-16">
+    <h2 class="mb-6 text-2xl font-bold">Archivio progetti</h2>
+    {progetti.length === 0 ? (
+      <p class="text-slate-500">Nessun progetto inserito al momento.</p>
+    ) : (
+      <>
+        {categorie.length > 1 && <FilterBar categorie={categorie} targetId="lista-progetti" />}
+        <div id="lista-progetti" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {progetti.map((p) => <ProgettoCard progetto={p} />)}
+        </div>
+      </>
+    )}
+
+    <!-- ARCHIVIO RISULTATI -->
+    <h2 class="mb-6 mt-20 text-2xl font-bold">Risultati ottenuti</h2>
+    {risultati.length === 0 ? (
+      <p class="text-slate-500">Nessun risultato inserito al momento.</p>
+    ) : (
+      <ol class="relative space-y-6 border-l-2 border-slate-200 pl-6">
+        {risultati.map((r) => (
+          <li class="relative">
+            <span class="absolute -left-[1.95rem] top-1.5 h-3 w-3 rounded-full bg-accent-500 ring-4 ring-white"></span>
+            <time class="text-xs font-semibold uppercase tracking-wide text-slate-500">{formattaData(r.data.data)}</time>
+            <h3 class="mt-1 text-lg font-bold">{r.data.titolo}</h3>
+            <p class="mt-1 text-sm text-slate-600">{r.data.descrizione}</p>
+          </li>
+        ))}
+      </ol>
+    )}
+  </section>
+</BaseLayout>

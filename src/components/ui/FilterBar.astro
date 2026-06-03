@@ -1,0 +1,57 @@
+---
+interface Props {
+  categorie: string[];
+  targetId: string; // id del contenitore degli elementi da filtrare
+}
+const { categorie, targetId } = Astro.props;
+---
+
+<div class="filter-bar mb-8 flex flex-wrap gap-2" data-target={targetId}>
+  <button
+    class="filter-btn rounded-full bg-primary-800 px-4 py-2 text-sm font-semibold text-white"
+    data-filter="*"
+    aria-pressed="true"
+  >
+    Tutti
+  </button>
+  {categorie.map((c) => (
+    <button
+      class="filter-btn rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200"
+      data-filter={c}
+      aria-pressed="false"
+    >
+      {c}
+    </button>
+  ))}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.filter-bar').forEach((bar) => {
+    const targetId = bar.dataset.target!;
+    const contenitore = document.getElementById(targetId);
+    if (!contenitore) return;
+    const elementi = contenitore.querySelectorAll<HTMLElement>('[data-cat]');
+    const bottoni = bar.querySelectorAll<HTMLButtonElement>('.filter-btn');
+
+    bar.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest('.filter-btn') as HTMLButtonElement | null;
+      if (!btn) return;
+      const filtro = btn.dataset.filter!;
+
+      bottoni.forEach((b) => {
+        const attivo = b === btn;
+        b.setAttribute('aria-pressed', String(attivo));
+        b.classList.toggle('bg-primary-800', attivo);
+        b.classList.toggle('text-white', attivo);
+        b.classList.toggle('bg-slate-100', !attivo);
+        b.classList.toggle('text-slate-700', !attivo);
+      });
+
+      elementi.forEach((el) => {
+        const cats = (el.dataset.cat || '').split('|');
+        const mostra = filtro === '*' || cats.includes(filtro);
+        el.classList.toggle('hidden', !mostra);
+      });
+    });
+  });
+</script>

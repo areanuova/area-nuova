@@ -1,0 +1,35 @@
+---
+import { Image } from 'astro:assets';
+import { formattaData } from '../../lib/utils';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  articolo: CollectionEntry<'news'>;
+}
+const { articolo } = Astro.props;
+const { titolo, data, estratto, copertina, tag } = articolo.data;
+---
+
+<article class="group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 transition-shadow hover:shadow-lg">
+  {copertina && (
+    <Image src={copertina} alt={titolo} width={600} height={340} class="h-44 w-full object-cover" />
+  )}
+  <div class="flex flex-1 flex-col p-6">
+    <time datetime={data.toISOString()} class="text-xs font-medium uppercase tracking-wide text-slate-500">
+      {formattaData(data)}
+    </time>
+    <h3 class="mt-2 text-lg font-bold">
+      <a href={`/news/${articolo.slug}`} class="after:absolute after:inset-0 group-hover:text-primary-800">
+        {titolo}
+      </a>
+    </h3>
+    <p class="mt-2 flex-1 text-sm text-slate-600">{estratto}</p>
+    {tag.length > 0 && (
+      <div class="mt-4 flex flex-wrap gap-2">
+        {tag.map((t) => (
+          <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">#{t}</span>
+        ))}
+      </div>
+    )}
+  </div>
+</article>

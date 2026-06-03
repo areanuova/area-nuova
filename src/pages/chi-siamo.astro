@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/ui/PageHeader.astro';
+
+const valori = [
+  { titolo: 'Ascolto', testo: 'Partiamo dai bisogni reali di chi studia, raccogliendo segnalazioni e proposte.' },
+  { titolo: 'Trasparenza', testo: 'Pubblichiamo documenti, mozioni e risultati: vogliamo che tutto sia verificabile.' },
+  { titolo: 'Concretezza', testo: 'Ci misuriamo sui risultati ottenuti, non sulle promesse.' },
+];
+
+const organi = [
+  { nome: 'Senato Accademico', testo: 'Indirizza le politiche didattiche e di ricerca dell\'Ateneo.' },
+  { nome: 'Consiglio di Amministrazione', testo: 'Decide su bilancio e gestione delle risorse.' },
+  { nome: 'Consigli di Dipartimento', testo: 'Organizzano corsi e attività  dei singoli dipartimenti.' },
+  { nome: 'Consigli di Corso', testo: 'Curano l\'organizzazione didattica dei corsi di studio.' },
+];
+---
+
+<BaseLayout titolo="Chi siamo" descrizione="Chi siamo e come funziona la rappresentanza studentesca con Area Nuova.">
+  <PageHeader
+    occhiello="L'associazione"
+    titolo="Chi siamo"
+    sottotitolo="Area Nuova è l'associazione di rappresentanza studentesca dell'Università  di Foggia. Diamo voce agli studenti negli organi dell'Ateneo."
+  />
+
+  <section class="container-site py-16">
+    <div class="grid gap-12 lg:grid-cols-3">
+      <div class="lg:col-span-2 space-y-4 text-slate-700">
+        <h2 class="text-2xl font-bold">La nostra missione</h2>
+        <p>
+          Crediamo in un'università  più giusta, accessibile e vicina agli studenti. Per questo
+          lavoriamo ogni giorno per raccogliere bisogni, proporre soluzioni e seguire da vicino le
+          decisioni che riguardano la vita universitaria.
+        </p>
+        <p>
+          Siamo presenti negli organi di rappresentanza dell'Ateneo, dove portiamo la voce di
+          studentesse e studenti su didattica, servizi, diritto allo studio e qualità  degli spazi.
+        </p>
+      </div>
+      <aside class="rounded-2xl bg-primary-50 p-6">
+        <h3 class="font-bold text-primary-900">Vuoi partecipare?</h3>
+        <p class="mt-2 text-sm text-primary-800">Entra in Area Nuova e contribuisci anche tu.</p>
+        <a href="/entra" class="mt-4 inline-block rounded-xl bg-primary-800 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-900">Entra in Area Nuova</a>
+      </aside>
+    </div>
+
+    <h2 class="mt-16 text-2xl font-bold">I nostri valori</h2>
+    <div class="mt-6 grid gap-6 md:grid-cols-3">
+      {valori.map((v) => (
+        <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <h3 class="text-lg font-bold text-primary-800">{v.titolo}</h3>
+          <p class="mt-2 text-sm text-slate-600">{v.testo}</p>
+        </div>
+      ))}
+    </div>
+
+    <h2 class="mt-16 text-2xl font-bold">Dove ci rappresentiamo</h2>
+    <div class="mt-6 grid gap-4 sm:grid-cols-2">
+      {organi.map((o) => (
+        <div class="flex gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-accent-500"></span>
+          <div>
+            <h3 class="font-bold">{o.nome}</h3>
+            <p class="mt-1 text-sm text-slate-600">{o.testo}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,16 @@
+{
+  "nome": "Area Nuova",
+  "slogan": "La rappresentanza studentesca dell'Università  di Foggia",
+  "descrizione": "Ascoltiamo, rappresentiamo e miglioriamo l'esperienza universitaria di chi studia a Foggia.",
+  "email": "info@areanuova.it",
+  "cittaUniversita": "Università  di Foggia",
+  "social": {
+    "instagram": "https://instagram.com/areanuova",
+    "facebook": "https://facebook.com/areanuova",
+    "telegram": ""
+  },
+  "form": {
+    "segnalazioni": "https://docs.google.com/forms/d/e/INCOLLA_QUI_ID_FORM_SEGNALAZIONI/viewform?embedded=true",
+    "entra": "https://docs.google.com/forms/d/e/INCOLLA_QUI_ID_FORM_ISCRIZIONE/viewform?embedded=true"
+  }
+}

@@ -1,0 +1,29 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Badge from '../../components/ui/Badge.astro';
+
+export async function getStaticPaths() {
+  const guide = await getCollection('guide');
+  return guide.map((g) => ({ params: { slug: g.slug }, props: { guida: g } }));
+}
+
+interface Props { guida: CollectionEntry<'guide'>; }
+const { guida } = Astro.props;
+const { titolo, categoria, perMatricole, estratto } = guida.data;
+const { Content } = await guida.render();
+---
+
+<BaseLayout titolo={titolo} descrizione={estratto ?? titolo}>
+  <article class="container-site max-w-3xl py-16">
+    <a href="/guide" class="text-sm font-semibold text-primary-800 hover:underline">← Tutte le guide</a>
+    <div class="mt-6 flex flex-wrap items-center gap-2">
+      <Badge variante="primary">{categoria}</Badge>
+      {perMatricole && <Badge variante="accent">Matricole</Badge>}
+    </div>
+    <h1 class="mt-4 text-3xl font-bold sm:text-4xl">{titolo}</h1>
+    <div class="prose prose-slate mt-8 max-w-none prose-headings:font-display prose-a:text-primary-800">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

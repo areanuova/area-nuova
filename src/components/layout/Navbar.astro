@@ -1,0 +1,90 @@
+---
+import sito from '../../data/sito.json';
+
+const links = [
+  { href: '/chi-siamo', testo: 'Chi siamo' },
+  { href: '/rappresentanti', testo: 'Rappresentanti' },
+  { href: '/progetti', testo: 'Progetti' },
+  { href: '/news', testo: 'News' },
+  { href: '/eventi', testo: 'Eventi' },
+  { href: '/guide', testo: 'Guide' },
+  { href: '/modulistica', testo: 'Modulistica' },
+  { href: '/contatti', testo: 'Contatti' },
+];
+
+const pathname = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === '/' ? pathname === '/' : pathname.startsWith(href);
+---
+
+<header class="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
+  <nav class="container-site flex h-16 items-center justify-between gap-4">
+    <a href="/" class="flex items-center" aria-label={sito.nome}>
+      <img src="/images/logo-scritta.png" alt={sito.nome} class="h-9 w-auto" width="441" height="133" />
+    </a>
+
+    <!-- Menu desktop -->
+    <ul class="hidden items-center gap-1 lg:flex">
+      {links.map((l) => (
+        <li>
+          <a
+            href={l.href}
+            class:list={[
+              'rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+              isActive(l.href)
+                ? 'text-primary-800 bg-primary-50'
+                : 'text-slate-600 hover:text-primary-800 hover:bg-slate-100',
+            ]}
+          >
+            {l.testo}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="hidden items-center gap-2 lg:flex">
+      <a href="/segnalazioni" class="rounded-lg px-3 py-2 text-sm font-semibold text-primary-800 hover:bg-primary-50">
+        Segnala
+      </a>
+      <a href="/entra" class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-accent-600">
+        Entra in Area Nuova
+      </a>
+    </div>
+
+    <!-- Pulsante menu mobile -->
+    <button
+      id="menu-toggle"
+      class="grid h-10 w-10 place-items-center rounded-lg text-slate-700 hover:bg-slate-100 lg:hidden"
+      aria-label="Apri menu"
+      aria-expanded="false"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </nav>
+
+  <!-- Menu mobile -->
+  <div id="mobile-menu" class="hidden border-t border-slate-200 bg-white lg:hidden">
+    <ul class="container-site flex flex-col gap-1 py-4">
+      {links.map((l) => (
+        <li>
+          <a href={l.href} class="block rounded-lg px-3 py-2 text-base font-medium text-slate-700 hover:bg-slate-100">
+            {l.testo}
+          </a>
+        </li>
+      ))}
+      <li class="mt-2 flex gap-2">
+        <a href="/segnalazioni" class="flex-1 rounded-lg border border-primary-200 px-3 py-2 text-center text-sm font-semibold text-primary-800">Segnala</a>
+        <a href="/entra" class="flex-1 rounded-lg bg-accent-500 px-3 py-2 text-center text-sm font-semibold text-white">Entra</a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById('menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+  toggle?.addEventListener('click', () => {
+    const open = menu?.classList.toggle('hidden');
+    toggle.setAttribute('aria-expanded', String(open === false));
+  });
+</script>

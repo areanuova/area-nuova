@@ -1,0 +1,103 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/home/Hero.astro';
+import StatCounter from '../components/ui/StatCounter.astro';
+import ProgettoCard from '../components/ui/ProgettoCard.astro';
+import NewsCard from '../components/ui/NewsCard.astro';
+import EventoCard from '../components/ui/EventoCard.astro';
+import statistiche from '../data/statistiche.json';
+import { eFuturo } from '../lib/utils';
+
+// Progetti in evidenza
+const progetti = (await getCollection('progetti'))
+  .filter((p) => p.data.inEvidenza)
+  .slice(0, 3);
+
+// Ultime news (escluse le bozze)
+const news = (await getCollection('news', ({ data }) => !data.bozza))
+  .sort((a, b) => b.data.data.getTime() - a.data.data.getTime())
+  .slice(0, 3);
+
+// Prossimi eventi
+const eventi = (await getCollection('eventi'))
+  .filter((e) => eFuturo(e.data.data))
+  .sort((a, b) => a.data.data.getTime() - b.data.data.getTime())
+  .slice(0, 2);
+---
+
+<BaseLayout titolo="Home">
+  <Hero />
+
+  <!-- STATISTICHE -->
+  <section class="container-site -mt-12 relative z-10">
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      {statistiche.map((s) => (
+        <StatCounter valore={s.valore} etichetta={s.etichetta} suffisso={s.suffisso} />
+      ))}
+    </div>
+  </section>
+
+  <!-- PROGETTI IN EVIDENZA -->
+  {progetti.length > 0 && (
+    <section class="container-site py-20">
+      <div class="mb-10 flex items-end justify-between">
+        <div>
+          <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Cosa facciamo</p>
+          <h2 class="mt-2 text-3xl font-bold">Progetti in evidenza</h2>
+        </div>
+        <a href="/progetti" class="hidden text-sm font-semibold text-primary-800 hover:underline sm:block">Tutti i progetti →</a>
+      </div>
+      <div class="grid gap-6 md:grid-cols-3">
+        {progetti.map((p) => <ProgettoCard progetto={p} />)}
+      </div>
+    </section>
+  )}
+
+  <!-- NEWS -->
+  {news.length > 0 && (
+    <section class="bg-primary-50 py-20">
+      <div class="container-site">
+        <div class="mb-10 flex items-end justify-between">
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Aggiornamenti</p>
+            <h2 class="mt-2 text-3xl font-bold">Ultime news</h2>
+          </div>
+          <a href="/news" class="hidden text-sm font-semibold text-primary-800 hover:underline sm:block">Tutte le news →</a>
+        </div>
+        <div class="grid gap-6 md:grid-cols-3">
+          {news.map((n) => <NewsCard articolo={n} />)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- EVENTI -->
+  {eventi.length > 0 && (
+    <section class="container-site py-20">
+      <div class="mb-10">
+        <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Calendario</p>
+        <h2 class="mt-2 text-3xl font-bold">Prossimi eventi</h2>
+      </div>
+      <div class="grid gap-6 md:grid-cols-2">
+        {eventi.map((e) => <EventoCard evento={e} />)}
+      </div>
+    </section>
+  )}
+
+  <!-- CTA FINALE -->
+  <section class="container-site pb-20">
+    <div class="grid gap-6 md:grid-cols-2">
+      <div class="rounded-2xl bg-primary-800 p-8 text-white">
+        <h3 class="text-2xl font-bold">Hai un problema da segnalare?</h3>
+        <p class="mt-2 text-primary-100">Raccogliamo le segnalazioni di studentesse e studenti e le portiamo nei tavoli giusti.</p>
+        <a href="/segnalazioni" class="mt-6 inline-block rounded-xl bg-white px-5 py-2.5 font-semibold text-primary-900 hover:bg-primary-50">Vai alle segnalazioni</a>
+      </div>
+      <div class="rounded-2xl bg-accent-500 p-8 text-white">
+        <h3 class="text-2xl font-bold">Vuoi metterti in gioco?</h3>
+        <p class="mt-2 text-accent-50">Unisciti ad Area Nuova e contribuisci a migliorare l'università  per tutti.</p>
+        <a href="/entra" class="mt-6 inline-block rounded-xl bg-white px-5 py-2.5 font-semibold text-accent-700 hover:bg-accent-50">Entra in Area Nuova</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
