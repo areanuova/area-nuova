@@ -1,6 +1,6 @@
 [
-  { "etichetta": "Rappresentanti attivi", "valore": 24, "suffisso": "" },
-  { "etichetta": "Dipartimenti coperti", "valore": 6, "suffisso": "" },
-  { "etichetta": "Segnalazioni gestite", "valore": 120, "suffisso": "+" },
-  { "etichetta": "Progetti realizzati", "valore": 15, "suffisso": "" }
+  { "etichetta": "Rappresentanti attivi", "valore": 125, "suffisso": "" },
+  { "etichetta": "Dipartimenti rappresentati", "valore": 6, "suffisso": "" },
+  { "etichetta": "Segnalazioni raccolte", "valore": 0, "suffisso": "" },
+  { "etichetta": "Progetti e iniziative", "valore": 0, "suffisso": "" }
 ]
