@@ -1,7 +1,7 @@
 ---
 nome: Vincenzo Mundo
 ruolo: Presidente e Senatore Accademico - Area Medica
-organo: Senato Accademico
+organo: senato
 dipartimento: Area Medica
 email: vincenzo_mundo.578364@unifg.it
 ordine: 1
