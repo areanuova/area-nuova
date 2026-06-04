@@ -8,7 +8,7 @@ const rappresentanti = defineCollection({
       nome: z.string(),
       ruolo: z.string(),
       // organo di rappresentanza
-      organo: z.enum(['senato', 'cda', 'dipartimento', 'corso']),
+    organo: z.enum(['senato', 'cda', 'csu', 'nucleo', 'adisu', 'dipartimento', 'corso']),
       dipartimento: z.string().optional(),
       foto: image().optional(),
       email: z.string().email().optional(),

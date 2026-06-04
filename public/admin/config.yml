@@ -18,7 +18,7 @@ media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
 
 collections:
-  # ---------------- RAPPRESENTANTI ----------------
+    # ---------------- RAPPRESENTANTI ----------------
   - name: "rappresentanti"
     label: "Rappresentanti"
     label_singular: "Rappresentante"
@@ -35,15 +35,17 @@ collections:
         options:
           - { label: "Senato Accademico", value: "senato" }
           - { label: "Consiglio di Amministrazione", value: "cda" }
+          - { label: "Consiglio degli Studenti", value: "csu" }
+          - { label: "Nucleo di Valutazione", value: "nucleo" }
+          - { label: "CdA ADISU Puglia", value: "adisu" }
           - { label: "Consiglio di Dipartimento", value: "dipartimento" }
           - { label: "Consiglio di Corso", value: "corso" }
-      - { label: "Dipartimento", name: "dipartimento", widget: "string", required: false }
+      - { label: "Dipartimento / Area", name: "dipartimento", widget: "string", required: false }
       - { label: "Foto", name: "foto", widget: "image", required: false }
       - { label: "Email", name: "email", widget: "string", required: false }
-      - { label: "Ordine (numero per ordinare)", name: "ordine", widget: "number", value_type: "int", default: 99, required: false }
+      - { label: "Ordine di visualizzazione", name: "ordine", widget: "number", value_type: "int", default: 99, required: false }
       - { label: "Attivo", name: "attivo", widget: "boolean", default: true, required: false }
-      - { label: "Descrizione (facoltativa)", name: "body", widget: "markdown", required: false }
-
+      - { label: "Descrizione", name: "body", widget: "markdown", required: false }
   # ---------------- PROGETTI ----------------
   - name: "progetti"
     label: "Progetti"
