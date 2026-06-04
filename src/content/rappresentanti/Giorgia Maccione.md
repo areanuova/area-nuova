@@ -3,6 +3,7 @@ nome: Giorgia Maccione
 ruolo: Senatrice Accademica - Area Giuridica
 organo: senato
 dipartimento: Giurisprudenza
+foto: "/images/rappresentanti/giorgia-maccione.jpg"
 email: giorgia_maccione.587070@unifg.it
 ordine: 4
 attivo: true
