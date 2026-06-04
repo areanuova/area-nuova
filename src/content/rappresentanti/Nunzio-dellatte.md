@@ -3,6 +3,7 @@ nome: Nunzio del Latte
 ruolo: Vice-Presidente e Senatore Accademico - Area Economica
 organo: senato
 dipartimento: Area Economica
+foto: /images/rappresentanti/nunzio-dellatte.jpg
 email: nunzio_dellatte.576517@unifg.it
 ordine: 2
 attivo: true
