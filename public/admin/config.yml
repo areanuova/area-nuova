@@ -1,0 +1,163 @@
+# ============================================================
+#  Configurazione di Decap CMS per Area Nuova
+#  CAMBIA le due righe segnate con  <-- CAMBIA
+# ============================================================
+
+backend:
+  name: github
+  repo: areanuova/area-nuova
+  branch: main
+  base_url: https://area-nuova.vercel.app
+  auth_endpoint: api/auth
+
+# Interfaccia in italiano
+locale: "it"
+
+# Dove vengono salvate le IMMAGINI caricate dal CMS
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  # ---------------- RAPPRESENTANTI ----------------
+  - name: "rappresentanti"
+    label: "Rappresentanti"
+    label_singular: "Rappresentante"
+    folder: "src/content/rappresentanti"
+    create: true
+    identifier_field: "nome"
+    slug: "{{fields.nome | slugify}}"
+    fields:
+      - { label: "Nome", name: "nome", widget: "string" }
+      - { label: "Ruolo", name: "ruolo", widget: "string" }
+      - label: "Organo"
+        name: "organo"
+        widget: "select"
+        options:
+          - { label: "Senato Accademico", value: "senato" }
+          - { label: "Consiglio di Amministrazione", value: "cda" }
+          - { label: "Consiglio di Dipartimento", value: "dipartimento" }
+          - { label: "Consiglio di Corso", value: "corso" }
+      - { label: "Dipartimento", name: "dipartimento", widget: "string", required: false }
+      - { label: "Foto", name: "foto", widget: "image", required: false }
+      - { label: "Email", name: "email", widget: "string", required: false }
+      - { label: "Ordine (numero per ordinare)", name: "ordine", widget: "number", value_type: "int", default: 99, required: false }
+      - { label: "Attivo", name: "attivo", widget: "boolean", default: true, required: false }
+      - { label: "Descrizione (facoltativa)", name: "body", widget: "markdown", required: false }
+
+  # ---------------- PROGETTI ----------------
+  - name: "progetti"
+    label: "Progetti"
+    label_singular: "Progetto"
+    folder: "src/content/progetti"
+    create: true
+    identifier_field: "titolo"
+    slug: "{{fields.titolo | slugify}}"
+    fields:
+      - { label: "Titolo", name: "titolo", widget: "string" }
+      - { label: "Descrizione breve", name: "descrizione", widget: "text" }
+      - label: "Stato"
+        name: "stato"
+        widget: "select"
+        options:
+          - { label: "In corso", value: "attivo" }
+          - { label: "Concluso", value: "concluso" }
+      - { label: "Categoria", name: "categoria", widget: "string", default: "Generale" }
+      - { label: "Data inizio", name: "dataInizio", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "Data fine", name: "dataFine", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD", required: false }
+      - { label: "Immagine di copertina", name: "copertina", widget: "image", required: false }
+      - { label: "In evidenza in homepage", name: "inEvidenza", widget: "boolean", default: false, required: false }
+      - { label: "Contenuto", name: "body", widget: "markdown", required: false }
+
+  # ---------------- RISULTATI OTTENUTI ----------------
+  - name: "risultati"
+    label: "Risultati ottenuti"
+    label_singular: "Risultato"
+    folder: "src/content/risultati"
+    create: true
+    identifier_field: "titolo"
+    slug: "{{fields.titolo | slugify}}"
+    fields:
+      - { label: "Titolo", name: "titolo", widget: "string" }
+      - { label: "Descrizione", name: "descrizione", widget: "text" }
+      - { label: "Data", name: "data", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "Categoria", name: "categoria", widget: "string", default: "Generale" }
+      - { label: "Progetto collegato (slug, facoltativo)", name: "progettoCollegato", widget: "string", required: false }
+      - { label: "Note (facoltative)", name: "body", widget: "markdown", required: false }
+
+  # ---------------- NEWS ----------------
+  - name: "news"
+    label: "News"
+    label_singular: "Articolo"
+    folder: "src/content/news"
+    create: true
+    identifier_field: "titolo"
+    slug: "{{fields.titolo | slugify}}"
+    fields:
+      - { label: "Titolo", name: "titolo", widget: "string" }
+      - { label: "Data", name: "data", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "Autore", name: "autore", widget: "string", required: false }
+      - { label: "Immagine di copertina", name: "copertina", widget: "image", required: false }
+      - { label: "Tag", name: "tag", widget: "list", required: false }
+      - { label: "Estratto", name: "estratto", widget: "text" }
+      - { label: "Bozza (non viene pubblicata)", name: "bozza", widget: "boolean", default: false, required: false }
+      - { label: "Contenuto", name: "body", widget: "markdown" }
+
+  # ---------------- EVENTI ----------------
+  - name: "eventi"
+    label: "Eventi"
+    label_singular: "Evento"
+    folder: "src/content/eventi"
+    create: true
+    identifier_field: "titolo"
+    slug: "{{fields.titolo | slugify}}"
+    fields:
+      - { label: "Titolo", name: "titolo", widget: "string" }
+      - { label: "Data", name: "data", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "Ora inizio", name: "oraInizio", widget: "string", required: false, hint: "Esempio: 15:00" }
+      - { label: "Luogo", name: "luogo", widget: "string" }
+      - { label: "Descrizione", name: "descrizione", widget: "text" }
+      - { label: "Immagine di copertina", name: "copertina", widget: "image", required: false }
+      - { label: "Link iscrizione", name: "linkIscrizione", widget: "string", required: false, hint: "Indirizzo completo, deve iniziare con https://" }
+      - { label: "Dettagli (facoltativi)", name: "body", widget: "markdown", required: false }
+
+  # ---------------- GUIDE UTILI ----------------
+  - name: "guide"
+    label: "Guide utili"
+    label_singular: "Guida"
+    folder: "src/content/guide"
+    create: true
+    identifier_field: "titolo"
+    slug: "{{fields.titolo | slugify}}"
+    fields:
+      - { label: "Titolo", name: "titolo", widget: "string" }
+      - { label: "Categoria", name: "categoria", widget: "string", default: "Generale" }
+      - { label: "Per matricole", name: "perMatricole", widget: "boolean", default: false, required: false }
+      - { label: "Ordine (numero per ordinare)", name: "ordine", widget: "number", value_type: "int", default: 99, required: false }
+      - { label: "Estratto", name: "estratto", widget: "text", required: false }
+      - { label: "Contenuto", name: "body", widget: "markdown" }
+
+  # ---------------- MODULISTICA E DOCUMENTI ----------------
+  - name: "documenti"
+    label: "Modulistica e documenti"
+    label_singular: "Documento"
+    folder: "src/content/documenti"
+    create: true
+    identifier_field: "titolo"
+    slug: "{{fields.titolo | slugify}}"
+    # i PDF caricati qui vanno nella cartella public/documenti
+    media_folder: "/public/documenti"
+    public_folder: "/documenti"
+    fields:
+      - { label: "Titolo", name: "titolo", widget: "string" }
+      - label: "Tipo"
+        name: "tipo"
+        widget: "select"
+        options:
+          - { label: "Modulo", value: "modulo" }
+          - { label: "Mozione", value: "mozione" }
+          - { label: "Documento", value: "documento" }
+      - { label: "Categoria", name: "categoria", widget: "string", default: "Generale" }
+      - { label: "Anno", name: "anno", widget: "number", value_type: "int" }
+      - { label: "File PDF", name: "file", widget: "file" }
+      - { label: "Descrizione", name: "descrizione", widget: "text", required: false }
+      - { label: "Note (facoltative)", name: "body", widget: "markdown", required: false }
