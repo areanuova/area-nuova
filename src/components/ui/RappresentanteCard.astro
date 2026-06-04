@@ -1,21 +1,23 @@
 ---
-import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
   rappresentante: CollectionEntry<'rappresentanti'>;
 }
+
 const { rappresentante } = Astro.props;
 const { nome, ruolo, organo, dipartimento, foto, email } = rappresentante.data;
 
 const etichettaOrgano: Record<string, string> = {
   senato: 'Senato Accademico',
-  cda: "Consiglio di Amministrazione",
+  cda: 'Consiglio di Amministrazione',
+  csu: 'Consiglio degli Studenti',
+  nucleo: 'Nucleo di Valutazione',
+  adisu: 'CdA ADISU Puglia',
   dipartimento: 'Consiglio di Dipartimento',
   corso: 'Consiglio di Corso',
 };
 
-// le iniziali servono come avatar quando manca la foto
 const iniziali = nome.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
 const categoria = [organo, dipartimento].filter(Boolean).join('|');
 ---
@@ -25,15 +27,17 @@ const categoria = [organo, dipartimento].filter(Boolean).join('|');
   class="flex flex-col items-center rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-200 transition-shadow hover:shadow-lg"
 >
   {foto ? (
-    <Image src={foto} alt={nome} width={120} height={120} class="h-28 w-28 rounded-full object-cover" />
+    <img src={foto} alt={nome} width="120" height="120" class="h-28 w-28 rounded-full object-cover" loading="lazy" />
   ) : (
     <div class="grid h-28 w-28 place-items-center rounded-full bg-primary-100 font-display text-2xl font-bold text-primary-800">
       {iniziali}
     </div>
   )}
+
   <h3 class="mt-4 text-lg font-bold">{nome}</h3>
   <p class="text-sm font-medium text-accent-600">{ruolo}</p>
   <p class="mt-1 text-xs text-slate-500">{etichettaOrgano[organo]}{dipartimento ? ` · ${dipartimento}` : ''}</p>
+
   {email && (
     <a href={`mailto:${email}`} class="mt-4 text-sm font-semibold text-primary-800 hover:underline">
       Scrivi una mail
