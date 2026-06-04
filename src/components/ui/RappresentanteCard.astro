@@ -35,7 +35,6 @@ const categoria = [organo, dipartimento].filter(Boolean).join('|');
   )}
 
   <h3 class="mt-4 text-lg font-bold">{nome}</h3>
-  <p class="text-xs text-red-500">{foto}</p>
   <p class="text-sm font-medium text-accent-600">{ruolo}</p>
   <p class="mt-1 text-xs text-slate-500">{etichettaOrgano[organo]}{dipartimento ? ` · ${dipartimento}` : ''}</p>
 
