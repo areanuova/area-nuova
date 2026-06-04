@@ -10,7 +10,7 @@ const rappresentanti = defineCollection({
       // organo di rappresentanza
     organo: z.enum(['senato', 'cda', 'csu', 'nucleo', 'adisu', 'dipartimento', 'corso']),
       dipartimento: z.string().optional(),
-      foto: image().optional(),
+    foto: z.string().optional(),
       email: z.string().email().optional(),
       ordine: z.number().default(99),
       attivo: z.boolean().default(true),
