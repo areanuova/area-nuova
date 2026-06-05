@@ -71,7 +71,7 @@ const eventi = defineCollection({
       oraFine: z.string().optional(),
       luogo: z.string(),
       descrizione: z.string(),
-      categoria: z.enum(['assemblea', 'orientamento', 'seminario', 'culturale', 'altro']).default('altro'),
+      categoria: z.enum(['assemblea', 'orientamento', 'formazione', 'culturale', 'altro']).default('altro'),
       copertina: image().optional(),
       inEvidenza: z.boolean().default(false),
       linkIscrizione: z.string().url().optional(),
