@@ -1,0 +1,14 @@
+---
+titolo: Fornitura di scrub, camici e servizio lavanderia per Medicina
+descrizione: Proposta approvata e in corso di attuazione per garantire divise sanitarie e servizio lavanderia agli studenti di Medicina impegnati nei tirocini.
+stato: attivo
+categoria: Area Medica
+dataInizio: 2025-04-19
+inEvidenza: true
+---
+
+Area Nuova ha richiesto l'attivazione di un servizio di fornitura e lavanderia delle divise sanitarie per gli studenti del Corso di Laurea Magistrale in Medicina e Chirurgia.
+
+La proposta mira a garantire scrub, camici, calzature e gestione del lavaggio per gli studenti impegnati in attività clinico-assistenziali presso le strutture ospedaliere convenzionate.
+
+Il progetto è stato approvato ed è attualmente in corso di attuazione.

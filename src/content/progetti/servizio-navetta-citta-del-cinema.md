@@ -1,11 +1,14 @@
 ---
-titolo: Welcome Week per le matricole
-descrizione: Una settimana di accoglienza e orientamento per chi inizia l'università .
+titolo: Servizio navetta per gli studenti della Città del Cinema
+descrizione: Richiesta approvata per migliorare i collegamenti degli studenti che frequentano le lezioni presso la Città del Cinema.
 stato: concluso
-categoria: Eventi
-dataInizio: 2025-09-20
-dataFine: 2025-09-27
+categoria: Mobilità
+dataInizio: 2025-01-01
 inEvidenza: true
 ---
-## Com'è andata
-Tre giorni di tour del campus, incontri con i docenti e attività  sociali per oltre 300 matricole.
+
+Area Nuova ha promosso la richiesta di un servizio navetta dedicato agli studenti che frequentano le lezioni presso la Città del Cinema.
+
+Il progetto nasce dall'esigenza di migliorare l'accessibilità alle sedi didattiche decentrate e ridurre le difficoltà logistiche degli studenti.
+
+La richiesta risulta approvata ed è in fase di attuazione.

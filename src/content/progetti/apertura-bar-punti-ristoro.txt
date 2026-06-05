@@ -1,0 +1,14 @@
+---
+titolo: Apertura bar e punti ristoro
+descrizione: Proposta per l'attivazione di punti ristoro presso i Dipartimenti di Giurisprudenza e Scienze Sociali.
+stato: attivo
+categoria: Servizi agli studenti
+dataInizio: 2026-04-03
+inEvidenza: false
+---
+
+Area Nuova ha proposto l'istituzione e l'apertura di punti ristoro presso i Dipartimenti di Giurisprudenza e Scienze Sociali.
+
+La richiesta nasce dall'esigenza di garantire servizi essenziali, spazi di aggregazione e migliori condizioni di permanenza quotidiana negli ambienti universitari.
+
+Per Giurisprudenza si chiede la verifica dello stato di affidamento del bar già predisposto; per Scienze Sociali si propone l'avvio dell'iter progettuale per individuare locali idonei e predisporre il servizio.

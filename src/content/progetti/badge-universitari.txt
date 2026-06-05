@@ -1,0 +1,14 @@
+---
+titolo: Badge universitari identificativi
+descrizione: Proposta approvata per introdurre badge universitari digitali e fisici a supporto dell'identificazione, dell'accesso ai servizi e delle agevolazioni per gli studenti.
+stato: concluso
+categoria: Servizi agli studenti
+dataInizio: 2025-06-10
+inEvidenza: true
+---
+
+Area Nuova ha richiesto l'introduzione di badge universitari identificativi per gli studenti dell'Università di Foggia.
+
+La proposta prevede badge digitali e, su richiesta, fisici, utili per identificazione in sede d'esame, accesso a biblioteche, laboratori, spazi studio, servizi interni, agevolazioni culturali, trasporti, copisterie, palestre e servizi digitali.
+
+La proposta è stata approvata e sarà attuata dal nuovo anno accademico.
