@@ -1,0 +1,71 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Badge from '../../components/ui/Badge.astro';
+import { formattaData, eFuturo } from '../../lib/utils';
+
+export async function getStaticPaths() {
+  const eventi = await getCollection('eventi');
+  return eventi.map((e) => ({ params: { slug: e.slug }, props: { evento: e } }));
+}
+
+interface Props { evento: CollectionEntry<'eventi'>; }
+const { evento } = Astro.props;
+const { titolo, data, oraInizio, oraFine, luogo, descrizione, categoria, linkIscrizione } = evento.data;
+const { Content } = await evento.render();
+const futuro = eFuturo(data);
+
+const labelCategoria: Record<string, string> = {
+  assemblea: 'Assemblea',
+  orientamento: 'Orientamento',
+  seminario: 'Seminario',
+  culturale: 'Culturale',
+  altro: 'Altro',
+};
+---
+
+<BaseLayout titolo={titolo} descrizione={descrizione}>
+  <article class="container-site max-w-3xl py-16">
+
+    <a href="/eventi" class="text-sm font-semibold text-primary-800 hover:underline">← Tutti gli eventi</a>
+
+    <div class="mt-6 flex flex-wrap items-center gap-2">
+      <Badge variante="primary">{labelCategoria[categoria] ?? categoria}</Badge>
+      <Badge variante={futuro ? 'accent' : 'neutro'}>{futuro ? 'In programma' : 'Concluso'}</Badge>
+    </div>
+
+    <h1 class="mt-4 text-3xl font-bold sm:text-4xl">{titolo}</h1>
+
+    <dl class="mt-6 flex flex-col gap-2 text-sm text-slate-600">
+      <div class="flex gap-2">
+        <dt class="font-semibold text-slate-800">Data</dt>
+        <dd>
+          {formattaData(data)}
+          {oraInizio && (
+            <span> · ore {oraInizio}{oraFine ? `–${oraFine}` : ''}</span>
+          )}
+        </dd>
+      </div>
+      <div class="flex gap-2">
+        <dt class="font-semibold text-slate-800">Luogo</dt>
+        <dd>{luogo}</dd>
+      </div>
+    </dl>
+
+    <div class="prose prose-slate mt-10 max-w-none prose-headings:font-display prose-a:text-primary-800">
+      <Content />
+    </div>
+
+    {futuro && linkIscrizione && (
+      <div class="mt-10 border-t border-slate-200 pt-8">
+        <a
+          href={linkIscrizione}
+          class="inline-block rounded-xl bg-accent-700 px-6 py-3 text-sm font-semibold text-white hover:bg-accent-800"
+        >
+          Iscriviti all'evento →
+        </a>
+      </div>
+    )}
+
+  </article>
+</BaseLayout>
