@@ -1,20 +1,22 @@
 ---
-titolo: Richiesta proroga scadenza terza rata
-data: 2026-06-01
+titolo: Approvata la proroga della terza rata
+data: 2026-06-06
 autore: Area Nuova
-categoria: avviso
+categoria: risultati
 tag: [tasse, diritto allo studio, proroga]
-estratto: Area Nuova ha richiesto la proroga della scadenza della terza rata del contributo onnicomprensivo annuale, senza applicazione di mora, a tutela degli studenti.
+estratto: La scadenza della terza rata del contributo onnicomprensivo annuale è stata prorogata al 15 giugno 2026. Area Nuova aveva presentato richiesta urgente a tutela degli studenti.
 ---
 
-Area Nuova ha presentato una richiesta urgente agli organi competenti dell'Università di Foggia per ottenere la **proroga della scadenza della terza rata del contributo onnicomprensivo annuale**.
+L'Università di Foggia ha comunicato ufficialmente che la scadenza della **terza rata del contributo onnicomprensivo annuale** è stata **prorogata al 15 giugno 2026**.
 
-La richiesta nasce dalla volontà di tutelare gli studenti e studentesse dell'Ateneo, evitando l'applicazione di more o sanzioni amministrative a carico di chi non riesca a rispettare i termini ordinari di pagamento. L'iniziativa si inserisce nel più ampio impegno di Area Nuova a favore del diritto allo studio e della trasparenza nei rapporti tra l'Università e la sua comunità studentesca.
+La comunicazione fa seguito alla richiesta urgente presentata da Area Nuova agli organi competenti dell'Ateneo, con l'obiettivo di evitare l'applicazione di more o sanzioni amministrative a carico degli studenti e di garantire condizioni eque nell'adempimento degli obblighi di pagamento.
 
-La documentazione formale presentata agli organi competenti è disponibile al seguente link:
+È un risultato concreto, ottenuto nell'interesse di tutti gli studenti e studentesse dell'Università di Foggia, che conferma l'importanza di una rappresentanza studentesca attiva e presente nelle sedi istituzionali.
 
-[Leggi la richiesta ufficiale (PDF)](/documenti/richiesta-proroga-terza-rata.pdf)
+**Comunicazione ufficiale UniFg:**
+[Leggi l'avviso sul sito dell'Università di Foggia](https://www.unifg.it/it/avvisi/pagamento-contributo-omnicomprensivo-proroga-terza-rata)
 
-Precisiamo che, ad oggi, non è stata ancora comunicata alcuna decisione ufficiale in merito all'accoglimento della richiesta. Area Nuova continuerà a monitorare l'evoluzione della situazione e a farsi portavoce delle esigenze degli studenti nelle sedi opportune.
+**Richiesta presentata da Area Nuova (PDF):**
+[Leggi la richiesta ufficiale](/documenti/richiesta-proroga-terza-rata.pdf)
 
-Per ogni comunicazione ufficiale relativa a scadenze, proroghe o modifiche alle modalità di pagamento, gli studenti sono invitati a consultare i **canali istituzionali dell'Università di Foggia** e i **canali ufficiali di Area Nuova**.
+Per ogni ulteriore aggiornamento relativo a scadenze e modalità di pagamento, gli studenti sono invitati a consultare i **canali istituzionali dell'Università di Foggia** e i **canali ufficiali di Area Nuova**.
