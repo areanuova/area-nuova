@@ -96,7 +96,7 @@ const documenti = defineCollection({
   type: 'content',
   schema: z.object({
     titolo: z.string(),
-    tipo: z.enum(['modulo', 'mozione', 'documento']),
+    tipo: z.enum(['modulo', 'mozione', 'documento', 'proposta', 'richiesta']),
     categoria: z.string().default('Generale'),
     anno: z.number(),
     // percorso del file dentro /public (es. /documenti/modulo.pdf) oppure URL esterno
