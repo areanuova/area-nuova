@@ -5,30 +5,84 @@ import sito from '../data/sito.json';
 ---
 
 <BaseLayout titolo="Contatti" descrizione="Come contattare Area Nuova.">
-  <PageHeader occhiello="Scrivici" titolo="Contatti" sottotitolo="Hai bisogno di aiuto o vuoi collaborare? Siamo a disposizione." />
+  <PageHeader
+    occhiello="Scrivici"
+    titolo="Contatti"
+    sottotitolo="Hai bisogno di aiuto o vuoi collaborare? Ecco tutti i canali per raggiungerci."
+  />
 
   <section class="container-site py-16">
-    <div class="grid gap-6 md:grid-cols-2">
-      <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
-        <h2 class="text-xl font-bold">Email</h2>
-        <a href={`mailto:${sito.email}`} class="mt-2 inline-block text-lg font-semibold text-primary-800 hover:underline">{sito.email}</a>
-        <h3 class="mt-8 text-sm font-semibold uppercase tracking-wide text-slate-500">Seguici</h3>
-        <div class="mt-3 flex flex-wrap gap-3">
-          {sito.social.instagram && <a href={sito.social.instagram} class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">Instagram</a>}
-          {sito.social.facebook && <a href={sito.social.facebook} class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">Facebook</a>}
-          {sito.social.telegram && <a href={sito.social.telegram} class="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">Telegram</a>}
-        </div>
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+      <!-- Email -->
+      <div class="flex flex-col gap-3 rounded-2xl bg-white p-8 shadow-sm ring-2 ring-accent-500">
+        <p class="text-xs font-semibold uppercase tracking-wider text-accent-600">Email principale</p>
+        <h2 class="text-lg font-bold">Scrivici direttamente</h2>
+        <p class="text-sm text-slate-600">Per qualsiasi domanda, proposta o collaborazione.</p>
+        <a
+          href={`mailto:${sito.email}`}
+          class="mt-auto inline-block rounded-xl bg-accent-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-600 transition-colors"
+        >
+          {sito.email}
+        </a>
       </div>
 
-      <div class="rounded-2xl bg-primary-50 p-8">
-        <h2 class="text-xl font-bold text-primary-900">Link rapidi</h2>
-        <ul class="mt-4 space-y-3">
-          <li><a href="/segnalazioni" class="font-semibold text-primary-800 hover:underline">→ Invia una segnalazione</a></li>
-          <li><a href="/entra" class="font-semibold text-primary-800 hover:underline">→ Entra in Area Nuova</a></li>
-          <li><a href="/modulistica" class="font-semibold text-primary-800 hover:underline">→ Modulistica e documenti</a></li>
-          <li><a href="/guide" class="font-semibold text-primary-800 hover:underline">→ Guide utili</a></li>
-        </ul>
+      <!-- Instagram -->
+      {sito.social.instagram && (
+        <div class="flex flex-col gap-3 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+          <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Social</p>
+          <h2 class="text-lg font-bold">Seguici su Instagram</h2>
+          <p class="text-sm text-slate-600">News, eventi e aggiornamenti dalla vita universitaria.</p>
+          <a
+            href={sito.social.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-auto inline-block rounded-xl bg-slate-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-900 transition-colors"
+          >
+            @areanuovaunifg
+          </a>
+        </div>
+      )}
+
+      <!-- Segnalazioni -->
+      <div class="flex flex-col gap-3 rounded-2xl bg-primary-50 p-8">
+        <p class="text-xs font-semibold uppercase tracking-wider text-primary-600">Problemi e proposte</p>
+        <h2 class="text-lg font-bold text-primary-900">Invia una segnalazione</h2>
+        <p class="text-sm text-primary-800">Hai riscontrato un problema? Raccontacelo: ce ne occupiamo noi.</p>
+        <a
+          href="/segnalazioni"
+          class="mt-auto inline-block rounded-xl bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-900 transition-colors"
+        >
+          Vai alle segnalazioni
+        </a>
       </div>
+
+      <!-- Entra in Area Nuova -->
+      <div class="flex flex-col gap-3 rounded-2xl bg-primary-800 p-8 text-white">
+        <p class="text-xs font-semibold uppercase tracking-wider text-primary-200">Partecipa</p>
+        <h2 class="text-lg font-bold">Entra in Area Nuova</h2>
+        <p class="text-sm text-primary-100">Unisciti all'associazione e contribuisci a migliorare l'università.</p>
+        <a
+          href="/entra"
+          class="mt-auto inline-block rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-primary-800 hover:bg-primary-50 transition-colors"
+        >
+          Scopri come entrare
+        </a>
+      </div>
+
+      <!-- Rappresentanti -->
+      <div class="flex flex-col gap-3 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Chi ci rappresenta</p>
+        <h2 class="text-lg font-bold">I nostri rappresentanti</h2>
+        <p class="text-sm text-slate-600">Scopri chi porta la voce degli studenti negli organi dell'Ateneo.</p>
+        <a
+          href="/rappresentanti"
+          class="mt-auto inline-block rounded-xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-200 transition-colors"
+        >
+          Vedi i rappresentanti
+        </a>
+      </div>
+
     </div>
   </section>
 </BaseLayout>
