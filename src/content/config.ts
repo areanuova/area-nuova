@@ -105,6 +105,25 @@ const documenti = defineCollection({
   }),
 });
 
+// CONVENZIONI DISCOUNT CARD
+const convenzioni = defineCollection({
+  type: 'content',
+  schema: z.object({
+    nome: z.string(),
+    citta: z.string(),
+    categoria: z.string(),
+    tipo: z.enum(['main-sponsor', 'exclusive', 'standard', 'nuove-convenzioni']),
+    offerte: z.array(z.string()).default([]),
+    validaDal: z.coerce.date(),
+    validaAl: z.coerce.date(),
+    attiva: z.boolean().default(true),
+    ordine: z.number().default(99),
+    immagine: z.string().optional(),
+    sitoWeb: z.string().optional(),
+    instagram: z.string().optional(),
+  }),
+});
+
 export const collections = {
   rappresentanti,
   progetti,
@@ -113,4 +132,5 @@ export const collections = {
   eventi,
   guide,
   documenti,
+  convenzioni,
 };

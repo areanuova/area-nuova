@@ -186,3 +186,36 @@ collections:
       - { label: "File PDF", name: "file", widget: "file" }
       - { label: "Descrizione", name: "descrizione", widget: "text", required: false }
       - { label: "Note (facoltative)", name: "body", widget: "markdown", required: false }
+
+  # ---------------- CONVENZIONI DISCOUNT CARD ----------------
+  - name: "convenzioni"
+    label: "Convenzioni Discount Card"
+    label_singular: "Convenzione"
+    folder: "src/content/convenzioni"
+    create: true
+    identifier_field: "nome"
+    slug: "{{fields.nome | slugify}}"
+    fields:
+      - { label: "Nome attività", name: "nome", widget: "string" }
+      - { label: "Città", name: "citta", widget: "string" }
+      - { label: "Categoria", name: "categoria", widget: "string" }
+      - label: "Tipo convenzione"
+        name: "tipo"
+        widget: "select"
+        options:
+          - { label: "Main Sponsor", value: "main-sponsor" }
+          - { label: "Exclusive", value: "exclusive" }
+          - { label: "Standard", value: "standard" }
+          - { label: "Nuove Convenzioni", value: "nuove-convenzioni" }
+      - label: "Offerte e sconti"
+        name: "offerte"
+        widget: "list"
+        field: { label: "Offerta", name: "item", widget: "string" }
+      - { label: "Valida dal", name: "validaDal", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "Valida al", name: "validaAl", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "Attiva", name: "attiva", widget: "boolean", default: true, required: false }
+      - { label: "Ordine", name: "ordine", widget: "number", value_type: "int", default: 99, required: false }
+      - { label: "Immagine", name: "immagine", widget: "image", required: false }
+      - { label: "Sito web", name: "sitoWeb", widget: "string", required: false }
+      - { label: "Instagram", name: "instagram", widget: "string", required: false }
+      - { label: "Note e condizioni", name: "body", widget: "markdown", required: false }

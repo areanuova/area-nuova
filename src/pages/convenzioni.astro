@@ -1,0 +1,203 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/ui/PageHeader.astro';
+
+const tipoOrdine: Record<string, number> = {
+  'main-sponsor': 1,
+  'exclusive': 2,
+  'standard': 3,
+  'nuove-convenzioni': 4,
+};
+
+const convenzioni = (await getCollection('convenzioni', ({ data }) => data.attiva))
+  .sort((a, b) => {
+    const diff = (tipoOrdine[a.data.tipo] ?? 99) - (tipoOrdine[b.data.tipo] ?? 99);
+    return diff !== 0 ? diff : a.data.ordine - b.data.ordine;
+  });
+
+const etichettaTipo: Record<string, string> = {
+  'main-sponsor': 'Main Sponsor',
+  'exclusive': 'Exclusive',
+  'standard': 'Standard',
+  'nuove-convenzioni': 'Nuove Convenzioni',
+};
+
+const badgeTipo: Record<string, string> = {
+  'main-sponsor': 'bg-accent-100 text-accent-800',
+  'exclusive': 'bg-primary-100 text-primary-800',
+  'standard': 'bg-slate-100 text-slate-700',
+  'nuove-convenzioni': 'bg-amber-100 text-amber-800',
+};
+
+const filtri = [
+  { valore: '*',                 etichetta: 'Tutte' },
+  { valore: 'main-sponsor',      etichetta: 'Main Sponsor' },
+  { valore: 'exclusive',         etichetta: 'Exclusive' },
+  { valore: 'standard',          etichetta: 'Standard' },
+  { valore: 'nuove-convenzioni', etichetta: 'Nuove Convenzioni' },
+  { valore: 'foggia',            etichetta: 'Foggia' },
+  { valore: 'troia',             etichetta: 'Troia' },
+];
+---
+
+<BaseLayout titolo="Discount Card Area Nuova" descrizione="Sconti, agevolazioni e convenzioni dedicate agli studenti UniFg.">
+  <PageHeader
+    occhiello="Discount Card 2026–2027"
+    titolo="Discount Card Area Nuova"
+    sottotitolo="Sconti, agevolazioni e convenzioni dedicate agli studenti UniFg."
+  />
+
+  <section class="container-site py-12">
+
+    <!-- Info -->
+    <div class="mb-12 grid gap-6 sm:grid-cols-3">
+      <div class="flex flex-col gap-2 rounded-2xl bg-accent-50 p-6">
+        <p class="text-xs font-semibold uppercase tracking-wider text-accent-600">Validità</p>
+        <p class="text-base font-bold text-accent-900">02/02/2026 – 02/02/2027</p>
+        <p class="text-sm text-accent-800">Valida per l'anno accademico 2026–2027.</p>
+      </div>
+      <div class="flex flex-col gap-2 rounded-2xl bg-primary-50 p-6">
+        <p class="text-xs font-semibold uppercase tracking-wider text-primary-600">Come ottenerla</p>
+        <p class="text-base font-bold text-primary-900">Gratuita</p>
+        <p class="text-sm text-primary-800">Ritirala nelle Aulette Area Nuova presso tutti i Dipartimenti.</p>
+      </div>
+      <div class="flex flex-col gap-2 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Convenzioni attive</p>
+        <p class="text-base font-bold text-slate-900">{convenzioni.length} attività</p>
+        <p class="text-sm text-slate-600">Mostra la card al momento del pagamento.</p>
+      </div>
+    </div>
+
+    <!-- Immagini card (auto-hide se file assenti) -->
+    <div id="sezione-immagini" class="mb-12">
+      <h2 class="mb-4 text-xl font-bold">La tua Discount Card</h2>
+      <div class="grid gap-4 sm:grid-cols-3">
+        <div class="img-wrapper overflow-hidden rounded-2xl bg-slate-100">
+          <img src="/images/discount-card/discount-card-2026-fronte.jpg"
+            alt="Discount Card Area Nuova 2026 – Fronte"
+            class="img-card w-full object-cover"
+            width="600" height="380" loading="lazy" />
+        </div>
+        <div class="img-wrapper overflow-hidden rounded-2xl bg-slate-100">
+          <img src="/images/discount-card/discount-card-2026-retro.jpg"
+            alt="Discount Card Area Nuova 2026 – Retro"
+            class="img-card w-full object-cover"
+            width="600" height="380" loading="lazy" />
+        </div>
+        <div class="img-wrapper overflow-hidden rounded-2xl bg-slate-100">
+          <img src="/images/discount-card/discount-card-2026-nuove-convenzioni.jpg"
+            alt="Discount Card Area Nuova 2026 – Nuove Convenzioni"
+            class="img-card w-full object-cover"
+            width="600" height="380" loading="lazy" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtri -->
+    <div id="filtri-bar" class="mb-8 flex flex-wrap gap-2">
+      {filtri.map((f, i) => (
+        <button
+          class:list={[
+            'filter-btn rounded-full px-4 py-2 text-sm font-semibold transition-colors',
+            i === 0
+              ? 'bg-primary-800 text-white'
+              : 'bg-slate-100 text-slate-700 hover:bg-slate-200',
+          ]}
+          data-fv={f.valore}
+          aria-pressed={i === 0 ? 'true' : 'false'}
+        >
+          {f.etichetta}
+        </button>
+      ))}
+    </div>
+
+    <!-- Griglia convenzioni -->
+    {convenzioni.length === 0 ? (
+      <p class="text-slate-500">Nessuna convenzione attiva al momento.</p>
+    ) : (
+      <div id="griglia-convenzioni" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {convenzioni.map((c) => (
+          <article
+            data-filter={`${c.data.tipo} ${c.data.citta.toLowerCase()}`}
+            class="flex flex-col rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+          >
+            <div class="flex flex-wrap items-center gap-2">
+              <span class={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeTipo[c.data.tipo] ?? 'bg-slate-100 text-slate-700'}`}>
+                {etichettaTipo[c.data.tipo]}
+              </span>
+              <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+                {c.data.citta}
+              </span>
+            </div>
+            <h3 class="mt-3 text-lg font-bold leading-snug text-slate-900">{c.data.nome}</h3>
+            <p class="mt-0.5 text-xs font-medium text-slate-500">{c.data.categoria}</p>
+            <ul class="mt-3 flex-1 space-y-1.5">
+              {c.data.offerte.map((o) => (
+                <li class="flex gap-2 text-sm text-slate-700">
+                  <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>
+                  {o}
+                </li>
+              ))}
+            </ul>
+            {(c.data.sitoWeb || c.data.instagram) && (
+              <div class="mt-4 flex flex-wrap gap-3 border-t border-slate-100 pt-4">
+                {c.data.sitoWeb && (
+                  <a href={c.data.sitoWeb} target="_blank" rel="noopener noreferrer"
+                    class="text-xs font-semibold text-primary-800 hover:underline">
+                    Sito web →
+                  </a>
+                )}
+                {c.data.instagram && (
+                  <a href={c.data.instagram} target="_blank" rel="noopener noreferrer"
+                    class="text-xs font-semibold text-primary-800 hover:underline">
+                    Instagram →
+                  </a>
+                )}
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+</BaseLayout>
+
+<script>
+  // Nasconde singole immagini mancanti; nasconde tutta la sezione se tutte assenti
+  const wrappers = document.querySelectorAll<HTMLElement>('.img-wrapper');
+  const sezioneImmagini = document.getElementById('sezione-immagini');
+  let nascoste = 0;
+  wrappers.forEach((wrapper) => {
+    const img = wrapper.querySelector<HTMLImageElement>('.img-card');
+    if (!img) return;
+    const hide = () => {
+      wrapper.classList.add('hidden');
+      nascoste++;
+      if (nascoste === wrappers.length) sezioneImmagini?.classList.add('hidden');
+    };
+    img.addEventListener('error', hide);
+    if (img.complete && img.naturalWidth === 0) hide();
+  });
+
+  // Filtri tab
+  const filtriBar = document.getElementById('filtri-bar');
+  const cards = document.querySelectorAll<HTMLElement>('#griglia-convenzioni [data-filter]');
+  filtriBar?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.filter-btn');
+    if (!btn) return;
+    const fv = btn.dataset.fv!;
+    filtriBar.querySelectorAll<HTMLButtonElement>('.filter-btn').forEach((b) => {
+      const attivo = b === btn;
+      b.setAttribute('aria-pressed', String(attivo));
+      b.classList.toggle('bg-primary-800', attivo);
+      b.classList.toggle('text-white', attivo);
+      b.classList.toggle('bg-slate-100', !attivo);
+      b.classList.toggle('text-slate-700', !attivo);
+    });
+    cards.forEach((card) => {
+      const tags = (card.dataset.filter ?? '').split(' ');
+      card.classList.toggle('hidden', !(fv === '*' || tags.includes(fv)));
+    });
+  });
+</script>
