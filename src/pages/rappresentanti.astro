@@ -9,10 +9,13 @@ const rappresentanti = (await getCollection('rappresentanti', ({ data }) => data
   .sort((a, b) => a.data.ordine - b.data.ordine);
 
 // le etichette dei filtri devono combaciare con data-cat delle schede (organo)
-const filtri = ['senato', 'cda', 'dipartimento', 'corso'];
+const filtri = ['senato', 'cda', 'csu', 'adisu', 'nucleo', 'dipartimento', 'corso'];
 const etichetteFiltro: Record<string, string> = {
   senato: 'Senato',
   cda: 'C.d.A.',
+  csu: 'C.d.S.',
+  adisu: 'ADISU',
+  nucleo: 'Nucleo',
   dipartimento: 'Dipartimenti',
   corso: 'Corsi',
 };

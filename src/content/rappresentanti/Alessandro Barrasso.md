@@ -8,4 +8,4 @@ ordine: 3
 attivo: true
 ---
 
-Studente del Dipartimento di Giurisprudenza, rappresentante degli studenti nel Consiglio di Amministrazione dell'Universit‡ di Foggia. Ha inoltre ricoperto il ruolo di Presidente del Consiglio degli Studenti, promuovendo il dialogo tra la comunit‡ studentesca e la governance di Ateneo.
+Studente del Dipartimento di Giurisprudenza, rappresentante degli studenti nel Consiglio di Amministrazione dell'Universit√† di Foggia. Ha inoltre ricoperto il ruolo di Presidente del Consiglio degli Studenti, promuovendo il dialogo tra la comunit√† studentesca e la governance di Ateneo.

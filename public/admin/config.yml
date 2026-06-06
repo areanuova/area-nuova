@@ -102,6 +102,15 @@ collections:
       - { label: "Tag", name: "tag", widget: "list", required: false }
       - { label: "Estratto", name: "estratto", widget: "text" }
       - { label: "Bozza (non viene pubblicata)", name: "bozza", widget: "boolean", default: false, required: false }
+      - label: "Categoria"
+        name: "categoria"
+        widget: "select"
+        default: "comunicato"
+        options:
+          - { label: "Comunicato", value: "comunicato" }
+          - { label: "Risultati", value: "risultati" }
+          - { label: "Resoconto", value: "resoconto" }
+          - { label: "Avviso", value: "avviso" }
       - { label: "Contenuto", name: "body", widget: "markdown" }
 
   # ---------------- EVENTI ----------------
@@ -116,8 +125,20 @@ collections:
       - { label: "Titolo", name: "titolo", widget: "string" }
       - { label: "Data", name: "data", widget: "datetime", date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
       - { label: "Ora inizio", name: "oraInizio", widget: "string", required: false, hint: "Esempio: 15:00" }
+      - { label: "Ora fine", name: "oraFine", widget: "string", required: false, hint: "Esempio: 18:00" }
       - { label: "Luogo", name: "luogo", widget: "string" }
       - { label: "Descrizione", name: "descrizione", widget: "text" }
+      - label: "Categoria"
+        name: "categoria"
+        widget: "select"
+        default: "altro"
+        options:
+          - { label: "Assemblea", value: "assemblea" }
+          - { label: "Formazione", value: "formazione" }
+          - { label: "Culturale", value: "culturale" }
+          - { label: "Orientamento", value: "orientamento" }
+          - { label: "Altro", value: "altro" }
+      - { label: "In evidenza in homepage", name: "inEvidenza", widget: "boolean", default: false, required: false }
       - { label: "Immagine di copertina", name: "copertina", widget: "image", required: false }
       - { label: "Link iscrizione", name: "linkIscrizione", widget: "string", required: false, hint: "Indirizzo completo, deve iniziare con https://" }
       - { label: "Dettagli (facoltativi)", name: "body", widget: "markdown", required: false }
@@ -158,6 +179,8 @@ collections:
           - { label: "Modulo", value: "modulo" }
           - { label: "Mozione", value: "mozione" }
           - { label: "Documento", value: "documento" }
+          - { label: "Proposta", value: "proposta" }
+          - { label: "Richiesta", value: "richiesta" }
       - { label: "Categoria", name: "categoria", widget: "string", default: "Generale" }
       - { label: "Anno", name: "anno", widget: "number", value_type: "int" }
       - { label: "File PDF", name: "file", widget: "file" }

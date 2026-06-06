@@ -8,4 +8,4 @@ email: vincenzo_mundo.578364@unifg.it
 ordine: 1
 attivo: true
 ---
-Studente di Medicina e Presidente del Consiglio degli Studenti dell'Universit‡ di Foggia. Si occupa della rappresentanza studentesca a livello di Ateneo, coordinando le attivit‡ del Consiglio degli Studenti e promuovendo il dialogo tra la comunit‡ studentesca e gli organi accademici. » impegnato nella tutela dei diritti degli studenti, nel miglioramento dei servizi universitari e nella valorizzazione della partecipazione attiva alla vita accademica. Ricopre inoltre il ruolo di Senatore Accademico in rappresentanza dell'Area Medica.
+Studente di Medicina e Presidente del Consiglio degli Studenti dell'Universit√† di Foggia. Si occupa della rappresentanza studentesca a livello di Ateneo, coordinando le attivit√† del Consiglio degli Studenti e promuovendo il dialogo tra la comunit√† studentesca e gli organi accademici. √à impegnato nella tutela dei diritti degli studenti, nel miglioramento dei servizi universitari e nella valorizzazione della partecipazione attiva alla vita accademica. Ricopre inoltre il ruolo di Senatore Accademico in rappresentanza dell'Area Medica.

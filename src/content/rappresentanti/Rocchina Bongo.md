@@ -9,4 +9,4 @@ ordine: 6
 attivo: true
 ---
 
-Rappresentante degli studenti in Senato Accademico per il Dipartimento DAFNE. � impegnata nella promozione della partecipazione studentesca e nel miglioramento dei servizi e delle opportunit� formative del Dipartimento.
+Rappresentante degli studenti in Senato Accademico per il Dipartimento DAFNE. È impegnata nella promozione della partecipazione studentesca e nel miglioramento dei servizi e delle opportunità formative del Dipartimento.
