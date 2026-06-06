@@ -7,7 +7,7 @@ backend:
   name: github
   repo: areanuova/area-nuova
   branch: main
-  base_url: https://area-nuova.vercel.app
+  base_url: https://www.associazioneareanuova.it
   auth_endpoint: api/auth
 
 # Interfaccia in italiano

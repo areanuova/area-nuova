@@ -6,6 +6,6 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   // Cambia questo indirizzo con il tuo dominio definitivo (serve per SEO e sitemap).
-  site: 'https://area-nuova.vercel.app',
+  site: 'https://www.associazioneareanuova.it',
   integrations: [tailwind(), sitemap()],
 });
