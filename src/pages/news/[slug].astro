@@ -11,17 +11,30 @@ export async function getStaticPaths() {
 
 interface Props { articolo: CollectionEntry<'news'>; }
 const { articolo } = Astro.props;
-const { titolo, data, autore, copertina, tag, estratto } = articolo.data;
+const { titolo, data, autore, copertina, tag, estratto, categoria } = articolo.data;
 const { Content } = await articolo.render();
+
+const badgeCategoria: Record<string, { label: string; cls: string }> = {
+  comunicato: { label: 'Comunicato',  cls: 'bg-primary-100 text-primary-800' },
+  risultati:  { label: 'Risultati',   cls: 'bg-accent-100 text-accent-800' },
+  resoconto:  { label: 'Resoconto',   cls: 'bg-slate-100 text-slate-700' },
+  avviso:     { label: 'Avviso',      cls: 'bg-amber-100 text-amber-800' },
+};
+const badge = badgeCategoria[categoria] ?? badgeCategoria['comunicato'];
 ---
 
 <BaseLayout titolo={titolo} descrizione={estratto}>
   <article class="container-site max-w-3xl py-16">
-    <a href="/news" class="text-sm font-semibold text-primary-800 hover:underline">← Tutte le news</a>
-    <p class="mt-6 text-sm font-medium uppercase tracking-wide text-slate-500">
-      {formattaData(data)}{autore ? ` · ${autore}` : ''}
-    </p>
-    <h1 class="mt-2 text-3xl font-bold sm:text-4xl">{titolo}</h1>
+    <a href="/news" class="text-sm font-semibold text-primary-800 hover:underline">← News e Comunicati</a>
+
+    <div class="mt-6 flex flex-wrap items-center gap-3">
+      <span class={`rounded-full px-3 py-1 text-xs font-semibold ${badge.cls}`}>{badge.label}</span>
+      <p class="text-sm font-medium uppercase tracking-wide text-slate-500">
+        {formattaData(data)}{autore ? ` · ${autore}` : ''}
+      </p>
+    </div>
+
+    <h1 class="mt-3 text-3xl font-bold sm:text-4xl">{titolo}</h1>
 
     {copertina && (
       <Image src={copertina} alt={titolo} width={900} height={500} class="mt-8 w-full rounded-2xl object-cover" />
@@ -36,5 +49,18 @@ const { Content } = await articolo.render();
         {tag.map((t) => <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">#{t}</span>)}
       </div>
     )}
+
+    <div class="mt-12 flex flex-col gap-4 rounded-2xl bg-primary-50 p-6 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="font-bold text-primary-900">Hai un problema o una proposta?</p>
+        <p class="mt-1 text-sm text-primary-800">Inviaci una segnalazione: ce ne occupiamo noi.</p>
+      </div>
+      <a
+        href="/segnalazioni"
+        class="shrink-0 rounded-xl bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-900 transition-colors"
+      >
+        Invia una segnalazione
+      </a>
+    </div>
   </article>
 </BaseLayout>

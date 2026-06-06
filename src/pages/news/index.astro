@@ -6,14 +6,31 @@ import NewsCard from '../../components/ui/NewsCard.astro';
 
 const news = (await getCollection('news', ({ data }) => !data.bozza))
   .sort((a, b) => b.data.data.getTime() - a.data.data.getTime());
+
+const legenda = [
+  { label: 'Comunicato',  cls: 'bg-primary-100 text-primary-800' },
+  { label: 'Risultati',   cls: 'bg-accent-100 text-accent-800' },
+  { label: 'Resoconto',   cls: 'bg-slate-100 text-slate-700' },
+  { label: 'Avviso',      cls: 'bg-amber-100 text-amber-800' },
+];
 ---
 
-<BaseLayout titolo="News" descrizione="Le ultime novità  di Area Nuova.">
-  <PageHeader occhiello="Aggiornamenti" titolo="News" sottotitolo="Comunicazioni, aggiornamenti e novità  dall'associazione." />
+<BaseLayout titolo="News e Comunicati" descrizione="Comunicati ufficiali, risultati, resoconti e avvisi di Area Nuova.">
+  <PageHeader
+    occhiello="Aggiornamenti"
+    titolo="News e Comunicati"
+    sottotitolo="Comunicati ufficiali, risultati ottenuti, resoconti di eventi e avvisi utili agli studenti."
+  />
 
   <section class="container-site py-16">
+    <div class="mb-8 flex flex-wrap gap-2">
+      {legenda.map((v) => (
+        <span class={`rounded-full px-3 py-1 text-xs font-semibold ${v.cls}`}>{v.label}</span>
+      ))}
+    </div>
+
     {news.length === 0 ? (
-      <p class="text-slate-500">Nessuna news pubblicata al momento.</p>
+      <p class="text-slate-500">Nessun comunicato pubblicato al momento.</p>
     ) : (
       <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {news.map((n) => <NewsCard articolo={n} />)}

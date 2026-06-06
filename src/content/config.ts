@@ -57,6 +57,7 @@ const news = defineCollection({
       tag: z.array(z.string()).default([]),
       estratto: z.string(),
       bozza: z.boolean().default(false),
+      categoria: z.enum(['comunicato', 'risultati', 'resoconto', 'avviso']).default('comunicato'),
     }),
 });
 
