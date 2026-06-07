@@ -5,26 +5,26 @@ import sito from '../../data/sito.json';
 <section class="relative overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-accent-900">
   <!-- texture decorativa blu/verde -->
   <div class="pointer-events-none absolute inset-0 opacity-30" aria-hidden="true">
-    <div class="absolute -left-24 -top-24 h-96 w-96 rounded-full bg-primary-600 blur-3xl"></div>
-    <div class="absolute -bottom-32 right-0 h-96 w-96 rounded-full bg-accent-600 blur-3xl"></div>
+    <div class="float-circle absolute -left-24 -top-24 h-96 w-96 rounded-full bg-primary-600 blur-3xl"></div>
+    <div class="float-circle float-delay absolute -bottom-32 right-0 h-96 w-96 rounded-full bg-accent-600 blur-3xl"></div>
   </div>
 
   <div class="container-site relative py-20 sm:py-28">
     <div class="max-w-3xl">
-      <span class="inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white ring-1 ring-white/20">
+      <span class="hero-animate hero-delay-0 inline-flex items-center rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white ring-1 ring-white/20">
         {sito.cittaUniversita}
       </span>
-      <h1 class="mt-6 text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
+      <h1 class="hero-animate hero-delay-1 mt-6 text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
         {sito.slogan}
       </h1>
-      <p class="mt-6 max-w-2xl text-lg text-primary-100">
+      <p class="hero-animate hero-delay-2 mt-6 max-w-2xl text-lg text-primary-100">
         {sito.descrizione}
       </p>
-      <div class="mt-8 flex flex-wrap gap-3">
-        <a href="/segnalazioni" class="rounded-xl bg-accent-500 px-6 py-3 font-semibold text-white shadow-lg transition-colors hover:bg-accent-600">
+      <div class="hero-animate hero-delay-3 mt-8 flex flex-wrap gap-3">
+        <a href="/segnalazioni" class="cta-glow-accent rounded-xl bg-accent-500 px-6 py-3 font-semibold text-white shadow-lg hover:bg-accent-600">
           Segnala un problema
         </a>
-        <a href="/entra" class="rounded-xl bg-white px-6 py-3 font-semibold text-primary-900 transition-colors hover:bg-primary-50">
+        <a href="/entra" class="cta-glow-white rounded-xl bg-white px-6 py-3 font-semibold text-primary-900 hover:bg-primary-50">
           Entra in Area Nuova
         </a>
       </div>

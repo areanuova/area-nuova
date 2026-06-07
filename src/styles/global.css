@@ -29,3 +29,156 @@
     @apply mx-auto w-full max-w-container px-4 sm:px-6 lg:px-8;
   }
 }
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-18px); }
+}
+
+/* ============================================================
+   HERO — animazione ingresso a cascata
+   ============================================================ */
+
+.hero-animate {
+  animation: fadeSlideUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.hero-delay-0 { animation-delay: 0.05s; }
+.hero-delay-1 { animation-delay: 0.18s; }
+.hero-delay-2 { animation-delay: 0.32s; }
+.hero-delay-3 { animation-delay: 0.46s; }
+
+/* ============================================================
+   HERO — cerchi decorativi floating
+   ============================================================ */
+
+.float-circle {
+  animation: float 8s ease-in-out infinite;
+}
+.float-delay {
+  animation-delay: -4s;
+}
+
+/* ============================================================
+   HERO — glow sui CTA principali
+   ============================================================ */
+
+.cta-glow-accent {
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+.cta-glow-accent:hover {
+  box-shadow: 0 4px 20px rgba(41, 172, 142, 0.45), 0 8px 40px rgba(41, 172, 142, 0.2);
+  transform: translateY(-1px);
+}
+
+.cta-glow-white {
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+.cta-glow-white:hover {
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.25), 0 8px 32px rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   NAVBAR — glass potenziato (livello 2B)
+   ============================================================ */
+
+.navbar-glass {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 1px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================================
+   NAVBAR — menu mobile con transizione max-height
+   ============================================================ */
+
+.mobile-menu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mobile-menu.is-open {
+  max-height: 480px;
+}
+
+/* ============================================================
+   NAVBAR — dropdown Altro con fade + slide
+   ============================================================ */
+
+.altro-dropdown {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.altro-dropdown.dropdown-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   SCROLL REVEAL
+   ============================================================ */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   PREFERS-REDUCED-MOTION — disattiva animazioni custom
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-animate {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .float-circle {
+    animation: none !important;
+  }
+  .cta-glow-accent,
+  .cta-glow-white {
+    transition: background-color 0.2s ease !important;
+  }
+  .cta-glow-accent:hover,
+  .cta-glow-white:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .mobile-menu {
+    transition: none !important;
+  }
+  .altro-dropdown {
+    transition: none !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

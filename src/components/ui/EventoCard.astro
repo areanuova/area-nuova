@@ -52,3 +52,20 @@ const labelCategoria: Record<string, string> = {
     </div>
   </div>
 </article>
+
+<style>
+  article {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  article:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 0 0 1px rgba(189, 204, 220, 0.8),
+      0 6px 20px rgba(0, 48, 96, 0.09),
+      0 16px 40px rgba(0, 0, 0, 0.06);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    article { transition: box-shadow 0.25s ease; }
+    article:hover { transform: none; }
+  }
+</style>

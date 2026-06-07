@@ -25,7 +25,7 @@ const isActive = (href: string) =>
 const altroIsActive = altroLinks.some((l) => isActive(l.href));
 ---
 
-<header class="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
+<header class="sticky top-0 z-50 navbar-glass">
   <nav class="container-site flex h-16 items-center justify-between gap-4">
     <!-- Logo -->
     <a href="/" class="flex shrink-0 items-center" aria-label={sito.nome}>
@@ -83,7 +83,7 @@ const altroIsActive = altroLinks.some((l) => isActive(l.href));
 
         <div
           id="altro-dropdown"
-          class="absolute right-0 top-full mt-1 hidden min-w-[210px] rounded-xl border border-slate-200 bg-white py-1 shadow-md"
+          class="altro-dropdown absolute right-0 top-full mt-1 min-w-[210px] rounded-xl border border-slate-200 bg-white py-1 shadow-md"
           role="menu"
         >
           {altroLinks.map((l) => (
@@ -114,7 +114,7 @@ const altroIsActive = altroLinks.some((l) => isActive(l.href));
       </a>
       <a
         href="/entra"
-        class="rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-accent-600"
+        class="cta-glow-accent rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-accent-600"
       >
         Entra in Area Nuova
       </a>
@@ -135,9 +135,9 @@ const altroIsActive = altroLinks.some((l) => isActive(l.href));
     </button>
   </nav>
 
-  <!-- Menu mobile: tutte le voci piatte -->
-  <div id="mobile-menu" class="hidden border-t border-slate-200 bg-white lg:hidden">
-    <ul class="container-site flex flex-col gap-1 py-4">
+  <!-- Menu mobile: tutte le voci piatte, border-t sull'ul interno per evitare artefatti al chiuso -->
+  <div id="mobile-menu" class="mobile-menu bg-white lg:hidden">
+    <ul class="container-site flex flex-col gap-1 border-t border-slate-200 py-4">
       {allLinks.map((l) => (
         <li>
           <a
@@ -171,8 +171,8 @@ const altroIsActive = altroLinks.some((l) => isActive(l.href));
   const toggle = document.getElementById('menu-toggle');
   const menu = document.getElementById('mobile-menu');
   toggle?.addEventListener('click', () => {
-    const nowHidden = menu?.classList.toggle('hidden');
-    toggle.setAttribute('aria-expanded', String(!nowHidden));
+    const isOpen = menu?.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', String(!!isOpen));
   });
 
   // Desktop dropdown "Altro"
@@ -181,20 +181,20 @@ const altroIsActive = altroLinks.some((l) => isActive(l.href));
   const altroChevron = document.getElementById('altro-chevron') as SVGElement | null;
 
   function openAltro() {
-    altroDropdown?.classList.remove('hidden');
+    altroDropdown?.classList.add('dropdown-open');
     altroChevron?.style.setProperty('transform', 'rotate(180deg)');
     altroToggle?.setAttribute('aria-expanded', 'true');
   }
 
   function closeAltro() {
-    altroDropdown?.classList.add('hidden');
+    altroDropdown?.classList.remove('dropdown-open');
     altroChevron?.style.setProperty('transform', '');
     altroToggle?.setAttribute('aria-expanded', 'false');
   }
 
   altroToggle?.addEventListener('click', (e) => {
     e.stopPropagation();
-    altroDropdown?.classList.contains('hidden') ? openAltro() : closeAltro();
+    altroDropdown?.classList.contains('dropdown-open') ? closeAltro() : openAltro();
   });
 
   document.addEventListener('click', (e) => {

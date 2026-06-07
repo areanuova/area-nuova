@@ -24,12 +24,12 @@ const categoria = [organo, dipartimento].filter(Boolean).join('|');
 
 <article
   data-cat={categoria}
-  class="flex flex-col items-center rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-200 transition-shadow hover:shadow-lg"
+  class="group flex flex-col items-center rounded-2xl bg-white p-6 text-center shadow-sm ring-1 ring-slate-200"
 >
   {foto ? (
-    <img src={foto} alt={nome} width="120" height="120" class="h-28 w-28 rounded-full object-cover" loading="lazy" />
+    <img src={foto} alt={nome} width="120" height="120" class="card-avatar h-28 w-28 rounded-full object-cover" loading="lazy" />
   ) : (
-    <div class="grid h-28 w-28 place-items-center rounded-full bg-primary-100 font-display text-2xl font-bold text-primary-800">
+    <div class="card-avatar grid h-28 w-28 place-items-center rounded-full bg-primary-100 font-display text-2xl font-bold text-primary-800">
       {iniziali}
     </div>
   )}
@@ -44,3 +44,28 @@ const categoria = [organo, dipartimento].filter(Boolean).join('|');
     </a>
   )}
 </article>
+
+<style>
+  article {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  article:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 0 0 1px rgba(189, 204, 220, 0.8),
+      0 8px 24px rgba(0, 48, 96, 0.10),
+      0 20px 48px rgba(0, 0, 0, 0.07);
+  }
+  .card-avatar {
+    transition: transform 0.3s ease;
+  }
+  article:hover .card-avatar {
+    transform: scale(1.05);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    article { transition: box-shadow 0.25s ease; }
+    article:hover { transform: none; }
+    .card-avatar { transition: none; }
+    article:hover .card-avatar { transform: none; }
+  }
+</style>

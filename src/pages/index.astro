@@ -29,7 +29,7 @@ const eventi = (await getCollection('eventi'))
 <BaseLayout titolo="Home">
   <Hero />
 
-  <!-- STATISTICHE -->
+  <!-- STATISTICHE — no reveal: sezione immediatamente visibile sotto hero -->
   <section class="container-site -mt-12 relative z-10">
     <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
       {statistiche.map((s) => (
@@ -40,7 +40,7 @@ const eventi = (await getCollection('eventi'))
 
   <!-- PROGETTI IN EVIDENZA -->
   {progetti.length > 0 && (
-    <section class="container-site py-20">
+    <section class="container-site py-20 reveal">
       <div class="mb-10 flex items-end justify-between">
         <div>
           <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Cosa facciamo</p>
@@ -57,7 +57,7 @@ const eventi = (await getCollection('eventi'))
   <!-- NEWS -->
   {news.length > 0 && (
     <section class="bg-primary-50 py-20">
-      <div class="container-site">
+      <div class="container-site reveal">
         <div class="mb-10 flex items-end justify-between">
           <div>
             <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Aggiornamenti</p>
@@ -74,7 +74,7 @@ const eventi = (await getCollection('eventi'))
 
   <!-- EVENTI -->
   {eventi.length > 0 && (
-    <section class="container-site py-20">
+    <section class="container-site py-20 reveal">
       <div class="mb-10">
         <p class="text-sm font-semibold uppercase tracking-wider text-accent-600">Calendario</p>
         <h2 class="mt-2 text-3xl font-bold">Prossimi eventi</h2>
@@ -86,7 +86,7 @@ const eventi = (await getCollection('eventi'))
   )}
 
   <!-- CTA FINALE -->
-  <section class="container-site pb-20">
+  <section class="container-site pb-20 reveal">
     <div class="grid gap-6 md:grid-cols-2">
       <div class="rounded-2xl bg-primary-800 p-8 text-white">
         <h3 class="text-2xl font-bold">Hai un problema da segnalare?</h3>
@@ -101,3 +101,19 @@ const eventi = (await getCollection('eventi'))
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.08, rootMargin: '0px 0px -48px 0px' }
+  );
+
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+</script>
