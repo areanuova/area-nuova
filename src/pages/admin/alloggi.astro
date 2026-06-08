@@ -524,6 +524,8 @@ import '../../styles/global.css';
     return data !== null;
   }
 
+  const ADMIN_EMAIL = 'areanuova@unifg.it';
+
   async function handleLogin(e: Event) {
     e.preventDefault();
     const emailInput = document.getElementById('login-email') as HTMLInputElement;
@@ -531,15 +533,28 @@ import '../../styles/global.css';
     const errEl      = document.getElementById('login-error')!;
     const successEl  = document.getElementById('login-success')!;
 
-    if (!emailInput.value.trim()) return;
+    const email = emailInput.value.trim().toLowerCase();
+    if (!email) return;
+
+    errEl.classList.add('hidden');
+
+    // Frontend guard: avoid consuming Supabase rate limit for unauthorized emails.
+    // Real authorization is enforced server-side via admin_users table + RLS.
+    if (email !== ADMIN_EMAIL) {
+      errEl.textContent = 'Email non autorizzata per l\'accesso all\'area riservata.';
+      errEl.classList.remove('hidden');
+      return;
+    }
+
+    const redirectTo = window.location.origin + '/admin/alloggi';
+    console.log('[Admin] Magic link redirect:', redirectTo);
 
     btn.disabled = true;
     btn.textContent = 'Invio in corso…';
-    errEl.classList.add('hidden');
 
     const { error } = await supabase.auth.signInWithOtp({
-      email: emailInput.value.trim(),
-      options: { emailRedirectTo: window.location.href },
+      email,
+      options: { emailRedirectTo: redirectTo },
     });
 
     btn.disabled = false;
