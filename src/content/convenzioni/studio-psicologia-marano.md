@@ -10,6 +10,9 @@ validaAl: 2027-02-02
 attiva: true
 ordine: 28
 instagram: "https://www.instagram.com/dott.ssamartinamarano"
+indirizzo: "Via Fratelli Biondi 29, Foggia"
+lat: 41.4546897
+lng: 15.5328137
 ---
 
 Studio di Psicologia Clinica della Dott.ssa Martina Marano. Riceve su appuntamento.

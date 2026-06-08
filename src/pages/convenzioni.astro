@@ -2,6 +2,8 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/ui/PageHeader.astro';
+import ConvenzioniMap from '../components/convenzioni/ConvenzioniMap.astro';
+import type { ConvenzionePoint } from '../components/convenzioni/ConvenzioniMap.astro';
 
 const tipoOrdine: Record<string, number> = {
   'main-sponsor': 1,
@@ -29,6 +31,20 @@ const badgeTipo: Record<string, string> = {
   'standard': 'bg-slate-100 text-slate-700',
   'nuove-convenzioni': 'bg-amber-100 text-amber-800',
 };
+
+// Prepara i punti per la mappa: solo convenzioni attive con lat e lng
+const puntiMappa: ConvenzionePoint[] = convenzioni
+  .filter((c) => c.data.lat != null && c.data.lng != null)
+  .map((c) => ({
+    nome:      c.data.nome,
+    categoria: c.data.categoria,
+    tipo:      c.data.tipo,
+    citta:     c.data.citta,
+    indirizzo: c.data.indirizzo ?? '',
+    offerta:   c.data.offerte[0] ?? '',
+    lat:       c.data.lat!,
+    lng:       c.data.lng!,
+  }));
 
 const filtri = [
   { valore: '*',                 etichetta: 'Tutte' },
@@ -108,6 +124,13 @@ const filtri = [
       >
         Proponi una convenzione
       </a>
+    </div>
+
+    <!-- Mappa convenzioni -->
+    <div class="mb-12">
+      <h2 class="mb-1 text-xl font-bold text-slate-900">Convenzioni sulla mappa</h2>
+      <p class="mb-4 text-sm text-slate-500">Scopri dove si trovano le attività convenzionate con Area Nuova.</p>
+      <ConvenzioniMap punti={puntiMappa} />
     </div>
 
     <!-- Filtri -->

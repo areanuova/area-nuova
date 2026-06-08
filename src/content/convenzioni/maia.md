@@ -10,4 +10,7 @@ validaDal: 2026-02-02
 validaAl: 2027-02-02
 attiva: true
 ordine: 4
+indirizzo: "Via Duomo 20, Foggia"
+lat: 41.4625483
+lng: 15.544503
 ---

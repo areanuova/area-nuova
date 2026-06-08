@@ -10,4 +10,7 @@ validaDal: 2026-02-02
 validaAl: 2027-02-02
 attiva: true
 ordine: 2
+indirizzo: "Via Luigi Zuppetta 13, Foggia"
+lat: 41.4570123
+lng: 15.5503449
 ---

@@ -121,6 +121,9 @@ const convenzioni = defineCollection({
     immagine: z.string().optional(),
     sitoWeb: z.string().optional(),
     instagram: z.string().optional(),
+    indirizzo: z.string().optional(),
+    lat: z.number().optional(),
+    lng: z.number().optional(),
   }),
 });
 
