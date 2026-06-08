@@ -1,0 +1,25 @@
+---
+interface Props {
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+---
+
+<div class:list={[
+  'rounded-2xl border border-primary-200 bg-primary-50 text-sm text-slate-700',
+  compact ? 'p-4' : 'p-6',
+]}>
+  <p class="font-semibold text-primary-800">
+    Area Nuova non è un'agenzia immobiliare
+  </p>
+  <p class:list={['text-slate-600', compact ? 'mt-1' : 'mt-2']}>
+    Area Nuova mette a disposizione una bacheca digitale per agevolare la ricerca di alloggi da parte degli studenti.
+    Non partecipa alle trattative, non incassa caparre o canoni e non garantisce la conclusione dei contratti.
+    Ogni accordo è gestito direttamente tra inserzionista e interessato.
+  </p>
+  {!compact && (
+    <a href="/alloggi/sicurezza" class="mt-3 inline-block font-semibold text-primary-800 hover:underline">
+      Leggi i consigli di sicurezza →
+    </a>
+  )}
+</div>

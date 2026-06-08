@@ -1,0 +1,408 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import DisclaimerBox from '../../components/alloggi/DisclaimerBox.astro';
+---
+
+<BaseLayout
+  titolo="Area Nuova Alloggi"
+  descrizione="Una bacheca digitale per aiutare gli studenti fuorisede a trovare casa a Foggia."
+>
+  <PageHeader
+    occhiello="Per gli studenti fuorisede"
+    titolo="Area Nuova Alloggi"
+    sottotitolo="Una bacheca digitale per aiutare gli studenti fuorisede a trovare casa a Foggia."
+  />
+
+  <!-- CTA -->
+  <section class="container-site pt-10 pb-2">
+    <div class="flex flex-col items-center justify-center gap-3 sm:flex-row">
+      <a
+        href="/alloggi/pubblica"
+        class="cta-glow-accent w-full rounded-xl bg-accent-500 px-6 py-3 text-center text-sm font-semibold text-white shadow-sm hover:bg-accent-600 sm:w-auto"
+      >
+        Pubblica un annuncio
+      </a>
+      <a
+        href="/alloggi/sicurezza"
+        class="w-full rounded-xl border border-primary-200 px-6 py-3 text-center text-sm font-semibold text-primary-800 hover:bg-primary-50 sm:w-auto"
+      >
+        Consigli di sicurezza
+      </a>
+    </div>
+  </section>
+
+  <!-- GRIGLIA ANNUNCI (caricata client-side da Supabase) -->
+  <section class="container-site py-12">
+
+    <!-- FILTRI — visibili solo dopo il caricamento dei dati -->
+    <div id="sezione-filtri" class="hidden mb-8">
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="grid gap-4 sm:grid-cols-3">
+
+          <!-- Tipo alloggio -->
+          <div>
+            <label for="filtro-tipo" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Tipo alloggio
+            </label>
+            <select
+              id="filtro-tipo"
+              class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            >
+              <option value="">Tutti</option>
+              <option value="stanza_singola">Stanza singola</option>
+              <option value="stanza_doppia">Stanza doppia</option>
+              <option value="posto_letto">Posto letto</option>
+              <option value="monolocale">Monolocale</option>
+              <option value="bilocale">Bilocale</option>
+              <option value="appartamento">Appartamento intero</option>
+              <option value="altro">Altro</option>
+            </select>
+          </div>
+
+          <!-- Città o zona -->
+          <div>
+            <label for="filtro-zona" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Città o zona
+            </label>
+            <input
+              type="text"
+              id="filtro-zona"
+              placeholder="Cerca per città o zona"
+              class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            />
+          </div>
+
+          <!-- Prezzo massimo -->
+          <div>
+            <label for="filtro-prezzo" class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Prezzo massimo
+            </label>
+            <div class="relative">
+              <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm text-slate-400">€</span>
+              <input
+                type="number"
+                id="filtro-prezzo"
+                min="1"
+                step="10"
+                placeholder="es. 400"
+                class="w-full rounded-xl border border-slate-300 py-2.5 pl-7 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+              />
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Contatore + reset -->
+        <div class="mt-4 flex items-center justify-between">
+          <p id="filtri-contatore" class="text-sm text-slate-500"></p>
+          <button
+            id="btn-reset-filtri"
+            type="button"
+            class="text-sm font-semibold text-primary-800 hover:underline"
+          >
+            Reset filtri
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stato di caricamento -->
+    <div id="annunci-loading" class="flex items-center justify-center gap-3 py-16 text-sm text-slate-500">
+      <svg class="h-5 w-5 animate-spin text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+      Caricamento annunci…
+    </div>
+
+    <!-- Griglia annunci (compilata dallo script) -->
+    <div id="annunci-griglia" class="hidden grid gap-6 sm:grid-cols-2 lg:grid-cols-3"></div>
+
+    <!-- Nessun risultato per i filtri correnti -->
+    <div id="annunci-filtrati-vuoti" class="hidden mx-auto max-w-md py-12 text-center">
+      <p class="text-sm text-slate-600">Nessun annuncio corrisponde ai filtri selezionati.</p>
+      <button
+        id="btn-reset-filtri-2"
+        type="button"
+        class="mt-4 text-sm font-semibold text-primary-800 hover:underline"
+      >
+        Rimuovi filtri
+      </button>
+    </div>
+
+    <!-- Nessun annuncio pubblicato -->
+    <div id="annunci-vuoti" class="hidden mx-auto max-w-md py-16 text-center">
+      <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+          stroke-linejoin="round" class="text-slate-400">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>
+      </div>
+      <h2 class="mt-4 text-lg font-bold text-slate-800">Nessun annuncio pubblicato</h2>
+      <p class="mt-2 text-sm text-slate-600">
+        Al momento non ci sono annunci disponibili. Torna presto oppure pubblica il tuo alloggio.
+      </p>
+      <a
+        href="/alloggi/pubblica"
+        class="mt-6 inline-block rounded-xl bg-accent-500 px-6 py-3 text-sm font-semibold text-white hover:bg-accent-600"
+      >
+        Pubblica un annuncio
+      </a>
+    </div>
+
+    <!-- Errore rete -->
+    <div id="annunci-errore" class="hidden mx-auto max-w-md rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800">
+      Impossibile caricare gli annunci. Controlla la connessione e ricarica la pagina.
+    </div>
+
+  </section>
+
+  <!-- COME FUNZIONA -->
+  <section class="border-t border-slate-200 bg-slate-50">
+    <div class="container-site py-16">
+      <h2 class="text-center text-2xl font-bold">Come funziona</h2>
+      <p class="mt-2 text-center text-slate-600">
+        Un servizio gratuito, trasparente e senza intermediari.
+      </p>
+
+      <div class="mt-10 grid gap-6 md:grid-cols-3">
+        <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-accent-100 text-lg font-bold text-accent-700">1</div>
+          <h3 class="mt-4 text-base font-bold">L'inserzionista pubblica</h3>
+          <p class="mt-2 text-sm text-slate-600">
+            Proprietari e affittuari compilano un form con i dettagli dell'alloggio: tipo, zona,
+            prezzo, disponibilità e contatti diretti.
+          </p>
+        </div>
+        <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-accent-100 text-lg font-bold text-accent-700">2</div>
+          <h3 class="mt-4 text-base font-bold">Lo studente contatta</h3>
+          <p class="mt-2 text-sm text-slate-600">
+            Gli studenti sfogliano gli annunci e contattano direttamente l'inserzionista via
+            WhatsApp o email, senza passare per intermediari.
+          </p>
+        </div>
+        <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-accent-100 text-lg font-bold text-accent-700">3</div>
+          <h3 class="mt-4 text-base font-bold">Area Nuova non entra nella trattativa</h3>
+          <p class="mt-2 text-sm text-slate-600">
+            L'accordo si conclude tra le parti. Area Nuova non partecipa alle trattative,
+            non incassa somme e non garantisce i contratti.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DISCLAIMER -->
+  <section class="container-site py-12">
+    <div class="mx-auto max-w-2xl">
+      <DisclaimerBox />
+      <div class="mt-4 flex flex-wrap justify-center gap-4 text-xs text-slate-500">
+        <a href="/alloggi/termini" class="font-semibold text-primary-800 hover:underline">Termini di utilizzo</a>
+        <span aria-hidden="true">·</span>
+        <a href="/alloggi/privacy" class="font-semibold text-primary-800 hover:underline">Informativa privacy</a>
+        <span aria-hidden="true">·</span>
+        <a href="/alloggi/sicurezza" class="font-semibold text-primary-800 hover:underline">Consigli di sicurezza</a>
+        <span aria-hidden="true">·</span>
+        <a href="/alloggi/rimozione" class="font-semibold text-primary-800 hover:underline">Modifica o rimozione annuncio</a>
+        <span aria-hidden="true">·</span>
+        <a href="/alloggi/segnala" class="font-semibold text-primary-800 hover:underline">Segnala annuncio</a>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+
+  type Annuncio = {
+    id: string;
+    titolo: string;
+    tipo: string;
+    citta: string;
+    zona: string | null;
+    prezzo: number;
+    spese_incluse: boolean;
+    disponibile_da: string | null;
+    foto_url: string | null;
+  };
+
+  const TIPO_LABEL: Record<string, string> = {
+    stanza_singola: 'Stanza singola',
+    stanza_doppia: 'Stanza doppia',
+    posto_letto: 'Posto letto',
+    monolocale: 'Monolocale',
+    bilocale: 'Bilocale',
+    appartamento: 'Appartamento intero',
+    altro: 'Altro',
+  };
+
+  function esc(s: string): string {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function renderCard(a: Annuncio): string {
+    const tipoLabel = TIPO_LABEL[a.tipo] ?? a.tipo;
+    const localita = a.zona ? `${esc(a.citta)} — ${esc(a.zona)}` : esc(a.citta);
+    const dettaglioHref = `/alloggi/${a.id}`;
+
+    let disponibileHtml = '';
+    if (a.disponibile_da) {
+      const label = new Intl.DateTimeFormat('it-IT', {
+        day: 'numeric', month: 'long', year: 'numeric',
+      }).format(new Date(a.disponibile_da + 'T00:00:00'));
+      disponibileHtml = `<p class="mt-2 text-xs text-slate-500">Disponibile dal ${label}</p>`;
+    }
+
+    const fotoHtml = a.foto_url
+      ? `<img
+           src="${esc(a.foto_url)}"
+           alt="${esc(a.titolo)}"
+           class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+           loading="lazy"
+         />`
+      : `<div class="flex h-full w-full items-center justify-center">
+           <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+             stroke-linejoin="round" class="text-slate-300">
+             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+             <polyline points="9 22 9 12 15 12 15 22"></polyline>
+           </svg>
+         </div>`;
+
+    const speseHtml = a.spese_incluse
+      ? `<span class="mt-1.5 inline-block rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800">Spese incluse</span>`
+      : '';
+
+    return `
+      <article class="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 transition-transform duration-200 motion-reduce:transition-none hover:-translate-y-1 motion-reduce:hover:translate-y-0">
+        <div class="relative h-44 w-full overflow-hidden bg-slate-100">
+          ${fotoHtml}
+          <span class="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-slate-800 shadow-sm backdrop-blur-sm">
+            ${esc(tipoLabel)}
+          </span>
+        </div>
+        <div class="flex flex-1 flex-col p-5">
+          <h3 class="line-clamp-2 text-base font-bold text-slate-900">${esc(a.titolo)}</h3>
+          <p class="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+              stroke-linejoin="round" class="shrink-0">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            ${localita}
+          </p>
+          <div class="mt-3">
+            <p class="text-2xl font-bold text-slate-900">€${a.prezzo}<span class="text-sm font-normal text-slate-500">/mese</span></p>
+            ${speseHtml}
+          </div>
+          ${disponibileHtml}
+          <a
+            href="${dettaglioHref}"
+            class="mt-4 w-full rounded-xl bg-primary-800 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          >
+            Vedi dettagli
+          </a>
+        </div>
+      </article>
+    `;
+  }
+
+  // Array globale degli annunci caricati da Supabase
+  let tuttiAnnunci: Annuncio[] = [];
+
+  function applicaFiltri() {
+    const elGriglia = document.getElementById('annunci-griglia')!;
+    const elFiltratiVuoti = document.getElementById('annunci-filtrati-vuoti')!;
+    const elContatore = document.getElementById('filtri-contatore')!;
+
+    const tipo = (document.getElementById('filtro-tipo') as HTMLSelectElement).value;
+    const zona = (document.getElementById('filtro-zona') as HTMLInputElement).value.trim().toLowerCase();
+    const prezzoMaxRaw = (document.getElementById('filtro-prezzo') as HTMLInputElement).value;
+    const prezzoMax = prezzoMaxRaw ? parseInt(prezzoMaxRaw, 10) : null;
+
+    const filtrati = tuttiAnnunci.filter((a) => {
+      if (tipo && a.tipo !== tipo) return false;
+      if (zona) {
+        const testo = `${a.citta} ${a.zona ?? ''}`.toLowerCase();
+        if (!testo.includes(zona)) return false;
+      }
+      if (prezzoMax !== null && a.prezzo > prezzoMax) return false;
+      return true;
+    });
+
+    elGriglia.classList.add('hidden');
+    elFiltratiVuoti.classList.add('hidden');
+
+    if (filtrati.length === 0) {
+      elFiltratiVuoti.classList.remove('hidden');
+      elContatore.textContent = 'Nessun risultato';
+    } else {
+      elGriglia.innerHTML = filtrati.map(renderCard).join('');
+      elGriglia.classList.remove('hidden');
+      const tot = tuttiAnnunci.length;
+      elContatore.textContent =
+        filtrati.length < tot
+          ? `${filtrati.length} di ${tot} annunci`
+          : `${tot} ${tot === 1 ? 'annuncio' : 'annunci'}`;
+    }
+  }
+
+  function resetFiltri() {
+    (document.getElementById('filtro-tipo') as HTMLSelectElement).value = '';
+    (document.getElementById('filtro-zona') as HTMLInputElement).value = '';
+    (document.getElementById('filtro-prezzo') as HTMLInputElement).value = '';
+    applicaFiltri();
+  }
+
+  async function caricaAnnunci() {
+    const elLoading = document.getElementById('annunci-loading')!;
+    const elVuoti = document.getElementById('annunci-vuoti')!;
+    const elErrore = document.getElementById('annunci-errore')!;
+    const elFiltri = document.getElementById('sezione-filtri')!;
+
+    const oggi = new Date().toISOString().split('T')[0];
+
+    const { data, error } = await supabase
+      .from('alloggi')
+      .select('id, titolo, tipo, citta, zona, prezzo, spese_incluse, disponibile_da, foto_url')
+      .eq('stato', 'pubblicato')
+      .gte('scade_il', oggi)
+      .order('created_at', { ascending: false });
+
+    elLoading.classList.add('hidden');
+
+    if (error) {
+      elErrore.classList.remove('hidden');
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      elVuoti.classList.remove('hidden');
+      return;
+    }
+
+    tuttiAnnunci = data as Annuncio[];
+    elFiltri.classList.remove('hidden');
+    applicaFiltri();
+  }
+
+  // Event listeners filtri
+  document.getElementById('filtro-tipo')!.addEventListener('change', applicaFiltri);
+  document.getElementById('filtro-zona')!.addEventListener('input', applicaFiltri);
+  document.getElementById('filtro-prezzo')!.addEventListener('input', applicaFiltri);
+  document.getElementById('btn-reset-filtri')!.addEventListener('click', resetFiltri);
+  document.getElementById('btn-reset-filtri-2')!.addEventListener('click', resetFiltri);
+
+  caricaAnnunci();
+</script>

@@ -1,0 +1,656 @@
+---
+import '../../styles/global.css';
+---
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Alloggi — Area Nuova</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <meta name="description" content="Area riservata per la moderazione degli annunci alloggi di Area Nuova." />
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900">
+
+  <!-- ── VIEW: LOADING ───────────────────────────────────────── -->
+  <div id="view-loading" class="hidden min-h-screen items-center justify-center">
+    <div class="text-center">
+      <svg class="mx-auto h-8 w-8 animate-spin text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+      <p id="loading-msg" class="mt-3 text-sm text-slate-500">Verifica sessione…</p>
+    </div>
+  </div>
+
+  <!-- ── VIEW: LOGIN ─────────────────────────────────────────── -->
+  <div id="view-login" class="hidden min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-sm">
+      <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Area Nuova</p>
+        <h1 class="mt-1 text-xl font-bold text-slate-900">Accesso admin</h1>
+        <p class="mt-2 text-sm text-slate-600">Inserisci la tua email per ricevere il link di accesso.</p>
+
+        <form id="login-form" class="mt-6 space-y-4" novalidate>
+          <div>
+            <label for="login-email" class="mb-1.5 block text-xs font-semibold text-slate-700">Email</label>
+            <input
+              type="email"
+              id="login-email"
+              required
+              placeholder="tuamail@esempio.it"
+              class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            />
+          </div>
+          <button
+            type="submit"
+            id="login-btn"
+            class="w-full rounded-xl bg-primary-800 px-4 py-3 text-sm font-semibold text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50"
+          >
+            Invia link di accesso
+          </button>
+        </form>
+
+        <div id="login-success" class="hidden mt-4 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+          <p class="font-semibold">Email inviata.</p>
+          <p class="mt-1">Controlla la tua casella e clicca il link per accedere.</p>
+        </div>
+
+        <div id="login-error" class="hidden mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VIEW: UNAUTHORIZED ──────────────────────────────────── -->
+  <div id="view-unauthorized" class="hidden min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-sm text-center">
+      <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-red-600">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+      </div>
+      <h1 class="mt-4 text-lg font-bold text-slate-900">Accesso non autorizzato</h1>
+      <p class="mt-2 text-sm text-slate-600">
+        Questa area è riservata agli amministratori autorizzati di Area Nuova.
+        Se ritieni di dover accedere, contatta il referente tecnico o l'amministratore del sito.
+      </p>
+      <button id="btn-signout-unauth" class="mt-6 text-sm font-semibold text-primary-800 hover:underline">
+        Esci dall'account
+      </button>
+    </div>
+  </div>
+
+  <!-- ── VIEW: ERROR ─────────────────────────────────────────── -->
+  <div id="view-error" class="hidden min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-md text-center">
+      <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-amber-700">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <h1 class="mt-4 text-lg font-bold text-slate-900">Errore durante il caricamento</h1>
+      <p id="view-error-msg" class="mt-2 text-sm text-slate-600"></p>
+      <div class="mt-6 flex flex-wrap justify-center gap-4">
+        <button id="btn-retry" class="text-sm font-semibold text-primary-800 hover:underline">
+          Ricarica la pagina
+        </button>
+        <button id="btn-signout-error" class="text-sm text-slate-500 hover:underline">
+          Esci dall'account
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VIEW: ADMIN DASHBOARD ───────────────────────────────── -->
+  <div id="view-admin" class="hidden min-h-screen">
+
+    <!-- Header -->
+    <header class="border-b border-slate-200 bg-white">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Area Nuova</p>
+          <h1 class="text-lg font-bold text-slate-900">Admin — Moderazione Alloggi</h1>
+        </div>
+        <div class="flex items-center gap-4">
+          <p id="admin-email" class="hidden text-sm text-slate-500 sm:block"></p>
+          <button
+            id="btn-signout"
+            class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            Esci
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Filter tabs -->
+    <div class="border-b border-slate-200 bg-white">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <div id="filter-tabs" class="flex gap-1 overflow-x-auto py-3"></div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+
+      <div id="admin-list-loading" class="flex items-center justify-center gap-3 py-16 text-sm text-slate-500">
+        <svg class="h-5 w-5 animate-spin text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Caricamento annunci…
+      </div>
+
+      <div id="admin-list" class="hidden space-y-4"></div>
+
+      <p id="admin-list-empty" class="hidden py-16 text-center text-sm text-slate-500">
+        Nessun annuncio trovato per il filtro selezionato.
+      </p>
+
+      <div id="admin-list-error" class="hidden rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800">
+        <p class="font-semibold">Errore caricamento annunci</p>
+        <p id="admin-list-error-msg" class="mt-1"></p>
+      </div>
+
+    </main>
+  </div>
+
+</body>
+</html>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+
+  // ── Types ────────────────────────────────────────────────────────
+  type FiltroStato = 'tutti' | 'in_attesa' | 'pubblicato' | 'rifiutato' | 'scaduto';
+
+  type Annuncio = {
+    id: string;
+    titolo: string;
+    tipo: string;
+    citta: string;
+    zona: string | null;
+    prezzo: number;
+    spese_incluse: boolean;
+    inserzionista_nome: string;
+    inserzionista_email: string;
+    inserzionista_telefono: string | null;
+    stato: string;
+    scade_il: string | null;
+    privacy_accettata: boolean;
+    termini_accettati: boolean;
+    foto_url: string | null;
+    created_at: string;
+  };
+
+  // ── Constants ────────────────────────────────────────────────────
+  const TIPO_LABEL: Record<string, string> = {
+    stanza_singola: 'Stanza singola',
+    stanza_doppia:  'Stanza doppia',
+    posto_letto:    'Posto letto',
+    monolocale:     'Monolocale',
+    bilocale:       'Bilocale',
+    appartamento:   'Appartamento intero',
+    altro:          'Altro',
+  };
+
+  const STATO_CFG: Record<string, { label: string; cls: string }> = {
+    in_attesa:  { label: 'In attesa',  cls: 'bg-amber-100 text-amber-800'  },
+    pubblicato: { label: 'Pubblicato', cls: 'bg-green-100 text-green-800'  },
+    rifiutato:  { label: 'Rifiutato',  cls: 'bg-red-100 text-red-800'      },
+    scaduto:    { label: 'Scaduto',    cls: 'bg-slate-200 text-slate-600'  },
+  };
+
+  const FILTRI: { valore: FiltroStato; label: string }[] = [
+    { valore: 'tutti',      label: 'Tutti'      },
+    { valore: 'in_attesa',  label: 'In attesa'  },
+    { valore: 'pubblicato', label: 'Pubblicato' },
+    { valore: 'rifiutato',  label: 'Rifiutato'  },
+    { valore: 'scaduto',    label: 'Scaduto'    },
+  ];
+
+  // ── State ────────────────────────────────────────────────────────
+  let filtroCorrente: FiltroStato = 'in_attesa';
+  let annunci: Annuncio[] = [];
+
+  // Guard: prevents onAuthStateChange from re-entering boot logic when
+  // Supabase fires multiple events (INITIAL_SESSION → TOKEN_REFRESHED, etc.)
+  let booted = false;
+
+  // ── Helpers ──────────────────────────────────────────────────────
+  function esc(s: unknown): string {
+    return String(s ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function oggiStr(): string {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  function fmtData(iso: string | null): string {
+    if (!iso) return '—';
+    const d = new Date(iso.length === 10 ? iso + 'T00:00:00' : iso);
+    return new Intl.DateTimeFormat('it-IT', { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+  }
+
+  function canPublish(a: Annuncio): { ok: boolean; motivo: string } {
+    if (!a.privacy_accettata)    return { ok: false, motivo: 'Privacy non accettata' };
+    if (!a.termini_accettati)    return { ok: false, motivo: 'Termini non accettati' };
+    if (!a.scade_il)             return { ok: false, motivo: 'scade_il non impostata' };
+    if (a.scade_il < oggiStr())  return { ok: false, motivo: 'Annuncio scaduto — prorogare prima' };
+    return { ok: true, motivo: '' };
+  }
+
+  // ── View switching ────────────────────────────────────────────────
+  const VIEW_DISPLAY: Record<string, string> = {
+    loading:      'flex',
+    login:        'flex',
+    unauthorized: 'flex',
+    error:        'flex',
+    admin:        'block',
+  };
+
+  function showView(id: string) {
+    Object.keys(VIEW_DISPLAY).forEach((v) => {
+      const el = document.getElementById(`view-${v}`);
+      if (!el) return;
+      if (v === id) {
+        el.classList.remove('hidden');
+        el.style.display = VIEW_DISPLAY[v];
+      } else {
+        el.classList.add('hidden');
+        el.style.display = '';
+      }
+    });
+  }
+
+  function showError(msg: string) {
+    console.error('[Admin] showError:', msg);
+    const msgEl = document.getElementById('view-error-msg');
+    if (msgEl) msgEl.textContent = msg;
+    showView('error');
+  }
+
+  // ── Filter tabs ───────────────────────────────────────────────────
+  function renderFilterTabs() {
+    const container = document.getElementById('filter-tabs')!;
+    container.innerHTML = FILTRI.map(({ valore, label }) => {
+      const active = valore === filtroCorrente;
+      return `<button data-filtro="${valore}" class="shrink-0 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+        active ? 'bg-primary-800 text-white' : 'text-slate-600 hover:bg-slate-100'
+      }">${label}</button>`;
+    }).join('');
+
+    container.querySelectorAll<HTMLButtonElement>('[data-filtro]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        filtroCorrente = btn.dataset.filtro as FiltroStato;
+        loadAnnunci();
+      });
+    });
+  }
+
+  // ── Render card ───────────────────────────────────────────────────
+  function renderCard(a: Annuncio): string {
+    const stato  = STATO_CFG[a.stato] ?? { label: esc(a.stato), cls: 'bg-slate-100 text-slate-600' };
+    const tipo   = esc(TIPO_LABEL[a.tipo] ?? a.tipo);
+    const loc    = a.zona ? `${esc(a.citta)} — ${esc(a.zona)}` : esc(a.citta);
+    const pub    = canPublish(a);
+    const today  = oggiStr();
+
+    const fotoHtml = a.foto_url
+      ? `<img src="${esc(a.foto_url)}" alt="${esc(a.titolo)}" class="h-full w-full object-cover" loading="lazy" />`
+      : `<div class="flex h-full w-full items-center justify-center text-slate-300">
+           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+             <polyline points="9 22 9 12 15 12 15 22"/>
+           </svg>
+         </div>`;
+
+    const chk = (v: boolean) => v
+      ? `<span class="font-semibold text-green-600">✓</span>`
+      : `<span class="font-semibold text-red-500">✗</span>`;
+
+    const scadeClass = !a.scade_il || a.scade_il < today
+      ? 'font-semibold text-red-600'
+      : 'text-slate-700';
+
+    const B = 'rounded-lg px-3 py-1.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed';
+
+    const btnPubblica = pub.ok
+      ? `<button data-action="pubblica" data-id="${a.id}" class="${B} bg-green-600 text-white hover:bg-green-700 focus:ring-green-500">Pubblica</button>`
+      : `<button disabled title="${esc(pub.motivo)}" class="${B} bg-green-200 text-green-700">Pubblica</button>`;
+
+    const acts = [
+      a.stato !== 'pubblicato' ? btnPubblica : '',
+      a.stato !== 'rifiutato'  ? `<button data-action="rifiuta"   data-id="${a.id}" class="${B} bg-red-100 text-red-700 hover:bg-red-200 focus:ring-red-400">Rifiuta</button>`  : '',
+      a.stato !== 'scaduto'    ? `<button data-action="scaduto"   data-id="${a.id}" class="${B} bg-slate-200 text-slate-700 hover:bg-slate-300 focus:ring-slate-400">Scaduto</button>` : '',
+      a.stato !== 'in_attesa'  ? `<button data-action="in_attesa" data-id="${a.id}" class="${B} bg-amber-100 text-amber-800 hover:bg-amber-200 focus:ring-amber-400">In attesa</button>` : '',
+      `<button data-action="proroga" data-id="${a.id}" class="${B} bg-primary-100 text-primary-800 hover:bg-primary-200 focus:ring-primary-400">+30 gg</button>`,
+      `<a href="/alloggi/${a.id}" target="_blank" rel="noopener" class="${B} inline-block bg-white text-slate-600 ring-1 ring-slate-300 hover:bg-slate-50">Vedi →</a>`,
+    ].filter(Boolean).join('');
+
+    return `
+<article data-annuncio-id="${a.id}" class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+  <div class="flex gap-4 p-5">
+    <div class="hidden h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-slate-100 sm:block">${fotoHtml}</div>
+    <div class="min-w-0 flex-1">
+      <div class="flex flex-wrap items-start justify-between gap-2">
+        <div class="min-w-0">
+          <p class="truncate font-bold text-slate-900">${esc(a.titolo)}</p>
+          <p class="mt-0.5 text-xs text-slate-500">${tipo} · ${loc} · €${a.prezzo}/mese</p>
+        </div>
+        <span class="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${stato.cls}">${stato.label}</span>
+      </div>
+      <div class="mt-3 text-xs text-slate-600 space-y-0.5">
+        <p><span class="font-semibold">Inserzionista:</span> ${esc(a.inserzionista_nome)}</p>
+        <p><span class="font-semibold">Email:</span> ${esc(a.inserzionista_email)}</p>
+        ${a.inserzionista_telefono ? `<p><span class="font-semibold">Tel:</span> ${esc(a.inserzionista_telefono)}</p>` : ''}
+      </div>
+      <div class="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-600">
+        <span>Privacy: ${chk(a.privacy_accettata)}</span>
+        <span>Termini: ${chk(a.termini_accettati)}</span>
+        <span>Scade: <span class="${scadeClass}">${fmtData(a.scade_il)}</span></span>
+        <span>Creato: ${fmtData(a.created_at)}</span>
+      </div>
+      ${!pub.ok && a.stato === 'in_attesa' ? `<p class="mt-2 text-xs text-amber-700"><span class="font-semibold">Non pubblicabile:</span> ${esc(pub.motivo)}</p>` : ''}
+    </div>
+  </div>
+  <div class="border-t border-slate-100 bg-slate-50 px-5 py-3">
+    <div id="action-feedback-${a.id}" class="hidden mb-2 text-xs font-semibold"></div>
+    <div class="flex flex-wrap gap-2">${acts}</div>
+  </div>
+</article>`;
+  }
+
+  // ── Attach card listeners ─────────────────────────────────────────
+  function attachCardListeners(card: Element) {
+    card.querySelectorAll<HTMLButtonElement>('[data-action][data-id]').forEach((btn) => {
+      btn.addEventListener('click', () => performAction(btn.dataset.id!, btn.dataset.action!));
+    });
+  }
+
+  // ── Load annunci ──────────────────────────────────────────────────
+  async function loadAnnunci() {
+    const elLoading  = document.getElementById('admin-list-loading')!;
+    const elList     = document.getElementById('admin-list')!;
+    const elEmpty    = document.getElementById('admin-list-empty')!;
+    const elError    = document.getElementById('admin-list-error')!;
+    const elErrorMsg = document.getElementById('admin-list-error-msg')!;
+
+    elList.classList.add('hidden');
+    elEmpty.classList.add('hidden');
+    elError.classList.add('hidden');
+    elLoading.classList.remove('hidden');
+
+    renderFilterTabs();
+
+    console.log('[Admin] loadAnnunci filtro:', filtroCorrente);
+
+    let query = supabase
+      .from('alloggi')
+      .select('id, titolo, tipo, citta, zona, prezzo, spese_incluse, inserzionista_nome, inserzionista_email, inserzionista_telefono, stato, scade_il, privacy_accettata, termini_accettati, foto_url, created_at')
+      .order('created_at', { ascending: false });
+
+    if (filtroCorrente !== 'tutti') {
+      query = query.eq('stato', filtroCorrente);
+    }
+
+    const { data, error } = await query;
+
+    elLoading.classList.add('hidden');
+
+    if (error) {
+      console.error('[Admin] loadAnnunci error:', error.message, 'code:', error.code);
+      elErrorMsg.textContent = error.message + (error.code ? ` (${error.code})` : '');
+      elError.classList.remove('hidden');
+      return;
+    }
+
+    annunci = (data ?? []) as Annuncio[];
+    console.log('[Admin] annunci loaded:', annunci.length);
+
+    if (annunci.length === 0) {
+      elEmpty.classList.remove('hidden');
+      return;
+    }
+
+    elList.innerHTML = annunci.map(renderCard).join('');
+    elList.classList.remove('hidden');
+    elList.querySelectorAll('[data-annuncio-id]').forEach(attachCardListeners);
+  }
+
+  // ── Perform action ────────────────────────────────────────────────
+  async function performAction(id: string, action: string) {
+    const card       = document.querySelector(`[data-annuncio-id="${id}"]`);
+    const feedbackEl = document.getElementById(`action-feedback-${id}`);
+
+    function setFeedback(msg: string, isError: boolean) {
+      if (!feedbackEl) return;
+      feedbackEl.textContent = msg;
+      feedbackEl.className = `mb-2 text-xs font-semibold ${isError ? 'text-red-600' : 'text-green-600'}`;
+      feedbackEl.classList.remove('hidden');
+    }
+
+    const btns = card?.querySelectorAll<HTMLButtonElement>('[data-action]');
+    btns?.forEach((b) => (b.disabled = true));
+
+    const a = annunci.find((x) => x.id === id);
+    if (!a) { setFeedback('Annuncio non trovato', true); return; }
+
+    let updateData: Record<string, unknown> = {};
+
+    switch (action) {
+      case 'pubblica': {
+        const check = canPublish(a);
+        if (!check.ok) {
+          setFeedback(check.motivo, true);
+          btns?.forEach((b) => (b.disabled = false));
+          return;
+        }
+        updateData = { stato: 'pubblicato' };
+        break;
+      }
+      case 'rifiuta':
+        updateData = { stato: 'rifiutato' };
+        break;
+      case 'scaduto':
+        updateData = { stato: 'scaduto' };
+        break;
+      case 'in_attesa':
+        updateData = { stato: 'in_attesa' };
+        break;
+      case 'proroga': {
+        const base = a.scade_il && a.scade_il >= oggiStr()
+          ? new Date(a.scade_il + 'T00:00:00')
+          : new Date();
+        base.setDate(base.getDate() + 30);
+        updateData = { scade_il: base.toISOString().split('T')[0] };
+        break;
+      }
+      default:
+        setFeedback('Azione non riconosciuta', true);
+        btns?.forEach((b) => (b.disabled = false));
+        return;
+    }
+
+    const { error } = await supabase.from('alloggi').update(updateData).eq('id', id);
+
+    if (error) {
+      setFeedback(`Errore: ${error.message}`, true);
+      btns?.forEach((b) => (b.disabled = false));
+      return;
+    }
+
+    Object.assign(a, updateData);
+
+    if (card) {
+      const temp = document.createElement('div');
+      temp.innerHTML = renderCard(a);
+      const newCard = temp.firstElementChild!;
+      card.replaceWith(newCard);
+      attachCardListeners(newCard);
+    }
+  }
+
+  // ── Auth helpers ──────────────────────────────────────────────────
+  async function checkAdmin(email: string): Promise<boolean> {
+    console.log('[Admin] checking admin_users for:', email);
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (error) {
+      console.error('[Admin] checkAdmin error:', error.message, 'code:', error.code, 'hint:', error.hint);
+      throw new Error(`Verifica admin fallita: ${error.message}${error.code ? ' (' + error.code + ')' : ''}`);
+    }
+
+    console.log('[Admin] admin check result:', data !== null);
+    return data !== null;
+  }
+
+  async function handleLogin(e: Event) {
+    e.preventDefault();
+    const emailInput = document.getElementById('login-email') as HTMLInputElement;
+    const btn        = document.getElementById('login-btn') as HTMLButtonElement;
+    const errEl      = document.getElementById('login-error')!;
+    const successEl  = document.getElementById('login-success')!;
+
+    if (!emailInput.value.trim()) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Invio in corso…';
+    errEl.classList.add('hidden');
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email: emailInput.value.trim(),
+      options: { emailRedirectTo: window.location.href },
+    });
+
+    btn.disabled = false;
+    btn.textContent = 'Invia link di accesso';
+
+    if (error) {
+      errEl.textContent = error.message;
+      errEl.classList.remove('hidden');
+    } else {
+      document.getElementById('login-form')!.classList.add('hidden');
+      successEl.classList.remove('hidden');
+    }
+  }
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    booted = false;
+    showView('login');
+  }
+
+  // ── Boot logic (called once per session) ──────────────────────────
+  async function boot(session: { user: { email?: string } } | null) {
+    // Guard: Supabase can fire onAuthStateChange multiple times
+    // (INITIAL_SESSION, then TOKEN_REFRESHED, USER_UPDATED, etc.).
+    // We only boot once until the user explicitly signs out.
+    if (booted) {
+      console.log('[Admin] already booted, skipping duplicate event');
+      return;
+    }
+    booted = true;
+
+    clearTimeout(safetyTimer);
+
+    if (!session?.user) {
+      console.log('[Admin] no session → showing login');
+      booted = false; // allow re-boot after sign-in
+      showView('login');
+      return;
+    }
+
+    const email = session.user.email ?? '';
+    console.log('[Admin] user loaded:', email);
+
+    const loadingMsg = document.getElementById('loading-msg');
+    if (loadingMsg) loadingMsg.textContent = 'Verifica autorizzazione…';
+
+    try {
+      const isAdm = await checkAdmin(email);
+
+      if (!isAdm) {
+        showView('unauthorized');
+        return;
+      }
+
+      const emailEl = document.getElementById('admin-email');
+      if (emailEl) emailEl.textContent = email;
+
+      showView('admin');
+      console.log('[Admin] loading annunci...');
+      loadAnnunci();
+
+    } catch (err) {
+      showError(
+        'Errore durante il caricamento dell\'area riservata. ' +
+        String(err) +
+        ' — Verifica che la tabella admin_users esista e che la policy RLS sia configurata.'
+      );
+    }
+  }
+
+  // ── Boot: safety timeout ──────────────────────────────────────────
+  showView('loading');
+  console.log('[Admin] init started');
+
+  const safetyTimer = setTimeout(() => {
+    const el = document.getElementById('view-loading');
+    if (el && el.style.display !== 'none') {
+      console.error('[Admin] safety timeout: still loading after 8s');
+      showError(
+        'Caricamento troppo lungo. Verifica configurazione Supabase Auth, policy RLS e connessione di rete.'
+      );
+    }
+  }, 8000);
+
+  // ── Boot: auth state listener ─────────────────────────────────────
+  // onAuthStateChange fires:
+  //   INITIAL_SESSION — on every page load (reflects current stored session)
+  //   SIGNED_IN       — after magic link is processed
+  //   TOKEN_REFRESHED — automatic token refresh (ignored via `booted` guard)
+  //   SIGNED_OUT      — after signOut()
+  supabase.auth.onAuthStateChange((event, session) => {
+    console.log('[Admin] auth state change:', event, session ? '(with session)' : '(no session)');
+
+    if (event === 'SIGNED_OUT') {
+      booted = false;
+      clearTimeout(safetyTimer);
+      showView('login');
+      return;
+    }
+
+    // Only boot on meaningful auth events; TOKEN_REFRESHED etc. are handled
+    // by the booted guard inside boot()
+    if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
+      boot(session as { user: { email?: string } } | null);
+    }
+  });
+
+  // ── Static listeners ──────────────────────────────────────────────
+  document.getElementById('login-form')!.addEventListener('submit', handleLogin);
+  document.getElementById('btn-signout')!.addEventListener('click', handleSignOut);
+  document.getElementById('btn-signout-unauth')!.addEventListener('click', handleSignOut);
+  document.getElementById('btn-signout-error')!.addEventListener('click', handleSignOut);
+  document.getElementById('btn-retry')!.addEventListener('click', () => window.location.reload());
+</script>

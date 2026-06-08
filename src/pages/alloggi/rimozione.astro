@@ -1,0 +1,186 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+
+const mailtoRimozione =
+  'mailto:areanuova@unifg.it?subject=' +
+  encodeURIComponent('Richiesta modifica o rimozione annuncio alloggi');
+---
+
+<BaseLayout
+  titolo="Modifica o rimozione annuncio — Area Nuova Alloggi"
+  descrizione="Come richiedere la modifica, l'aggiornamento o la rimozione di un annuncio pubblicato nella bacheca Area Nuova Alloggi."
+>
+  <PageHeader
+    occhiello="Area Nuova Alloggi"
+    titolo="Modifica o rimozione annuncio"
+    sottotitolo="Hai pubblicato un annuncio e vuoi modificarlo, aggiornarlo o rimuoverlo? Segui queste istruzioni."
+  />
+
+  <div class="container-site max-w-3xl py-16">
+
+    <!-- CHI PUÒ FARE RICHIESTA -->
+    <section>
+      <h2 class="text-xl font-bold">Chi può fare richiesta</h2>
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-700 space-y-3">
+        <p>Può richiedere modifica o rimozione di un annuncio:</p>
+        <ul class="ml-4 list-disc space-y-1 text-slate-600">
+          <li>l'inserzionista che ha pubblicato l'annuncio (identificato dall'email usata al momento dell'invio);</li>
+          <li>chiunque segnali un annuncio non più valido, scorretto o potenzialmente illecito.</li>
+        </ul>
+        <p>
+          Area Nuova si riserva di verificare l'identità del richiedente richiedendo conferma
+          dall'indirizzo email usato per la pubblicazione.
+        </p>
+      </div>
+    </section>
+
+    <!-- TIPI DI RICHIESTA -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Tipi di richiesta</h2>
+      <ul class="mt-4 space-y-3">
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-700">A</span>
+          <div>
+            <p class="font-semibold text-slate-900">Rimozione annuncio</p>
+            <p class="mt-1 text-sm text-slate-600">
+              L'annuncio viene rimosso dalla bacheca pubblica e non sarà più visibile agli studenti.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">B</span>
+          <div>
+            <p class="font-semibold text-slate-900">Modifica dei dati</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Correzione di prezzo, zona, contatti, descrizione o altre informazioni errate o cambiate.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">C</span>
+          <div>
+            <p class="font-semibold text-slate-900">Aggiornamento disponibilità o rimozione anticipata</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Segnalazione che l'alloggio non è più disponibile, aggiornamento della data di
+              disponibilità, oppure richiesta di rimozione anticipata prima della scadenza
+              naturale dell'annuncio (60 giorni dall'invio).
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">D</span>
+          <div>
+            <p class="font-semibold text-slate-900">Correzione foto o contatti</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Rimozione di foto non conformi o errate, aggiornamento di email o numero di
+              telefono dell'inserzionista.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-700">E</span>
+          <div>
+            <p class="font-semibold text-slate-900">Segnalazione annuncio non più valido</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Chiunque può segnalare un annuncio sospetto, scorretto, discriminatorio o non più
+              attuale. Area Nuova verificherà la segnalazione e agirà di conseguenza.
+            </p>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- COME INVIARE LA RICHIESTA -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Come inviare la richiesta</h2>
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-700 space-y-4">
+        <p>
+          Invia un'email a
+          <a href={mailtoRimozione} class="font-semibold text-primary-800 hover:underline">areanuova@unifg.it</a>
+          indicando le informazioni seguenti:
+        </p>
+        <ul class="ml-4 list-disc space-y-2 text-slate-600">
+          <li><strong>Titolo dell'annuncio</strong> esattamente come appare in bacheca;</li>
+          <li><strong>Email usata per pubblicarlo</strong> (serve a identificarti come inserzionista);</li>
+          <li><strong>Link all'annuncio</strong>, se disponibile (es. areanuova.it/alloggi/[id]);</li>
+          <li><strong>Tipo di richiesta</strong>: rimozione, modifica dati, aggiornamento disponibilità, correzione foto, segnalazione;</li>
+          <li><strong>Descrizione dettagliata</strong> di cosa deve essere modificato o rimosso.</li>
+        </ul>
+        <p>
+          Area Nuova potrà richiedere una conferma dall'indirizzo email con cui è stato inviato
+          l'annuncio originale, per verificare che la richiesta provenga dall'inserzionista.
+        </p>
+      </div>
+    </section>
+
+    <!-- CTA EMAIL -->
+    <div class="mt-8 rounded-2xl bg-primary-50 border border-primary-200 p-6 text-center">
+      <p class="text-sm font-semibold text-primary-900">
+        Pronto a inviare la richiesta?
+      </p>
+      <p class="mt-1 text-xs text-slate-600">
+        Il tuo client di posta si aprirà con oggetto precompilato.
+      </p>
+      <a
+        href={mailtoRimozione}
+        class="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary-800 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+          <polyline points="22,6 12,13 2,6" />
+        </svg>
+        Invia richiesta via email
+      </a>
+    </div>
+
+    <!-- TEMPI E MODALITÀ -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Tempi e modalità</h2>
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-700 space-y-3">
+        <p>
+          La rimozione o modifica non è immediata: le richieste vengono gestite dai volontari
+          di Area Nuova nell'ordine di ricezione, senza tempi di risposta garantiti. In caso
+          di contenuti urgenti (annunci illeciti, dati sensibili esposti, foto non conformi),
+          segnalalo esplicitamente nell'email.
+        </p>
+      </div>
+    </section>
+
+    <!-- GDPR / DATI PERSONALI -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Dati personali e diritti GDPR</h2>
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-700 space-y-3">
+        <p>
+          Se l'annuncio contiene dati personali non corretti, non aggiornati o che desideri
+          rimuovere (nome, email, telefono), puoi esercitare i tuoi diritti di
+          <strong>rettifica</strong> e <strong>cancellazione</strong> ai sensi del GDPR
+          (Reg. UE 2016/679) scrivendo a
+          <a href="mailto:areanuova@unifg.it?subject=Richiesta%20privacy%20alloggi" class="font-semibold text-primary-800 hover:underline">areanuova@unifg.it</a>.
+        </p>
+        <p>
+          Per i dettagli su come trattiamo i dati, leggi l'
+          <a href="/alloggi/privacy" class="font-semibold text-primary-800 hover:underline">informativa privacy</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- NAVIGAZIONE -->
+    <div class="mt-12 flex flex-wrap gap-4 border-t border-slate-200 pt-8">
+      <a href="/alloggi" class="text-sm font-semibold text-primary-800 hover:underline">← Torna alla bacheca</a>
+      <div class="ml-auto flex flex-wrap gap-6">
+        <a href="/alloggi/termini" class="text-sm font-semibold text-primary-800 hover:underline">Termini di utilizzo →</a>
+        <a href="/alloggi/privacy" class="text-sm font-semibold text-primary-800 hover:underline">Informativa privacy →</a>
+      </div>
+    </div>
+
+  </div>
+</BaseLayout>

@@ -1,0 +1,493 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import DisclaimerBox from '../../components/alloggi/DisclaimerBox.astro';
+import SicurezzaBadge from '../../components/alloggi/SicurezzaBadge.astro';
+---
+
+<BaseLayout
+  titolo="Pubblica un annuncio — Area Nuova Alloggi"
+  descrizione="Inserisci il tuo annuncio nella bacheca alloggi di Area Nuova per studenti dell'Università di Foggia."
+>
+  <PageHeader
+    occhiello="Area Nuova Alloggi"
+    titolo="Pubblica un annuncio"
+    sottotitolo="Compila il form per inserire il tuo alloggio nella bacheca. Il servizio è gratuito."
+  />
+
+  <div class="container-site max-w-2xl py-16">
+
+    <DisclaimerBox compact />
+
+    <form
+      id="form-pubblica"
+      novalidate
+      class="mt-8 space-y-8"
+    >
+
+      <!-- SEZIONE: ALLOGGIO -->
+      <fieldset class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <legend class="px-1 text-sm font-bold uppercase tracking-wide text-slate-500">Alloggio</legend>
+
+        <div class="mt-4 space-y-5">
+
+          <div>
+            <label for="titolo" class="block text-sm font-semibold text-slate-800">
+              Titolo annuncio <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="titolo"
+              name="titolo"
+              required
+              maxlength="100"
+              placeholder="Es. Stanza singola in zona Università, arredata"
+              class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            />
+          </div>
+
+          <div>
+            <label for="tipo" class="block text-sm font-semibold text-slate-800">
+              Tipo di alloggio <span class="text-red-500">*</span>
+            </label>
+            <select
+              id="tipo"
+              name="tipo"
+              required
+              class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            >
+              <option value="" disabled selected>Seleziona una tipologia</option>
+              <option value="stanza_singola">Stanza singola</option>
+              <option value="stanza_doppia">Stanza doppia</option>
+              <option value="posto_letto">Posto letto</option>
+              <option value="monolocale">Monolocale</option>
+              <option value="bilocale">Bilocale</option>
+              <option value="appartamento">Appartamento intero</option>
+              <option value="altro">Altro</option>
+            </select>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="citta" class="block text-sm font-semibold text-slate-800">
+                Città <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="citta"
+                name="citta"
+                required
+                placeholder="Es. Foggia"
+                class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+              />
+            </div>
+            <div>
+              <label for="zona" class="block text-sm font-semibold text-slate-800">
+                Zona / Quartiere <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="zona"
+                name="zona"
+                required
+                placeholder="Es. Centro, Semicentro, Università…"
+                class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+              />
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label for="prezzo" class="block text-sm font-semibold text-slate-800">
+                Prezzo mensile (€) <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                id="prezzo"
+                name="prezzo"
+                required
+                min="1"
+                step="1"
+                placeholder="Es. 320"
+                class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+              />
+            </div>
+            <div class="flex flex-col justify-end">
+              <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 px-4 py-3">
+                <input
+                  type="checkbox"
+                  id="spese-incluse"
+                  name="speseIncluse"
+                  class="h-4 w-4 rounded border-slate-300 text-accent-600 focus:ring-accent-500"
+                />
+                <span class="text-sm font-medium text-slate-800">Spese incluse</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label for="disponibile-da" class="block text-sm font-semibold text-slate-800">
+              Disponibile da <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              id="disponibile-da"
+              name="disponibileDa"
+              required
+              class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            />
+          </div>
+
+          <div>
+            <label for="descrizione" class="block text-sm font-semibold text-slate-800">
+              Descrizione <span class="text-red-500">*</span>
+            </label>
+            <textarea
+              id="descrizione"
+              name="descrizione"
+              required
+              rows="5"
+              maxlength="1500"
+              placeholder="Descrivi l'alloggio: metratura, arredi, riscaldamento, bagno condiviso o privato, regole della casa, eventuali vincoli…"
+              class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            ></textarea>
+            <p class="mt-1 text-right text-xs text-slate-400">Max 1500 caratteri</p>
+          </div>
+
+          <div>
+            <label for="foto" class="block text-sm font-semibold text-slate-800">
+              Foto dell'alloggio
+            </label>
+            <div class="mt-1.5 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-center">
+              <input
+                type="file"
+                id="foto"
+                name="foto"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                class="hidden"
+              />
+              <label for="foto" class="cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                  stroke-linejoin="round" class="mx-auto text-slate-400">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+                <p class="mt-2 text-sm text-slate-500">
+                  Puoi caricare fino a 5 fotografie (jpeg, png, webp — max 5 MB ciascuna)
+                </p>
+                <p id="foto-lista" class="mt-1 hidden text-sm font-medium text-primary-800"></p>
+              </label>
+            </div>
+            <p id="foto-errore" class="mt-1 hidden text-sm text-red-600"></p>
+          </div>
+
+        </div>
+      </fieldset>
+
+      <!-- SEZIONE: INSERZIONISTA -->
+      <fieldset class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <legend class="px-1 text-sm font-bold uppercase tracking-wide text-slate-500">I tuoi contatti</legend>
+
+        <div class="mt-4 space-y-5">
+
+          <div>
+            <label for="nome" class="block text-sm font-semibold text-slate-800">
+              Nome e cognome <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="nome"
+              name="nome"
+              required
+              placeholder="Es. Mario Rossi"
+              class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            />
+          </div>
+
+          <div>
+            <label for="email" class="block text-sm font-semibold text-slate-800">
+              Email <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              placeholder="nome@esempio.it"
+              class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            />
+            <p class="mt-1 text-xs text-slate-500">Visibile agli studenti interessati per contattarti.</p>
+          </div>
+
+          <div>
+            <label for="telefono" class="block text-sm font-semibold text-slate-800">
+              Telefono / WhatsApp
+            </label>
+            <input
+              type="tel"
+              id="telefono"
+              name="telefono"
+              placeholder="+39 333 1234567"
+              class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            />
+            <p class="mt-1 text-xs text-slate-500">Opzionale. Se inserito, gli studenti potranno contattarti anche via WhatsApp.</p>
+          </div>
+
+        </div>
+      </fieldset>
+
+      <!-- ACCETTAZIONE DISCLAIMER -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <label class="flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            id="accetta-disclaimer"
+            name="accettaDisclaimer"
+            required
+            class="mt-0.5 h-4 w-4 rounded border-slate-300 text-accent-600 focus:ring-accent-500"
+          />
+          <span class="text-sm text-slate-700">
+            Ho letto e accetto il
+            <a href="/alloggi/sicurezza" class="font-semibold text-primary-800 hover:underline">disclaimer del servizio</a>.
+            Confermo che le informazioni inserite sono veritiere e che Area Nuova non è responsabile
+            degli accordi tra le parti. <span class="text-red-500">*</span>
+          </span>
+        </label>
+      </div>
+
+      <!-- ACCETTAZIONE PRIVACY -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <label class="flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            id="accetta-privacy"
+            name="accettaPrivacy"
+            required
+            class="mt-0.5 h-4 w-4 rounded border-slate-300 text-accent-600 focus:ring-accent-500"
+          />
+          <span class="text-sm text-slate-700">
+            Dichiaro di aver letto l'
+            <a href="/alloggi/privacy" class="font-semibold text-primary-800 hover:underline">informativa privacy</a>
+            e autorizzo il trattamento dei dati inseriti per la gestione e pubblicazione dell'annuncio.
+            <span class="text-red-500">*</span>
+          </span>
+        </label>
+      </div>
+
+      <!-- ACCETTAZIONE TERMINI -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <label class="flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            id="accetta-termini"
+            name="accettaTermini"
+            required
+            class="mt-0.5 h-4 w-4 rounded border-slate-300 text-accent-600 focus:ring-accent-500"
+          />
+          <span class="text-sm text-slate-700">
+            Dichiaro di aver letto e accettato i
+            <a href="/alloggi/termini" class="font-semibold text-primary-800 hover:underline">Termini di utilizzo della bacheca Area Nuova Alloggi</a>.
+            <span class="text-red-500">*</span>
+          </span>
+        </label>
+      </div>
+
+      <!-- MESSAGGIO ERRORE -->
+      <div
+        id="errore-form"
+        role="alert"
+        class="hidden rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800"
+      ></div>
+
+      <!-- SUBMIT -->
+      <div>
+        <button
+          id="btn-submit"
+          type="submit"
+          class="w-full rounded-xl bg-primary-800 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+        >
+          Invia annuncio
+        </button>
+        <p class="mt-3 text-center text-xs text-slate-500">
+          Il tuo annuncio sarà verificato dal team di Area Nuova prima della pubblicazione.
+        </p>
+      </div>
+
+    </form>
+
+    <div class="mt-10">
+      <SicurezzaBadge />
+    </div>
+
+    <div class="mt-10 border-t border-slate-200 pt-6">
+      <a href="/alloggi" class="text-sm font-semibold text-primary-800 hover:underline">← Torna alla bacheca</a>
+    </div>
+
+  </div>
+</BaseLayout>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+
+  const form = document.getElementById('form-pubblica') as HTMLFormElement;
+  const btnSubmit = document.getElementById('btn-submit') as HTMLButtonElement;
+  const erroreDiv = document.getElementById('errore-form') as HTMLDivElement;
+  const fotoInput = document.getElementById('foto') as HTMLInputElement;
+  const fotoLista = document.getElementById('foto-lista') as HTMLParagraphElement;
+  const fotoErrore = document.getElementById('foto-errore') as HTMLParagraphElement;
+
+  const FORMATI_VALIDI = ['image/jpeg', 'image/png', 'image/webp'];
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+  const MAX_FILES = 5;
+
+  function validaFile(files: File[]): string | null {
+    if (files.length > MAX_FILES)
+      return 'Puoi caricare al massimo 5 fotografie.';
+    for (const f of files) {
+      if (!FORMATI_VALIDI.includes(f.type))
+        return 'Formato non valido. Usa immagini JPEG, PNG o WEBP.';
+      if (f.size > MAX_FILE_SIZE)
+        return 'Ogni foto deve pesare massimo 5 MB.';
+    }
+    return null;
+  }
+
+  fotoInput.addEventListener('change', () => {
+    const files = Array.from(fotoInput.files ?? []);
+    fotoErrore.classList.add('hidden');
+    fotoErrore.textContent = '';
+
+    if (files.length === 0) {
+      fotoLista.classList.add('hidden');
+      fotoLista.textContent = '';
+      return;
+    }
+
+    const errore = validaFile(files);
+    if (errore) {
+      fotoErrore.textContent = errore;
+      fotoErrore.classList.remove('hidden');
+      fotoLista.classList.add('hidden');
+      fotoInput.value = '';
+      return;
+    }
+
+    fotoLista.textContent =
+      files.length === 1 ? files[0].name : `${files.length} fotografie selezionate`;
+    fotoLista.classList.remove('hidden');
+  });
+
+  function mostraErrore(msg: string) {
+    erroreDiv.textContent = msg;
+    erroreDiv.classList.remove('hidden');
+    erroreDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function nascondiErrore() {
+    erroreDiv.classList.add('hidden');
+    erroreDiv.textContent = '';
+  }
+
+  function setLoading(loading: boolean) {
+    btnSubmit.disabled = loading;
+    btnSubmit.textContent = loading ? 'Invio in corso…' : 'Invia annuncio';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    nascondiErrore();
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const formData = new FormData(form);
+    const files = Array.from(fotoInput.files ?? []);
+
+    // Validazione foto anche al submit (doppio controllo)
+    if (files.length > 0) {
+      const errore = validaFile(files);
+      if (errore) {
+        mostraErrore(errore);
+        return;
+      }
+    }
+
+    setLoading(true);
+
+    const fotoUrls: string[] = [];
+    const uuid = crypto.randomUUID();
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const ext = file.name.split('.').pop() ?? 'jpg';
+      const path = `pending/${uuid}-${i}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('alloggi-foto')
+        .upload(path, file, { contentType: file.type });
+
+      if (uploadError) {
+        console.error('Errore upload Supabase:', uploadError);
+        mostraErrore(
+          `Errore durante il caricamento della foto ${i + 1}: ` +
+          (uploadError.message || 'errore sconosciuto')
+        );
+        setLoading(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('alloggi-foto')
+        .getPublicUrl(path);
+
+      fotoUrls.push(urlData.publicUrl);
+    }
+
+    const prezzo = parseInt(formData.get('prezzo') as string, 10);
+    const disponibileDa = (formData.get('disponibileDa') as string) || null;
+    const telefono = ((formData.get('telefono') as string) ?? '').trim() || null;
+    const zona = ((formData.get('zona') as string) ?? '').trim() || null;
+
+    const scadeIl = new Date();
+    scadeIl.setDate(scadeIl.getDate() + 60);
+    const scadeIlString = scadeIl.toISOString().split('T')[0];
+
+    const { error: insertError } = await supabase.from('alloggi').insert({
+      titolo: formData.get('titolo') as string,
+      tipo: formData.get('tipo') as string,
+      citta: formData.get('citta') as string,
+      zona,
+      prezzo,
+      spese_incluse: (document.getElementById('spese-incluse') as HTMLInputElement).checked,
+      disponibile_da: disponibileDa,
+      descrizione: formData.get('descrizione') as string,
+      foto_url: fotoUrls[0] ?? null,
+      foto_urls: fotoUrls,
+      inserzionista_nome: formData.get('nome') as string,
+      inserzionista_email: formData.get('email') as string,
+      inserzionista_telefono: telefono,
+      stato: 'in_attesa',
+      privacy_accettata: true,
+      privacy_accettata_at: new Date().toISOString(),
+      termini_accettati: true,
+      termini_accettati_at: new Date().toISOString(),
+      scade_il: scadeIlString,
+    });
+
+    if (insertError) {
+      mostraErrore(
+        "Errore durante l'invio dell'annuncio. Controlla i dati e riprova. " +
+        'Se il problema persiste, scrivici a areanuova@unifg.it.'
+      );
+      setLoading(false);
+      return;
+    }
+
+    window.location.href = '/alloggi/successo';
+  });
+</script>

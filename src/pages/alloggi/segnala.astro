@@ -1,0 +1,198 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+
+const mailtoSegnala =
+  'mailto:areanuova@unifg.it' +
+  '?subject=' + encodeURIComponent('Segnalazione annuncio Area Nuova Alloggi') +
+  '&body=' + encodeURIComponent(
+    'Link annuncio: \n' +
+    'Titolo annuncio: \n' +
+    'Motivo della segnalazione: \n' +
+    'Dettagli: \n' +
+    'Email per eventuale ricontatto: '
+  );
+---
+
+<BaseLayout
+  titolo="Segnala un annuncio — Area Nuova Alloggi"
+  descrizione="Come segnalare ad Area Nuova un annuncio sospetto, falso, ingannevole o non conforme nella bacheca alloggi."
+>
+  <PageHeader
+    occhiello="Area Nuova Alloggi"
+    titolo="Segnala un annuncio"
+    sottotitolo="Hai trovato un annuncio sospetto, falso o non conforme? Segnalacelo."
+  />
+
+  <div class="container-site max-w-3xl py-16">
+
+    <!-- QUANDO USARE LA SEGNALAZIONE -->
+    <section>
+      <h2 class="text-xl font-bold">Quando usare questa pagina</h2>
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-700 space-y-3">
+        <p>
+          Usa questa pagina per segnalare ad Area Nuova un annuncio che ritieni sospetto,
+          non conforme o potenzialmente dannoso per gli studenti. Area Nuova valuterà la
+          segnalazione e potrà rimuovere o sospendere l'annuncio.
+        </p>
+        <p>
+          Se sei l'inserzionista e vuoi richiedere la modifica o rimozione del tuo annuncio,
+          usa invece la pagina
+          <a href="/alloggi/rimozione" class="font-semibold text-primary-800 hover:underline">Modifica o rimozione annuncio</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- CASI DA SEGNALARE -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Casi da segnalare</h2>
+      <ul class="mt-4 space-y-3">
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-700">A</span>
+          <div>
+            <p class="font-semibold text-slate-900">Richiesta di pagamento anticipato sospetta</p>
+            <p class="mt-1 text-sm text-slate-600">
+              L'inserzionista chiede bonifici, caparre o prenotazioni prima di mostrare l'alloggio
+              o prima di qualsiasi incontro di persona.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-700">B</span>
+          <div>
+            <p class="font-semibold text-slate-900">Annuncio falso o ingannevole</p>
+            <p class="mt-1 text-sm text-slate-600">
+              L'alloggio non esiste, le foto non corrispondono alla realtà, le informazioni sono
+              false o volutamente fuorvianti.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-700">C</span>
+          <div>
+            <p class="font-semibold text-slate-900">Foto non pertinenti o rubate</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Le foto sembrano prese da internet, mostrano un alloggio diverso, oppure contengono
+              documenti, dati sensibili o volti di persone non consenzienti.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-700">D</span>
+          <div>
+            <p class="font-semibold text-slate-900">Richiesta di documenti personali</p>
+            <p class="mt-1 text-sm text-slate-600">
+              L'inserzionista chiede via chat o email copie di documenti d'identità, codice
+              fiscale, estratti conto o altri dati sensibili prima di mostrarti l'alloggio.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-700">E</span>
+          <div>
+            <p class="font-semibold text-slate-900">Prezzo o condizioni non coerenti</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Il prezzo reale comunicato dall'inserzionista è diverso da quello pubblicato,
+              oppure vengono aggiunte condizioni non indicate nell'annuncio.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-700">F</span>
+          <div>
+            <p class="font-semibold text-slate-900">Contenuti discriminatori, offensivi o illeciti</p>
+            <p class="mt-1 text-sm text-slate-600">
+              L'annuncio contiene clausole o linguaggio discriminatori per nazionalità, sesso,
+              religione, orientamento sessuale o altri motivi tutelati dalla legge.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">G</span>
+          <div>
+            <p class="font-semibold text-slate-900">Annuncio non più disponibile</p>
+            <p class="mt-1 text-sm text-slate-600">
+              L'alloggio è già stato affittato ma l'annuncio è ancora online e genera contatti inutili.
+            </p>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- COSA INDICARE NELLA SEGNALAZIONE -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Cosa indicare nella segnalazione</h2>
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-700 space-y-3">
+        <p>Per permetterci di individuare e valutare l'annuncio rapidamente, indica:</p>
+        <ul class="ml-4 list-disc space-y-2 text-slate-600">
+          <li><strong>Link dell'annuncio</strong> (es. areanuova.it/alloggi/[id]);</li>
+          <li><strong>Titolo dell'annuncio</strong> come appare in bacheca;</li>
+          <li><strong>Motivo della segnalazione</strong> tra quelli elencati sopra;</li>
+          <li><strong>Dettagli aggiuntivi</strong>: screenshot, messaggi ricevuti, discrepanze riscontrate;</li>
+          <li><strong>La tua email</strong>, solo se vuoi essere ricontattato in merito alla segnalazione.</li>
+        </ul>
+        <p>
+          Le segnalazioni anonime sono accettate. Se non hai bisogno di risposta, puoi omettere
+          il tuo recapito.
+        </p>
+      </div>
+    </section>
+
+    <!-- CTA EMAIL -->
+    <div class="mt-8 rounded-2xl bg-primary-50 border border-primary-200 p-6 text-center">
+      <p class="text-sm font-semibold text-primary-900">
+        Pronto a inviare la segnalazione?
+      </p>
+      <p class="mt-1 text-xs text-slate-600">
+        Il tuo client di posta si aprirà con oggetto e corpo precompilati.
+      </p>
+      <a
+        href={mailtoSegnala}
+        class="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary-800 px-6 py-3 text-sm font-semibold text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+          <polyline points="22,6 12,13 2,6" />
+        </svg>
+        Invia segnalazione via email
+      </a>
+    </div>
+
+    <!-- TEMPI E LIMITI -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Cosa succede dopo</h2>
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-700 space-y-3">
+        <p>
+          Area Nuova valuterà ogni segnalazione ricevuta e potrà rimuovere, sospendere o
+          contattare l'inserzionista segnalato. Non garantiamo tempi di risposta fissi né
+          l'intervento immediato.
+        </p>
+        <p>
+          Area Nuova non è un'autorità pubblica e non ha poteri coercitivi. Per episodi di
+          truffa subita, minacce, reati o situazioni di pericolo, rivolgiti direttamente
+          alle <strong>autorità competenti</strong> (Polizia di Stato, Carabinieri, Guardia di Finanza).
+        </p>
+      </div>
+    </section>
+
+    <!-- NAVIGAZIONE -->
+    <div class="mt-12 flex flex-wrap gap-4 border-t border-slate-200 pt-8">
+      <a href="/alloggi" class="text-sm font-semibold text-primary-800 hover:underline">← Torna alla bacheca</a>
+      <div class="ml-auto flex flex-wrap gap-6">
+        <a href="/alloggi/sicurezza" class="text-sm font-semibold text-primary-800 hover:underline">Consigli di sicurezza →</a>
+        <a href="/alloggi/rimozione" class="text-sm font-semibold text-primary-800 hover:underline">Rimozione annuncio →</a>
+      </div>
+    </div>
+
+  </div>
+</BaseLayout>

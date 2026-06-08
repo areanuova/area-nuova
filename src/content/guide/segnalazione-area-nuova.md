@@ -8,7 +8,7 @@ estratto: Come contattare Area Nuova per segnalare un problema, richiedere suppo
 
 # Cos'è
 
-Area Nuova è l'associazione di rappresentanza studentesca dell'Università di Foggia. Puoi contattarci per segnalare problemi legati alla didattica, agli spazi, ai servizi universitari, o per proporre iniziative e richiedere supporto.
+Area Nuova è un'associazione autonoma di rappresentanza studentesca attiva presso l'Università di Foggia. Puoi contattarci per segnalare problemi legati alla didattica, agli spazi, ai servizi universitari, o per proporre iniziative e richiedere supporto.
 
 Ogni segnalazione viene presa in carico dai rappresentanti e portata, dove possibile, nelle sedi istituzionali competenti: Senato Accademico, Consigli di Dipartimento, Consigli di Corso di Laurea, Consiglio di Amministrazione.
 

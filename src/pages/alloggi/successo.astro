@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  titolo="Annuncio inviato — Area Nuova Alloggi"
+  descrizione="Il tuo annuncio è stato ricevuto. Area Nuova lo verificherà prima di pubblicarlo nella bacheca."
+>
+  <div class="container-site flex min-h-[60vh] max-w-xl flex-col items-center justify-center py-24 text-center">
+
+    <!-- Icona -->
+    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-accent-100">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        class="text-accent-700">
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    </div>
+
+    <h1 class="mt-6 text-2xl font-bold sm:text-3xl">Annuncio ricevuto</h1>
+    <p class="mt-4 text-slate-600">
+      Grazie per aver usato la bacheca di Area Nuova Alloggi. Il tuo annuncio sarà verificato
+      e pubblicato nella bacheca entro breve.
+    </p>
+
+    <div class="mt-6 rounded-2xl border border-primary-200 bg-primary-50 p-5 text-left text-sm text-slate-700">
+      <p>
+        <strong>Ricorda:</strong> Area Nuova non partecipa alle trattative e non è responsabile
+        degli accordi conclusi tra inserzionisti e studenti. Ogni rapporto economico è direttamente
+        tra le parti.
+      </p>
+    </div>
+
+    <div class="mt-8 flex flex-wrap justify-center gap-4">
+      <a
+        href="/alloggi"
+        class="rounded-xl bg-accent-500 px-6 py-3 text-sm font-semibold text-white hover:bg-accent-600"
+      >
+        Vai alla bacheca
+      </a>
+      <a
+        href="/alloggi/sicurezza"
+        class="rounded-xl border border-primary-200 px-6 py-3 text-sm font-semibold text-primary-800 hover:bg-primary-50"
+      >
+        Consigli di sicurezza
+      </a>
+    </div>
+
+  </div>
+</BaseLayout>

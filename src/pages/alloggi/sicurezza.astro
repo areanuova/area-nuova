@@ -1,0 +1,165 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+---
+
+<BaseLayout
+  titolo="Sicurezza e consigli — Area Nuova Alloggi"
+  descrizione="Guida alla sicurezza per studenti e inserzionisti che usano la bacheca alloggi di Area Nuova."
+>
+  <PageHeader
+    occhiello="Area Nuova Alloggi"
+    titolo="Sicurezza e consigli"
+    sottotitolo="Tutto quello che devi sapere prima di cercare o pubblicare un alloggio."
+  />
+
+  <div class="container-site max-w-3xl py-16">
+
+    <!-- CHE COS'È QUESTO SERVIZIO -->
+    <section>
+      <h2 class="text-xl font-bold">Che cos'è questo servizio</h2>
+      <div class="mt-4 rounded-2xl border border-primary-200 bg-primary-50 p-6 text-sm text-slate-700">
+        <p>
+          <strong class="text-primary-900">Area Nuova</strong> mette a disposizione una bacheca digitale
+          per agevolare la ricerca di alloggi da parte degli studenti fuorisede che studiano a Foggia.
+        </p>
+        <p class="mt-3">
+          <strong>Area Nuova non è un'agenzia immobiliare.</strong> Non partecipa alle trattative,
+          non incassa caparre o canoni e non garantisce la conclusione dei contratti.
+          Ogni accordo economico e legale è gestito direttamente tra inserzionista e interessato.
+        </p>
+        <p class="mt-3">
+          Il servizio è gratuito sia per chi cerca che per chi pubblica.
+        </p>
+      </div>
+    </section>
+
+    <!-- CONSIGLI PER GLI STUDENTI -->
+    <section class="mt-12">
+      <h2 class="text-xl font-bold">Consigli per chi cerca casa</h2>
+      <ul class="mt-6 space-y-4">
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-100 text-sm font-bold text-accent-700">1</div>
+          <div>
+            <p class="font-semibold text-slate-900">Visita l'alloggio prima di versare qualsiasi somma</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Non inviare anticipi, caparre o bonifici a chi non hai mai incontrato di persona.
+              Visita sempre l'alloggio fisicamente prima di impegnarti.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-100 text-sm font-bold text-accent-700">2</div>
+          <div>
+            <p class="font-semibold text-slate-900">Verifica l'identità dell'inserzionista</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Chiedi un documento d'identità e verifica che chi affitta abbia effettivamente
+              il diritto di farlo (proprietario o sublocatario con consenso scritto).
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-100 text-sm font-bold text-accent-700">3</div>
+          <div>
+            <p class="font-semibold text-slate-900">Richiedi sempre un contratto regolare</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Un affitto senza contratto registrato non tutela né te né il proprietario.
+              Insisti su un contratto scritto, registrato all'Agenzia delle Entrate.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-100 text-sm font-bold text-accent-700">4</div>
+          <div>
+            <p class="font-semibold text-slate-900">Diffida dai prezzi troppo bassi</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Un prezzo significativamente inferiore alla media del mercato locale è spesso
+              un segnale di truffa. Confronta sempre con altri annunci simili nella stessa zona.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-100 text-sm font-bold text-accent-700">5</div>
+          <div>
+            <p class="font-semibold text-slate-900">Segnala gli annunci sospetti</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Se noti un annuncio che ti sembra fraudolento, usa il pulsante "Segnala annuncio"
+              nella pagina dell'annuncio oppure scrivi a
+              <a href="mailto:areanuova@unifg.it" class="font-semibold text-primary-800 hover:underline">areanuova@unifg.it</a>.
+            </p>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- CONSIGLI PER GLI INSERZIONISTI -->
+    <section class="mt-12">
+      <h2 class="text-xl font-bold">Consigli per chi pubblica</h2>
+      <ul class="mt-6 space-y-4">
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">A</div>
+          <div>
+            <p class="font-semibold text-slate-900">Inserisci informazioni accurate e aggiornate</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Descrivi l'alloggio in modo onesto: zona, prezzo reale, condizioni, spese incluse
+              o escluse. Annunci ingannevoli danneggiano la tua reputazione e vengono rimossi.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">B</div>
+          <div>
+            <p class="font-semibold text-slate-900">Aggiorna o rimuovi l'annuncio quando l'alloggio non è più disponibile</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Annunci scaduti o già affittati creano aspettative false e danneggiano l'esperienza
+              degli studenti. Puoi richiedere la rimozione scrivendo ad Area Nuova.
+            </p>
+          </div>
+        </li>
+
+        <li class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">C</div>
+          <div>
+            <p class="font-semibold text-slate-900">Non chiedere pagamenti anticipati prima di mostrare l'alloggio</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Richiedere caparre o "prenotazioni" prima di una visita è una pratica scorretta
+              e può configurarsi come truffa. Mostra prima l'alloggio, poi formalizza.
+            </p>
+          </div>
+        </li>
+
+      </ul>
+    </section>
+
+    <!-- SEGNALAZIONI -->
+    <section class="mt-12 rounded-2xl border border-slate-200 bg-slate-50 p-6">
+      <h2 class="text-lg font-bold">Hai trovato un annuncio sospetto?</h2>
+      <p class="mt-2 text-sm text-slate-600">
+        Segnalacelo. Revisioniamo ogni segnalazione e rimuoviamo gli annunci che non rispettano
+        le regole del servizio. Trovi istruzioni dettagliate e il pulsante di segnalazione nella
+        pagina dedicata.
+      </p>
+      <a
+        href="/alloggi/segnala"
+        class="mt-4 inline-block rounded-lg border border-primary-200 px-4 py-2 text-sm font-semibold text-primary-800 hover:bg-primary-50"
+      >
+        Segnala un annuncio →
+      </a>
+    </section>
+
+    <!-- NAVIGAZIONE -->
+    <div class="mt-12 flex flex-wrap gap-4 border-t border-slate-200 pt-8">
+      <a href="/alloggi" class="text-sm font-semibold text-primary-800 hover:underline">← Torna alla bacheca</a>
+      <a href="/alloggi/pubblica" class="ml-auto text-sm font-semibold text-accent-700 hover:underline">Pubblica un annuncio →</a>
+    </div>
+
+  </div>
+</BaseLayout>

@@ -1,0 +1,230 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+---
+
+<BaseLayout
+  titolo="Termini di utilizzo — Area Nuova Alloggi"
+  descrizione="Condizioni d'uso della bacheca digitale alloggi di Area Nuova."
+>
+  <PageHeader
+    occhiello="Area Nuova Alloggi"
+    titolo="Termini di utilizzo"
+    sottotitolo="Regole e condizioni per l'utilizzo della bacheca alloggi."
+  />
+
+  <div class="container-site max-w-3xl py-16">
+
+    <!-- NOTA PRELIMINARE -->
+    <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
+      <p class="font-semibold">Nota</p>
+      <p class="mt-1">
+        Questo testo ha finalità informativa e potrà essere aggiornato con il supporto di
+        professionisti competenti. L'utilizzo della bacheca implica l'accettazione delle
+        condizioni descritte di seguito.
+      </p>
+    </div>
+
+    <!-- NATURA DEL SERVIZIO -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Natura del servizio</h2>
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-700 space-y-3">
+        <p>
+          Area Nuova Alloggi è una bacheca digitale gratuita promossa da Area Nuova —
+          associazione autonoma di rappresentanza studentesca — con l'obiettivo di facilitare
+          la ricerca di alloggi da parte degli studenti fuorisede.
+        </p>
+        <p>
+          <strong>Area Nuova non è un'agenzia immobiliare</strong> e non svolge attività di
+          intermediazione ai sensi della legge 3 febbraio 1989 n. 39. Il servizio non è
+          ufficiale dell'Università di Foggia e non implica alcun coinvolgimento dell'Ateneo
+          nelle trattative tra inserzionisti e studenti.
+        </p>
+        <p>
+          Area Nuova non percepisce compensi, provvigioni o caparre in relazione agli annunci
+          pubblicati.
+        </p>
+      </div>
+    </section>
+
+    <!-- RESPONSABILITÀ DEGLI INSERZIONISTI -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Responsabilità degli inserzionisti</h2>
+      <div class="mt-4 space-y-3">
+
+        <div class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">1</div>
+          <div>
+            <p class="font-semibold text-slate-900">Veridicità delle informazioni</p>
+            <p class="mt-1 text-sm text-slate-600">
+              L'inserzionista è responsabile dell'accuratezza e della veridicità di tutte le
+              informazioni inserite: tipo di alloggio, prezzo, disponibilità, descrizione e
+              fotografie.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">2</div>
+          <div>
+            <p class="font-semibold text-slate-900">Divieto di annunci non conformi</p>
+            <p class="mt-1 text-sm text-slate-600">
+              È vietato pubblicare annunci falsi, discriminatori, offensivi, illeciti o
+              ingannevoli. Sono vietati annunci che violano normative vigenti in materia
+              locatizia, fiscale o antidiscriminatoria. Se riscontri un annuncio non conforme,
+              <a href="/alloggi/segnala" class="font-semibold text-primary-800 hover:underline">segnalacelo</a>.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">3</div>
+          <div>
+            <p class="font-semibold text-slate-900">Foto consentite</p>
+            <p class="mt-1 text-sm text-slate-600">
+              Le fotografie devono mostrare esclusivamente gli spazi dell'alloggio. È
+              vietato caricare immagini contenenti documenti personali, dati sensibili,
+              volti di persone non consenzienti o materiale non pertinente all'immobile.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-bold text-primary-700">4</div>
+          <div>
+            <p class="font-semibold text-slate-900">Disponibilità effettiva</p>
+            <p class="mt-1 text-sm text-slate-600">
+              L'inserzionista deve pubblicare solo alloggi effettivamente disponibili e aggiornare
+              o richiedere la rimozione dell'annuncio quando la disponibilità cessa.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- DURATA E SCADENZA -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Durata e scadenza degli annunci</h2>
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-700 space-y-3">
+        <p>
+          La durata standard di pubblicazione di un annuncio è <strong>60 giorni</strong>
+          dalla data di invio. Trascorso questo periodo, l'annuncio non sarà più visibile
+          nella bacheca né nelle pagine di dettaglio.
+        </p>
+        <p>
+          La scadenza non comporta la cancellazione del record dal database: l'annuncio
+          viene semplicemente escluso dalla visualizzazione pubblica. Area Nuova potrà
+          modificare la durata standard in futuro.
+        </p>
+        <p>
+          L'inserzionista può richiedere la <strong>rimozione anticipata</strong> dell'annuncio
+          o l'aggiornamento della disponibilità scrivendo a
+          <a href="mailto:areanuova@unifg.it?subject=Richiesta%20modifica%20o%20rimozione%20annuncio" class="font-semibold text-primary-800 hover:underline">areanuova@unifg.it</a>
+          oppure consultando la pagina
+          <a href="/alloggi/rimozione" class="font-semibold text-primary-800 hover:underline">Modifica o rimozione annuncio</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- RUOLO DI AREA NUOVA -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Ruolo di Area Nuova</h2>
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-700 space-y-3">
+        <p>
+          Area Nuova <strong>non garantisce</strong> disponibilità, qualità, conformità
+          urbanistica o catastale, regolarità fiscale, prezzo di mercato o idoneità degli
+          immobili pubblicati.
+        </p>
+        <p>
+          Area Nuova si riserva il diritto di:
+        </p>
+        <ul class="ml-4 list-disc space-y-1 text-slate-600">
+          <li>rifiutare la pubblicazione di annunci non conformi alle presenti condizioni;</li>
+          <li>modificare, sospendere o rimuovere annunci già pubblicati in qualsiasi momento;</li>
+          <li>contattare l'inserzionista per richiedere chiarimenti o documentazione;</li>
+          <li>segnalare alle autorità competenti eventuali contenuti illeciti.</li>
+        </ul>
+        <p>
+          La moderazione degli annunci è svolta a titolo volontario e non costituisce
+          garanzia di conformità.
+        </p>
+      </div>
+    </section>
+
+    <!-- REGOLE PER GLI STUDENTI -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Regole per gli studenti che cercano casa</h2>
+      <div class="mt-4 rounded-2xl border border-amber-100 bg-amber-50 p-6 text-sm space-y-3">
+        <p class="font-semibold text-amber-900">Prima di concludere qualsiasi accordo:</p>
+        <ul class="ml-4 list-disc space-y-1.5 text-slate-700">
+          <li><strong>Visita l'alloggio di persona</strong> prima di impegnarti in qualsiasi accordo.</li>
+          <li><strong>Verifica l'identità dell'inserzionista</strong> richiedendo un documento o incontrandolo di persona.</li>
+          <li><strong>Non inviare documenti personali</strong> (carta d'identità, codice fiscale, passaporto) via chat o email senza aver verificato l'interlocutore.</li>
+          <li><strong>Non effettuare pagamenti anticipati sospetti</strong>: caparre eccessive, richieste di bonifici prima della visita o metodi di pagamento non tracciabili sono segnali di allerta.</li>
+          <li><strong>Non firmare contratti</strong> che non hai letto o che presentano clausole poco chiare.</li>
+        </ul>
+        <p class="mt-3 text-slate-700">
+          Se hai dubbi su un annuncio, segnalalo a
+          <a href="mailto:areanuova@unifg.it" class="font-semibold text-primary-800 hover:underline">areanuova@unifg.it</a>.
+        </p>
+      </div>
+    </section>
+
+    <!-- TRATTATIVE DIRETTE -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Trattative dirette</h2>
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-700 space-y-3">
+        <p>
+          Le trattative avvengono direttamente tra inserzionista e interessato, senza alcun
+          coinvolgimento di Area Nuova. Area Nuova non è parte dei contratti, non visionerà
+          gli accordi e non potrà essere ritenuta responsabile dell'esito delle trattative.
+        </p>
+        <p>
+          Ogni accordo è esclusivamente responsabilità delle parti coinvolte.
+        </p>
+      </div>
+    </section>
+
+    <!-- MODIFICA E RIMOZIONE -->
+    <section class="mt-10">
+      <h2 class="text-xl font-bold">Richiesta di modifica o rimozione di un annuncio</h2>
+      <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-700 space-y-3">
+        <p>
+          Per richiedere la modifica, l'aggiornamento o la rimozione di un annuncio pubblicato,
+          consulta la pagina dedicata oppure scrivi direttamente a
+          <a href="mailto:areanuova@unifg.it?subject=Richiesta%20modifica%20o%20rimozione%20annuncio" class="font-semibold text-primary-800 hover:underline">areanuova@unifg.it</a>.
+        </p>
+        <p>
+          Le richieste vengono gestite su base volontaria entro tempi ragionevoli.
+        </p>
+        <a
+          href="/alloggi/rimozione"
+          class="inline-block font-semibold text-primary-800 hover:underline"
+        >
+          Istruzioni per modifica o rimozione →
+        </a>
+      </div>
+    </section>
+
+    <!-- AGGIORNAMENTO TERMINI -->
+    <section class="mt-10 rounded-2xl border border-primary-200 bg-primary-50 p-6 text-sm text-slate-700">
+      <p class="font-semibold text-primary-900">Aggiornamento delle condizioni</p>
+      <p class="mt-2">
+        Le presenti condizioni di utilizzo possono essere aggiornate in qualsiasi momento.
+        Le modifiche entrano in vigore con la pubblicazione sul sito. L'utilizzo continuato
+        della bacheca dopo l'aggiornamento implica l'accettazione delle nuove condizioni.
+      </p>
+    </section>
+
+    <!-- NAVIGAZIONE -->
+    <div class="mt-12 flex flex-wrap gap-4 border-t border-slate-200 pt-8">
+      <a href="/alloggi" class="text-sm font-semibold text-primary-800 hover:underline">← Torna alla bacheca</a>
+      <div class="ml-auto flex flex-wrap gap-6">
+        <a href="/alloggi/privacy" class="text-sm font-semibold text-primary-800 hover:underline">Informativa privacy →</a>
+        <a href="/alloggi/sicurezza" class="text-sm font-semibold text-primary-800 hover:underline">Consigli di sicurezza →</a>
+      </div>
+    </div>
+
+  </div>
+</BaseLayout>

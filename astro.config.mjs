@@ -7,5 +7,11 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   // Cambia questo indirizzo con il tuo dominio definitivo (serve per SEO e sitemap).
   site: 'https://www.associazioneareanuova.it',
-  integrations: [tailwind(), sitemap()],
+  integrations: [
+    tailwind(),
+    sitemap({
+      filter: (page) =>
+        !page.startsWith('https://www.associazioneareanuova.it/admin/'),
+    }),
+  ],
 });
