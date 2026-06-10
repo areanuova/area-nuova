@@ -10,6 +10,6 @@ validaAl: 2027-02-02
 attiva: true
 ordine: 2
 indirizzo: "Corso Giannone 70, Foggia"
-lat: 41.6748785
-lng: 15.5867126
+lat: 41.45974204786894
+lng: 15.55039462698775
 ---

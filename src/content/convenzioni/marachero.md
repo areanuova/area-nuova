@@ -26,5 +26,7 @@ sedi:
     lat: 41.4652869
     lng: 15.5657913
   - nome: "Internati di Germania"
-    indirizzo: "Piazza Internati di Germania 10, Foggia"
+    indirizzo: "Piazza Internati in Germania 10, Foggia"
+    lat: 41.4606031
+    lng: 15.5376418
 ---

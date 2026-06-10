@@ -10,4 +10,6 @@ validaAl: 2027-02-02
 attiva: true
 ordine: 1
 indirizzo: "Vicolo Cianciarella 13, Foggia"
+lat: 41.463407
+lng: 15.544396
 ---

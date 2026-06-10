@@ -9,5 +9,7 @@ validaDal: 2026-02-02
 validaAl: 2027-02-02
 attiva: true
 ordine: 4
-indirizzo: "Via Vincenzo della Rocca 8, Foggia"
+indirizzo: "Via Maggiore Vincenzo della Rocca 10, Foggia"
+lat: 41.4606
+lng: 15.5524
 ---
