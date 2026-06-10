@@ -1,0 +1,453 @@
+---
+import '../../styles/global.css';
+---
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anteprima annuncio — Area Nuova Admin</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <meta name="description" content="Pagina riservata agli amministratori per la revisione degli annunci." />
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900">
+
+  <!-- ── VIEW: LOADING ──────────────────────────────────────────── -->
+  <div id="view-loading" class="hidden min-h-screen items-center justify-center">
+    <div class="text-center">
+      <svg class="mx-auto h-8 w-8 animate-spin text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+      <p class="mt-3 text-sm text-slate-500">Verifica accesso…</p>
+    </div>
+  </div>
+
+  <!-- ── VIEW: ACCESSO NEGATO ───────────────────────────────────── -->
+  <div id="view-denied" class="hidden min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-sm text-center">
+      <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-red-600">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+      </div>
+      <h1 class="mt-4 text-lg font-bold text-slate-900">Accesso non autorizzato</h1>
+      <p class="mt-2 text-sm text-slate-600">
+        Devi essere un amministratore autorizzato per visualizzare
+        l'anteprima di questo annuncio.
+      </p>
+      <a href="/admin/alloggi" class="mt-6 inline-block text-sm font-semibold text-primary-800 hover:underline">
+        Vai all'area admin →
+      </a>
+    </div>
+  </div>
+
+  <!-- ── VIEW: ERRORE ───────────────────────────────────────────── -->
+  <div id="view-error" class="hidden min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-md text-center">
+      <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="text-amber-700">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <h1 class="mt-4 text-lg font-bold text-slate-900">Annuncio non trovato</h1>
+      <p id="view-error-msg" class="mt-2 text-sm text-slate-600"></p>
+      <a href="/admin/alloggi" class="mt-6 inline-block text-sm font-semibold text-primary-800 hover:underline">
+        ← Torna all'admin
+      </a>
+    </div>
+  </div>
+
+  <!-- ── VIEW: ANNUNCIO ─────────────────────────────────────────── -->
+  <div id="view-annuncio" class="hidden min-h-screen">
+
+    <!-- Header admin -->
+    <header class="border-b border-slate-200 bg-white">
+      <div class="mx-auto flex max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Area Nuova</p>
+          <p class="text-base font-bold text-slate-900">Anteprima annuncio</p>
+        </div>
+        <a
+          href="/admin/alloggi"
+          class="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
+        >
+          ← Admin
+        </a>
+      </div>
+    </header>
+
+    <!-- Contenuto iniettato dal JS -->
+    <div id="annuncio-content" class="mx-auto max-w-3xl px-4 py-8 sm:px-6"></div>
+
+  </div>
+
+</body>
+</html>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+
+  // ── Types ────────────────────────────────────────────────────────
+  type Annuncio = {
+    id: string;
+    titolo: string;
+    tipo: string;
+    citta: string;
+    zona: string | null;
+    prezzo: number;
+    spese_incluse: boolean;
+    disponibile_da: string | null;
+    descrizione: string;
+    foto_url: string | null;
+    foto_urls: unknown;
+    inserzionista_nome: string;
+    inserzionista_email: string;
+    inserzionista_telefono: string | null;
+    scade_il: string | null;
+    stato: string;
+    privacy_accettata: boolean;
+    termini_accettati: boolean;
+    created_at: string;
+  };
+
+  // ── Constants ────────────────────────────────────────────────────
+  const TIPO_LABEL: Record<string, string> = {
+    stanza_singola: 'Stanza singola',
+    stanza_doppia:  'Stanza doppia',
+    posto_letto:    'Posto letto',
+    monolocale:     'Monolocale',
+    bilocale:       'Bilocale',
+    appartamento:   'Appartamento intero',
+    altro:          'Altro',
+  };
+
+  const STATO_CFG: Record<string, { label: string; badgeCls: string; bannerCls: string }> = {
+    in_attesa:  {
+      label:     'In attesa',
+      badgeCls:  'bg-amber-100 text-amber-800',
+      bannerCls: 'border border-amber-200 bg-amber-50 text-amber-900',
+    },
+    pubblicato: {
+      label:     'Pubblicato',
+      badgeCls:  'bg-green-100 text-green-800',
+      bannerCls: 'border border-green-200 bg-green-50 text-green-900',
+    },
+    rifiutato:  {
+      label:     'Rifiutato',
+      badgeCls:  'bg-red-100 text-red-800',
+      bannerCls: 'border border-red-200 bg-red-50 text-red-900',
+    },
+    scaduto:    {
+      label:     'Scaduto',
+      badgeCls:  'bg-slate-200 text-slate-600',
+      bannerCls: 'border border-slate-200 bg-slate-100 text-slate-700',
+    },
+  };
+
+  // ── View management ──────────────────────────────────────────────
+  type ViewId = 'loading' | 'denied' | 'error' | 'annuncio';
+
+  const VIEW_DISPLAY: Record<ViewId, string> = {
+    loading:  'flex',
+    denied:   'flex',
+    error:    'flex',
+    annuncio: 'block',
+  };
+
+  function showView(id: ViewId) {
+    (['loading', 'denied', 'error', 'annuncio'] as ViewId[]).forEach((v) => {
+      const el = document.getElementById(`view-${v}`);
+      if (!el) return;
+      if (v === id) {
+        el.classList.remove('hidden');
+        el.style.display = VIEW_DISPLAY[v];
+      } else {
+        el.classList.add('hidden');
+        el.style.display = '';
+      }
+    });
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────
+  function esc(s: unknown): string {
+    return String(s ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function fmtData(iso: string | null): string {
+    if (!iso) return '—';
+    const d = new Date(iso.length === 10 ? iso + 'T00:00:00' : iso);
+    return new Intl.DateTimeFormat('it-IT', {
+      day: 'numeric', month: 'long', year: 'numeric',
+    }).format(d);
+  }
+
+  function chk(v: boolean): string {
+    return v
+      ? '<span class="font-semibold text-green-600">✓</span>'
+      : '<span class="font-semibold text-red-500">✗</span>';
+  }
+
+  // ── Render annuncio ──────────────────────────────────────────────
+  function renderAnnuncio(a: Annuncio): void {
+    const tipoLabel = esc(TIPO_LABEL[a.tipo] ?? a.tipo);
+    const localita  = a.zona
+      ? `${esc(a.citta)} — ${esc(a.zona)}`
+      : esc(a.citta);
+    const stato     = STATO_CFG[a.stato] ?? {
+      label:     a.stato,
+      badgeCls:  'bg-slate-100 text-slate-600',
+      bannerCls: 'border border-slate-200 bg-slate-100 text-slate-700',
+    };
+    const oggi = new Date().toISOString().split('T')[0];
+    const scadeClass = !a.scade_il || a.scade_il < oggi
+      ? 'font-semibold text-red-600'
+      : 'text-slate-700';
+
+    // Foto
+    const fotografie: string[] =
+      Array.isArray(a.foto_urls) && (a.foto_urls as string[]).length > 0
+        ? (a.foto_urls as string[])
+        : a.foto_url
+        ? [a.foto_url]
+        : [];
+
+    const fotoHtml = fotografie.length === 0
+      ? `<div class="flex h-64 items-center justify-center rounded-2xl bg-slate-100">
+           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+             class="text-slate-300">
+             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+             <polyline points="9 22 9 12 15 12 15 22"/>
+           </svg>
+         </div>`
+      : `<div>
+           <div class="overflow-hidden rounded-2xl">
+             <img src="${esc(fotografie[0])}" alt="${esc(a.titolo)}"
+               class="h-72 w-full object-cover sm:h-96" loading="eager" />
+           </div>
+           ${fotografie.length > 1
+             ? `<div class="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  ${fotografie.slice(1).map((url, i) =>
+                    `<div class="overflow-hidden rounded-xl">
+                       <img src="${esc(url)}" alt="${esc(a.titolo)} — foto ${i + 2}"
+                         class="h-24 w-full object-cover" loading="lazy" />
+                     </div>`
+                  ).join('')}
+                </div>`
+             : ''}
+         </div>`;
+
+    // Link contatti
+    const mailtoHref = esc(
+      `mailto:${a.inserzionista_email}?subject=${encodeURIComponent('Richiesta informazioni: ' + a.titolo)}`
+    );
+    const telHref = a.inserzionista_telefono
+      ? esc(`tel:${a.inserzionista_telefono.replace(/\s+/g, '')}`)
+      : null;
+
+    const html = `
+      <!-- Banner stato admin -->
+      <div class="mb-6 rounded-xl p-4 ${stato.bannerCls}">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wide opacity-60">Anteprima amministratore</p>
+            <div class="mt-1.5 flex flex-wrap items-center gap-2">
+              <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold ${stato.badgeCls}">
+                ${esc(stato.label)}
+              </span>
+              <span class="font-mono text-xs opacity-60">${esc(a.id)}</span>
+            </div>
+          </div>
+          <div class="text-right text-xs space-y-0.5 opacity-75">
+            <p>Privacy: ${chk(a.privacy_accettata)} &nbsp; Termini: ${chk(a.termini_accettati)}</p>
+            <p>Creato: ${fmtData(a.created_at)}</p>
+            <p>Scade: <span class="${scadeClass}">${fmtData(a.scade_il)}</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Galleria foto -->
+      ${fotoHtml}
+
+      <!-- Intestazione -->
+      <div class="mt-8">
+        <span class="rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold text-primary-800">
+          ${tipoLabel}
+        </span>
+        <h2 class="mt-3 text-2xl font-bold sm:text-3xl">${esc(a.titolo)}</h2>
+        <p class="mt-2 flex items-center gap-1.5 text-slate-600">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+            class="shrink-0">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          ${localita}
+        </p>
+      </div>
+
+      <!-- Prezzo -->
+      <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p class="text-3xl font-bold text-slate-900">
+              €${esc(String(a.prezzo))}<span class="text-base font-normal text-slate-500">/mese</span>
+            </p>
+            ${a.spese_incluse
+              ? '<span class="mt-2 inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">Spese incluse</span>'
+              : ''}
+          </div>
+          ${a.disponibile_da
+            ? `<div class="text-right text-sm text-slate-600">
+                 <p class="font-semibold text-slate-800">Disponibile dal</p>
+                 <p>${fmtData(a.disponibile_da)}</p>
+               </div>`
+            : ''}
+        </div>
+        ${a.scade_il
+          ? `<p class="mt-4 border-t border-slate-100 pt-4 text-xs text-slate-400">
+               Annuncio visibile fino al ${fmtData(a.scade_il)}
+             </p>`
+          : ''}
+      </div>
+
+      <!-- Descrizione -->
+      <div class="mt-8">
+        <h3 class="text-lg font-bold text-slate-900">Descrizione</h3>
+        <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-slate-700">${esc(a.descrizione)}</p>
+      </div>
+
+      <!-- Contatti -->
+      <div class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h3 class="text-base font-bold text-slate-900">Inserzionista</h3>
+        <p class="mt-1 text-sm text-slate-600">
+          <span class="font-semibold text-slate-800">${esc(a.inserzionista_nome)}</span>
+        </p>
+        <div class="mt-2 space-y-1 text-sm text-slate-700">
+          <p>
+            <span class="font-semibold text-slate-800">Email: </span>
+            <a href="${mailtoHref}" class="text-primary-800 hover:underline">${esc(a.inserzionista_email)}</a>
+          </p>
+          ${a.inserzionista_telefono
+            ? `<p>
+                 <span class="font-semibold text-slate-800">Telefono: </span>
+                 <a href="${telHref}" class="text-primary-800 hover:underline">${esc(a.inserzionista_telefono)}</a>
+               </p>`
+            : ''}
+        </div>
+
+        <div class="mt-4 flex flex-col gap-3 sm:flex-row">
+          <a href="${mailtoHref}"
+            class="flex items-center justify-center gap-2 rounded-xl bg-primary-800 px-5 py-3 text-sm font-semibold text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            Scrivi un'email
+          </a>
+          ${telHref
+            ? `<a href="${telHref}"
+                class="flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-800 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/>
+                </svg>
+                Chiama / WhatsApp
+              </a>`
+            : ''}
+        </div>
+      </div>
+
+      <!-- Navigazione -->
+      <div class="mt-10 border-t border-slate-200 pt-6">
+        <a href="/admin/alloggi" class="text-sm font-semibold text-primary-800 hover:underline">
+          ← Torna alla moderazione
+        </a>
+      </div>
+    `;
+
+    const el = document.getElementById('annuncio-content');
+    if (el) el.innerHTML = html;
+  }
+
+  // ── Main ─────────────────────────────────────────────────────────
+  showView('loading');
+
+  (async () => {
+    try {
+      // 1. Legge ?id dalla query string
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id')?.trim();
+
+      if (!id) {
+        const msgEl = document.getElementById('view-error-msg');
+        if (msgEl) msgEl.textContent = 'Nessun ID annuncio specificato nell\'URL.';
+        showView('error');
+        return;
+      }
+
+      // 2. Verifica sessione Supabase
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session?.user?.email) {
+        showView('denied');
+        return;
+      }
+
+      // 3. Verifica che l'utente sia admin
+      const { data: adminRow, error: adminErr } = await supabase
+        .from('admin_users')
+        .select('id')
+        .eq('email', session.user.email)
+        .maybeSingle();
+
+      if (adminErr || !adminRow) {
+        showView('denied');
+        return;
+      }
+
+      // 4. Carica l'annuncio (senza filtri sullo stato — l'admin vede tutto)
+      const { data: annuncio, error: annErr } = await supabase
+        .from('alloggi')
+        .select('id, titolo, tipo, citta, zona, prezzo, spese_incluse, disponibile_da, descrizione, foto_url, foto_urls, inserzionista_nome, inserzionista_email, inserzionista_telefono, scade_il, stato, privacy_accettata, termini_accettati, created_at')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (annErr || !annuncio) {
+        const msgEl = document.getElementById('view-error-msg');
+        if (msgEl) {
+          msgEl.textContent = annErr
+            ? `Errore Supabase: ${annErr.message}`
+            : `Annuncio con ID "${id}" non trovato.`;
+        }
+        showView('error');
+        return;
+      }
+
+      // 5. Renderizza e mostra
+      renderAnnuncio(annuncio as Annuncio);
+      showView('annuncio');
+
+    } catch (err) {
+      const msgEl = document.getElementById('view-error-msg');
+      if (msgEl) msgEl.textContent = String(err);
+      showView('error');
+    }
+  })();
+</script>

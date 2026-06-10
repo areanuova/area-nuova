@@ -340,7 +340,7 @@ import '../../styles/global.css';
       a.stato !== 'scaduto'    ? `<button data-action="scaduto"   data-id="${a.id}" class="${B} bg-slate-200 text-slate-700 hover:bg-slate-300 focus:ring-slate-400">Scaduto</button>` : '',
       a.stato !== 'in_attesa'  ? `<button data-action="in_attesa" data-id="${a.id}" class="${B} bg-amber-100 text-amber-800 hover:bg-amber-200 focus:ring-amber-400">In attesa</button>` : '',
       `<button data-action="proroga" data-id="${a.id}" class="${B} bg-primary-100 text-primary-800 hover:bg-primary-200 focus:ring-primary-400">+30 gg</button>`,
-      `<a href="/alloggi/${a.id}" target="_blank" rel="noopener" class="${B} inline-block bg-white text-slate-600 ring-1 ring-slate-300 hover:bg-slate-50">Vedi →</a>`,
+      `<a href="/alloggi/anteprima?id=${a.id}" target="_blank" rel="noopener" class="${B} inline-block bg-white text-slate-600 ring-1 ring-slate-300 hover:bg-slate-50">Vedi →</a>`,
     ].filter(Boolean).join('');
 
     return `
