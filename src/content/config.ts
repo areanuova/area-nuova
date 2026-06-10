@@ -124,6 +124,12 @@ const convenzioni = defineCollection({
     indirizzo: z.string().optional(),
     lat: z.number().optional(),
     lng: z.number().optional(),
+    sedi: z.array(z.object({
+      nome: z.string(),
+      indirizzo: z.string(),
+      lat: z.number().optional(),
+      lng: z.number().optional(),
+    })).optional(),
   }),
 });
 

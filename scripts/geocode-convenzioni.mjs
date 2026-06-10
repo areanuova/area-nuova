@@ -3,6 +3,7 @@
  * Geocodifica le convenzioni con indirizzo ma senza lat/lng usando Nominatim/OSM.
  * Rispetta il rate limit di Nominatim: max 1 richiesta al secondo.
  * Aggiorna i file markdown inserendo lat e lng nel frontmatter.
+ * Supporta sia il campo singolo `indirizzo` sia il blocco `sedi` (array di sedi).
  *
  * Uso: node scripts/geocode-convenzioni.mjs
  */
@@ -25,14 +26,18 @@ function extractField(yaml, field) {
   return m ? m[1].trim() : null;
 }
 
-/** Ritorna true se il campo esiste nel testo YAML. */
+/** Ritorna true se il campo (top-level) esiste nel testo YAML. */
 function hasField(yaml, field) {
   return new RegExp(`^${field}:`, 'm').test(yaml);
 }
 
+/** Ritorna true se il YAML contiene un blocco `sedi:`. */
+function hasSedi(yaml) {
+  return /^sedi:/m.test(yaml);
+}
+
 /** Divide il contenuto markdown in frontmatter YAML e body. */
 function parseMd(content) {
-  // Il file inizia con "---\n", poi yaml, poi "\n---" e poi il body.
   const match = content.match(/^---\n([\s\S]*?)\n---(\n[\s\S]*)?$/);
   if (!match) return null;
   return { yaml: match[1], body: match[2] ?? '' };
@@ -74,6 +79,113 @@ const alreadyComplete = [];
 const noAddress = [];
 const errors = [];
 
+// ── Gestione file con sedi multiple ─────────────────────────────────────────
+
+/**
+ * Geocodifica le sedi di un file con blocco `sedi:`.
+ * Ogni item ha: nome (inline), indirizzo (4-space indent), lat/lng (4-space indent).
+ * Inserisce lat/lng dopo ogni `    indirizzo:` che non li ha ancora.
+ */
+async function processSediFile(file, filePath, yaml, body, nome) {
+  const lines = yaml.split('\n');
+  let inSediBlock = false;
+  let currentItemStart = -1;
+  const sedeItems = []; // { startLine, endLine }
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    if (!inSediBlock) {
+      if (/^sedi:/.test(line)) inSediBlock = true;
+      continue;
+    }
+
+    // Fine blocco sedi: riga non-indentata (chiave top-level)
+    if (/^[a-zA-Z#]/.test(line)) {
+      if (currentItemStart >= 0) {
+        sedeItems.push({ startLine: currentItemStart, endLine: i - 1 });
+        currentItemStart = -1;
+      }
+      inSediBlock = false;
+      continue;
+    }
+
+    // Nuovo item: `  - `
+    if (/^\s{2}-\s/.test(line)) {
+      if (currentItemStart >= 0) {
+        sedeItems.push({ startLine: currentItemStart, endLine: i - 1 });
+      }
+      currentItemStart = i;
+    }
+  }
+  // Ultimo item (sedi è l'ultimo campo del file)
+  if (currentItemStart >= 0) {
+    sedeItems.push({ startLine: currentItemStart, endLine: lines.length - 1 });
+  }
+
+  const insertions = []; // { afterLineIdx, newLines[] }
+  let anyNeedsGeocoding = false;
+
+  for (const item of sedeItems) {
+    const itemLines = lines.slice(item.startLine, item.endLine + 1);
+
+    const hasLat = itemLines.some((l) => /^\s{4}lat:/.test(l));
+    const indirizzoIdx = itemLines.findIndex((l) => /^\s{4}indirizzo:/.test(l));
+
+    if (indirizzoIdx < 0 || hasLat) continue;
+
+    anyNeedsGeocoding = true;
+    const indirizzoLine = itemLines[indirizzoIdx];
+    const indirizzoMatch = indirizzoLine.match(/indirizzo:\s*["']?(.*?)["']?\s*$/);
+    if (!indirizzoMatch) continue;
+    const indirizzo = indirizzoMatch[1].trim();
+
+    const nomeMatch = itemLines[0].match(/nome:\s*["']?(.*?)["']?\s*$/);
+    const sedeNome = nomeMatch ? nomeMatch[1].trim() : indirizzo;
+
+    process.stdout.write(`Geocodificando: ${nome} – "${sedeNome}" → "${indirizzo}" ... `);
+
+    try {
+      await sleep(DELAY_MS);
+      const coords = await geocode(indirizzo);
+
+      if (!coords) {
+        console.log('NESSUN RISULTATO');
+        errors.push({ file, nome: `${nome} – ${sedeNome}`, reason: 'nessun risultato da Nominatim' });
+        continue;
+      }
+
+      console.log(`OK  lat=${coords.lat.toFixed(6)}  lng=${coords.lng.toFixed(6)}`);
+
+      // Inserisci lat/lng dopo la riga indirizzo nell'array originale
+      insertions.push({
+        afterLineIdx: item.startLine + indirizzoIdx,
+        newLines: [`    lat: ${coords.lat}`, `    lng: ${coords.lng}`],
+      });
+      updated.push({ file, nome: `${nome} – ${sedeNome}`, lat: coords.lat, lng: coords.lng });
+    } catch (err) {
+      console.log(`ERRORE: ${err.message}`);
+      errors.push({ file, nome: `${nome} – ${sedeNome}`, reason: err.message });
+    }
+  }
+
+  if (!anyNeedsGeocoding) {
+    alreadyComplete.push({ file, nome });
+    return;
+  }
+
+  if (insertions.length === 0) return;
+
+  // Applica le inserzioni in ordine inverso per mantenere gli indici corretti
+  const updatedLines = [...lines];
+  insertions.sort((a, b) => b.afterLineIdx - a.afterLineIdx);
+  for (const ins of insertions) {
+    updatedLines.splice(ins.afterLineIdx + 1, 0, ...ins.newLines);
+  }
+
+  writeFileSync(filePath, buildMd(updatedLines.join('\n'), body), 'utf-8');
+}
+
 // ── Elaborazione file ────────────────────────────────────────────────────────
 const files = readdirSync(CONTENT_DIR)
   .filter((f) => f.endsWith('.md'))
@@ -93,6 +205,14 @@ for (const file of files) {
 
   const { yaml, body } = parsed;
   const nome = extractField(yaml, 'nome') ?? file;
+
+  // ── File con sedi multiple ────────────────────────────────────────────────
+  if (hasSedi(yaml)) {
+    await processSediFile(file, filePath, yaml, body, nome);
+    continue;
+  }
+
+  // ── File con indirizzo singolo ─────────────────────────────────────────────
 
   // Nessun indirizzo → salta
   if (!hasField(yaml, 'indirizzo')) {

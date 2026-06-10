@@ -32,19 +32,38 @@ const badgeTipo: Record<string, string> = {
   'nuove-convenzioni': 'bg-amber-100 text-amber-800',
 };
 
-// Prepara i punti per la mappa: solo convenzioni attive con lat e lng
-const puntiMappa: ConvenzionePoint[] = convenzioni
-  .filter((c) => c.data.lat != null && c.data.lng != null)
-  .map((c) => ({
-    nome:      c.data.nome,
-    categoria: c.data.categoria,
-    tipo:      c.data.tipo,
-    citta:     c.data.citta,
-    indirizzo: c.data.indirizzo ?? '',
-    offerta:   c.data.offerte[0] ?? '',
-    lat:       c.data.lat!,
-    lng:       c.data.lng!,
-  }));
+// Prepara i punti per la mappa: espande sedi multiple e include convenzioni singole con coordinate
+const puntiMappa: ConvenzionePoint[] = [];
+for (const c of convenzioni) {
+  if (c.data.sedi && c.data.sedi.length > 0) {
+    for (const sede of c.data.sedi) {
+      if (sede.lat != null && sede.lng != null) {
+        puntiMappa.push({
+          nome:      c.data.nome,
+          nomeSede:  sede.nome,
+          categoria: c.data.categoria,
+          tipo:      c.data.tipo,
+          citta:     c.data.citta,
+          indirizzo: sede.indirizzo,
+          offerta:   c.data.offerte[0] ?? '',
+          lat:       sede.lat,
+          lng:       sede.lng,
+        });
+      }
+    }
+  } else if (c.data.lat != null && c.data.lng != null) {
+    puntiMappa.push({
+      nome:      c.data.nome,
+      categoria: c.data.categoria,
+      tipo:      c.data.tipo,
+      citta:     c.data.citta,
+      indirizzo: c.data.indirizzo ?? '',
+      offerta:   c.data.offerte[0] ?? '',
+      lat:       c.data.lat!,
+      lng:       c.data.lng!,
+    });
+  }
+}
 
 const filtri = [
   { valore: '*',                 etichetta: 'Tutte' },

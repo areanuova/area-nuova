@@ -14,4 +14,7 @@ validaDal: 2026-02-02
 validaAl: 2027-02-02
 attiva: true
 ordine: 11
+indirizzo: "Via Alfredo Guglielmi 108, Foggia"
+lat: 41.4578203
+lng: 15.5593684
 ---
