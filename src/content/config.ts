@@ -105,6 +105,28 @@ const documenti = defineCollection({
   }),
 });
 
+// GRUPPI WHATSAPP UNIFG
+const gruppiWhatsapp = defineCollection({
+  type: 'content',
+  schema: z.object({
+    area: z.enum([
+      'medica',
+      'giuridica',
+      'economica',
+      'umanistica',
+      'agraria-ingegneria',
+    ]),
+    corsi: z.array(z.string()),
+    livello: z.string(),
+    annoAccademico: z.string().optional(),
+    tipologia: z.string(),
+    titolo: z.string(),
+    link: z.string().url(),
+    attivo: z.boolean().default(true),
+    ordine: z.number().default(99),
+  }),
+});
+
 // CONVENZIONI DISCOUNT CARD
 const convenzioni = defineCollection({
   type: 'content',
@@ -142,4 +164,5 @@ export const collections = {
   guide,
   documenti,
   convenzioni,
+  'gruppi-whatsapp': gruppiWhatsapp,
 };

@@ -1,0 +1,252 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/ui/PageHeader.astro';
+
+const gruppi = (await getCollection('gruppi-whatsapp', ({ data }) => data.attivo))
+  .sort((a, b) => a.data.ordine - b.data.ordine);
+
+const gruppiConRender = await Promise.all(
+  gruppi.map(async (g) => {
+    const { Content } = await g.render();
+    return { data: g.data, id: g.id, Content };
+  })
+);
+
+const etichettaArea: Record<string, string> = {
+  'medica': 'Area Medica',
+  'giuridica': 'Area Giuridica',
+  'economica': 'Area Economica',
+  'umanistica': 'Area Umanistica',
+  'agraria-ingegneria': 'Agraria e Ingegneria',
+};
+
+const badgeArea: Record<string, string> = {
+  'medica': 'bg-red-100 text-red-800',
+  'giuridica': 'bg-blue-100 text-blue-800',
+  'economica': 'bg-emerald-100 text-emerald-800',
+  'umanistica': 'bg-purple-100 text-purple-800',
+  'agraria-ingegneria': 'bg-amber-100 text-amber-800',
+};
+
+const corsiAll = [...new Set(gruppi.flatMap(g => g.data.corsi))].sort();
+const livelli   = [...new Set(gruppi.map(g => g.data.livello))].sort();
+const tipologie = [...new Set(gruppi.map(g => g.data.tipologia))].sort();
+
+const areeOrdinate = [
+  'medica',
+  'giuridica',
+  'economica',
+  'umanistica',
+  'agraria-ingegneria',
+] as const;
+const areePresenti = areeOrdinate.filter(a => gruppi.some(g => g.data.area === a));
+---
+
+<BaseLayout
+  titolo="Gruppi WhatsApp UniFg"
+  descrizione="Trova il gruppo WhatsApp del tuo corso di laurea e del tuo anno accademico all'Università di Foggia."
+>
+  <PageHeader
+    titolo="Gruppi WhatsApp UniFg"
+    sottotitolo="Trova il gruppo WhatsApp del tuo corso di laurea e del tuo anno accademico."
+  />
+
+  <section class="container-site py-12">
+
+    <!-- Nota di sicurezza -->
+    <div class="mb-10 flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+      <svg class="mt-0.5 h-5 w-5 shrink-0 text-amber-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <p class="text-sm text-amber-800">
+        <strong>Nota:</strong> I gruppi sono strumenti informali di supporto tra studenti. Area Nuova non è responsabile dei contenuti pubblicati dagli utenti nei gruppi.
+      </p>
+    </div>
+
+    <!-- Filtri -->
+    <div class="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <!-- Ricerca testuale -->
+      <div class="lg:col-span-2">
+        <label for="cerca-gruppo" class="mb-1 block text-xs font-semibold text-slate-500 uppercase tracking-wide">Cerca</label>
+        <input
+          id="cerca-gruppo"
+          type="search"
+          placeholder="Es. Medicina, Economia…"
+          class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Area -->
+      <div>
+        <label for="filtro-area" class="mb-1 block text-xs font-semibold text-slate-500 uppercase tracking-wide">Area</label>
+        <select id="filtro-area" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100">
+          <option value="">Tutte le aree</option>
+          {areePresenti.map(a => (
+            <option value={a}>{etichettaArea[a]}</option>
+          ))}
+        </select>
+      </div>
+
+      <!-- Livello/anno -->
+      <div>
+        <label for="filtro-livello" class="mb-1 block text-xs font-semibold text-slate-500 uppercase tracking-wide">Livello / anno</label>
+        <select id="filtro-livello" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100">
+          <option value="">Tutti i livelli</option>
+          {livelli.map(l => (
+            <option value={l}>{l}</option>
+          ))}
+        </select>
+      </div>
+
+      <!-- Tipologia -->
+      <div>
+        <label for="filtro-tipologia" class="mb-1 block text-xs font-semibold text-slate-500 uppercase tracking-wide">Tipologia</label>
+        <select id="filtro-tipologia" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-700 shadow-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100">
+          <option value="">Tutte</option>
+          {tipologie.map(t => (
+            <option value={t}>{t}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <!-- Contatore risultati -->
+    <p id="contatore-risultati" class="mb-6 text-sm text-slate-500">
+      {gruppiConRender.length} {gruppiConRender.length === 1 ? 'gruppo trovato' : 'gruppi trovati'}
+    </p>
+
+    <!-- Griglia gruppi -->
+    {gruppiConRender.length === 0 ? (
+      <p class="text-slate-500">Nessun gruppo WhatsApp disponibile al momento.</p>
+    ) : (
+      <div id="griglia-gruppi" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {gruppiConRender.map(({ data, id, Content }) => (
+          <article
+            data-area={data.area}
+            data-corsi={data.corsi.join(',')}
+            data-livello={data.livello}
+            data-tipologia={data.tipologia}
+            data-search={[data.titolo, data.area, ...data.corsi, data.livello, data.tipologia, data.annoAccademico ?? ''].join(' ').toLowerCase()}
+            class="gruppo-card flex flex-col rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200"
+          >
+            <!-- Area badge -->
+            <div class="flex flex-wrap items-center gap-2">
+              <span class={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeArea[data.area] ?? 'bg-slate-100 text-slate-700'}`}>
+                {etichettaArea[data.area] ?? data.area}
+              </span>
+              {data.annoAccademico && (
+                <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+                  {data.annoAccademico}
+                </span>
+              )}
+            </div>
+
+            <!-- Titolo -->
+            <h2 class="mt-3 text-base font-bold leading-snug text-slate-900">{data.titolo}</h2>
+
+            <!-- Metadati -->
+            <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+              <span><span class="font-medium text-slate-700">Livello:</span> {data.livello}</span>
+              <span><span class="font-medium text-slate-700">Tipo:</span> {data.tipologia}</span>
+            </div>
+
+            <!-- Corsi come badge -->
+            <div class="mt-3 flex flex-wrap gap-1.5">
+              {data.corsi.map(corso => (
+                <span class="rounded-md bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-800">
+                  {corso}
+                </span>
+              ))}
+            </div>
+
+            <!-- Descrizione (body markdown) -->
+            <div class="prose prose-sm mt-3 flex-1 text-slate-600 leading-relaxed [&>p]:m-0">
+              <Content />
+            </div>
+
+            <!-- Pulsante -->
+            <div class="mt-5 pt-4 border-t border-slate-100">
+              <a
+                href={data.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1ebe5a]"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+                </svg>
+                Entra nel gruppo
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
+
+    <!-- Messaggio nessun risultato (nascosto di default) -->
+    <div id="nessun-risultato" class="hidden py-16 text-center">
+      <p class="text-lg font-semibold text-slate-700">Nessun gruppo trovato</p>
+      <p class="mt-1 text-sm text-slate-500">Prova a modificare i filtri o la ricerca.</p>
+    </div>
+
+    <!-- CTA segnalazione -->
+    <div class="mt-16 rounded-2xl border border-slate-200 bg-slate-50 px-8 py-8 sm:flex sm:items-center sm:justify-between sm:gap-8">
+      <div class="mb-4 sm:mb-0">
+        <h2 class="text-lg font-bold text-slate-900">Vuoi segnalarci un nuovo gruppo o aggiornare un link?</h2>
+        <p class="mt-1 text-sm text-slate-600">Usa il modulo di segnalazione: lo aggiorneremo il prima possibile.</p>
+      </div>
+      <a
+        href="/segnalazioni"
+        class="inline-block shrink-0 rounded-lg bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-900"
+      >
+        Invia una segnalazione
+      </a>
+    </div>
+
+  </section>
+</BaseLayout>
+
+<script>
+  const cerca    = document.getElementById('cerca-gruppo') as HTMLInputElement | null;
+  const selArea  = document.getElementById('filtro-area') as HTMLSelectElement | null;
+  const selLiv   = document.getElementById('filtro-livello') as HTMLSelectElement | null;
+  const selTipo  = document.getElementById('filtro-tipologia') as HTMLSelectElement | null;
+  const cards    = document.querySelectorAll<HTMLElement>('.gruppo-card');
+  const vuoto    = document.getElementById('nessun-risultato');
+  const contatore = document.getElementById('contatore-risultati');
+
+  function aggiorna() {
+    const q     = (cerca?.value ?? '').toLowerCase().trim();
+    const area  = selArea?.value ?? '';
+    const liv   = selLiv?.value ?? '';
+    const tipo  = selTipo?.value ?? '';
+
+    let visibili = 0;
+    cards.forEach((card) => {
+      const matchArea  = !area || card.dataset.area === area;
+      const matchLiv   = !liv  || card.dataset.livello === liv;
+      const matchTipo  = !tipo || card.dataset.tipologia === tipo;
+      const matchTesto = !q    || (card.dataset.search ?? '').includes(q);
+
+      const visibile = matchArea && matchLiv && matchTipo && matchTesto;
+      card.classList.toggle('hidden', !visibile);
+      if (visibile) visibili++;
+    });
+
+    if (vuoto) vuoto.classList.toggle('hidden', visibili > 0);
+    if (contatore) {
+      contatore.textContent = visibili === 1
+        ? '1 gruppo trovato'
+        : `${visibili} gruppi trovati`;
+    }
+  }
+
+  cerca?.addEventListener('input', aggiorna);
+  selArea?.addEventListener('change', aggiorna);
+  selLiv?.addEventListener('change', aggiorna);
+  selTipo?.addEventListener('change', aggiorna);
+</script>
