@@ -1,4 +1,6 @@
 ---
+export const prerender = false;
+
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SicurezzaBadge from '../../components/alloggi/SicurezzaBadge.astro';
 import DisclaimerBox from '../../components/alloggi/DisclaimerBox.astro';
@@ -32,38 +34,20 @@ const TIPO_LABEL: Record<string, string> = {
   altro: 'Altro',
 };
 
-export async function getStaticPaths() {
-  const buildDate = new Date().toISOString().split('T')[0];
+const { id } = Astro.params;
 
-  const { data, error } = await supabase
-    .from('alloggi')
-    .select('id, titolo, tipo, citta, zona, prezzo, spese_incluse, disponibile_da, descrizione, foto_url, foto_urls, inserzionista_nome, inserzionista_email, inserzionista_telefono, scade_il')
-    .eq('stato', 'pubblicato')
-    .gte('scade_il', buildDate);
+const { data, error } = await supabase
+  .from('alloggi')
+  .select('id, titolo, tipo, citta, zona, prezzo, spese_incluse, disponibile_da, descrizione, foto_url, foto_urls, inserzionista_nome, inserzionista_email, inserzionista_telefono, scade_il')
+  .eq('id', id)
+  .eq('stato', 'pubblicato')
+  .single();
 
-  if (error) {
-    console.error('[alloggi/[id]] Errore Supabase in getStaticPaths():');
-    console.error('  message:', error.message);
-    if (error.code)    console.error('  code:   ', error.code);
-    if (error.details) console.error('  details:', error.details);
-    if (error.hint)    console.error('  hint:   ', error.hint);
-    return [];
-  }
-
-  const count = data?.length ?? 0;
-  if (count === 0) {
-    console.warn('[alloggi/[id]] Nessun annuncio pubblicato e non scaduto trovato in Supabase.');
-  } else {
-    console.log(`[alloggi/[id]] Alloggi pubblicati e non scaduti trovati: ${count}`);
-  }
-
-  return (data ?? []).map((a) => ({
-    params: { id: a.id as string },
-    props: { annuncio: a as Annuncio },
-  }));
+if (error || !data) {
+  return Astro.redirect('/alloggi?errore=non-trovato', 302);
 }
 
-const { annuncio } = Astro.props as { annuncio: Annuncio };
+const annuncio = data as Annuncio;
 
 const tipoLabel = TIPO_LABEL[annuncio.tipo] ?? annuncio.tipo;
 const localita = annuncio.zona ? `${annuncio.citta} — ${annuncio.zona}` : annuncio.citta;
