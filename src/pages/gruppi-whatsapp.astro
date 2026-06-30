@@ -29,7 +29,6 @@ const badgeArea: Record<string, string> = {
   'agraria-ingegneria': 'bg-amber-100 text-amber-800',
 };
 
-const corsiAll = [...new Set(gruppi.flatMap(g => g.data.corsi))].sort();
 const livelli   = [...new Set(gruppi.map(g => g.data.livello))].sort();
 const tipologie = [...new Set(gruppi.map(g => g.data.tipologia))].sort();
 
@@ -124,7 +123,7 @@ const areePresenti = areeOrdinate.filter(a => gruppi.some(g => g.data.area === a
       <p class="text-slate-500">Nessun gruppo WhatsApp disponibile al momento.</p>
     ) : (
       <div id="griglia-gruppi" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {gruppiConRender.map(({ data, id, Content }) => (
+        {gruppiConRender.map(({ data, Content }) => (
           <article
             data-area={data.area}
             data-corsi={data.corsi.join(',')}

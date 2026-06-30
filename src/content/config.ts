@@ -3,7 +3,7 @@ import { defineCollection, z } from 'astro:content';
 // SCHEDE DEI RAPPRESENTANTI
 const rappresentanti = defineCollection({
   type: 'content',
-  schema: ({ image }) =>
+  schema: () =>
     z.object({
       nome: z.string(),
       ruolo: z.string(),

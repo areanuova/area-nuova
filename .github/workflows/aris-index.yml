@@ -1,0 +1,34 @@
+name: "Aris — Indicizzazione contenuti"
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Ogni giorno alle 03:00 UTC
+    - cron: "0 3 * * *"
+
+jobs:
+  index:
+    name: "Indicizza contenuti"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Installa dipendenze
+        run: npm ci
+
+      - name: Esegui indicizzazione Aris
+        run: npm run aris:index
+        env:
+          PUBLIC_SUPABASE_URL:       ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OPENAI_API_KEY:            ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_EMBEDDING_MODEL:    ${{ vars.OPENAI_EMBEDDING_MODEL }}

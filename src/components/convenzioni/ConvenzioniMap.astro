@@ -96,8 +96,8 @@ const puntiJson = JSON.stringify(punti);
   };
 
   // ── Marker SVG inline (evita il bug Vite con le immagini di Leaflet) ────────
-  function makeIcon(tipo) {
-    const color = MARKER_COLOR[tipo] ?? '#475569';
+  function makeIcon(tipo: string) {
+    const color = (MARKER_COLOR as Record<string, string>)[tipo] ?? '#475569';
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 40" width="28" height="40">
       <path d="M14 0C6.3 0 0 6.3 0 14c0 9.1 14 26 14 26S28 23.1 28 14C28 6.3 21.7 0 14 0z"
             fill="${color}" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"/>
@@ -113,10 +113,10 @@ const puntiJson = JSON.stringify(punti);
   }
 
   // ── Popup HTML ──────────────────────────────────────────────────────────────
-  function makePopup(p) {
-    const bg   = BADGE_BG[p.tipo]   ?? '#f1f5f9';
-    const text = BADGE_TEXT[p.tipo] ?? '#334155';
-    const label = TIPO_LABEL[p.tipo] ?? p.tipo;
+  function makePopup(p: Record<string, any>) {
+    const bg   = (BADGE_BG as Record<string, string>)[p.tipo]    ?? '#f1f5f9';
+    const text = (BADGE_TEXT as Record<string, string>)[p.tipo]  ?? '#334155';
+    const label = (TIPO_LABEL as Record<string, string>)[p.tipo] ?? p.tipo;
 
     return `
       <div style="min-width:200px;max-width:260px;font-family:system-ui,sans-serif;line-height:1.4;">
@@ -164,7 +164,7 @@ const puntiJson = JSON.stringify(punti);
       const latRad = group[0].lat * (Math.PI / 180);
       const lngScale = 1 / Math.cos(latRad); // corregge la distorsione longitudine
       const n = group.length;
-      group.forEach((p, i) => {
+      group.forEach((p: Record<string, any>, i: number) => {
         const angle = (2 * Math.PI * i) / n - Math.PI / 2; // parte dall'alto
         plotPoints.push({
           ...p,
@@ -184,7 +184,7 @@ const puntiJson = JSON.stringify(punti);
 
   // Adatta lo zoom per includere tutti i marker (usa le coordinate reali, non plot)
   if (punti.length > 1) {
-    const bounds = L.latLngBounds(punti.map((p) => [p.lat, p.lng]));
+    const bounds = L.latLngBounds(punti.map((p: { lat: number; lng: number }) => [p.lat, p.lng]));
     map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
   }
 

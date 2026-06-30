@@ -1,6 +1,6 @@
 // Funzione serverless su Vercel: /api/auth
 // Avvia il login: reindirizza l'utente a GitHub per autorizzare l'app.
-export default function handler(req, res) {
+export default function handler(_req, res) {
   const clientId = process.env.GITHUB_CLIENT_ID;
   const redirectUri = process.env.REDIRECT_URI;
 

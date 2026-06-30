@@ -2,7 +2,6 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/ui/PageHeader.astro';
-import FilterBar from '../components/ui/FilterBar.astro';
 import RappresentanteCard from '../components/ui/RappresentanteCard.astro';
 
 const rappresentanti = (await getCollection('rappresentanti', ({ data }) => data.attivo))

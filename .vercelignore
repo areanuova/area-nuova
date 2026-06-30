@@ -1,0 +1,6 @@
+# Esclude le funzioni Vercel legacy (GitHub OAuth per Decap CMS).
+# Le API routes di Astro (src/pages/api/) gestiscono tutto il routing via _render.
+# Includere questa directory causerebbe un conflitto che blocca tutti gli endpoint /api/*.
+# NOTA: il pattern deve iniziare con / per ancorarlo alla root del progetto,
+# altrimenti gitignore-semantics escluderebbe anche src/pages/api/.
+/api/

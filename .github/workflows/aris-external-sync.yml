@@ -1,0 +1,49 @@
+name: "Aris — Sync fonti esterne ufficiali"
+
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "ID sorgente (lascia vuoto per tutte)"
+        required: false
+        default: ""
+  schedule:
+    # Ogni 2 ore alle :30 (offset per non sovrapporsi all'indicizzazione interna alle 03:00)
+    - cron: "30 */2 * * *"
+
+jobs:
+  sync:
+    name: "Sync fonti esterne"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Installa dipendenze
+        run: npm ci
+
+      - name: Sync sorgente specifica
+        if: ${{ github.event.inputs.source != '' }}
+        run: node scripts/sync-aris-external.mjs --source "${{ github.event.inputs.source }}"
+        env:
+          PUBLIC_SUPABASE_URL:       ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OPENAI_API_KEY:            ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_EMBEDDING_MODEL:    ${{ vars.OPENAI_EMBEDDING_MODEL }}
+
+      - name: Sync tutte le sorgenti
+        if: ${{ github.event.inputs.source == '' }}
+        run: node scripts/sync-aris-external.mjs
+        env:
+          PUBLIC_SUPABASE_URL:       ${{ secrets.PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OPENAI_API_KEY:            ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_EMBEDDING_MODEL:    ${{ vars.OPENAI_EMBEDDING_MODEL }}

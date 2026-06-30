@@ -1,0 +1,287 @@
+---
+export const prerender = false;
+import '../../styles/global.css';
+---
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Aris — Area Nuova</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900 font-sans">
+
+  <!-- Login View -->
+  <div id="view-login" class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-sm">
+      <div class="text-center mb-8">
+        <img src="/images/aris/aris-face.png" alt="Aris" class="w-16 h-16 rounded-full mx-auto mb-3 border-4 border-blue-900/20"/>
+        <h1 class="text-xl font-bold text-blue-900">Aris Analytics</h1>
+        <p class="text-sm text-slate-500 mt-1">Dashboard di monitoraggio</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-lg p-6 border border-slate-200">
+        <label class="block text-sm font-semibold text-slate-700 mb-1">Password admin</label>
+        <input
+          id="pwd-input"
+          type="password"
+          class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-900 mb-3"
+          placeholder="•••••••"
+          autocomplete="current-password"
+        />
+        <button
+          id="login-btn"
+          class="w-full bg-blue-900 text-white rounded-lg py-2 text-sm font-bold hover:bg-blue-950 transition-colors"
+        >
+          Accedi
+        </button>
+        <p id="login-err" class="text-red-600 text-xs mt-2 hidden">Password non corretta.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard View -->
+  <div id="view-dash" class="hidden min-h-screen">
+    <!-- Header -->
+    <header class="bg-blue-900 text-white px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="/images/aris/aris-face.png" alt="Aris" class="w-9 h-9 rounded-full border-2 border-white/30"/>
+        <div>
+          <h1 class="text-base font-bold leading-tight">Aris Analytics</h1>
+          <p class="text-xs text-white/60">Area Nuova — Dashboard</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="refresh-btn" class="text-xs bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg px-3 py-1.5 transition-colors">↻ Aggiorna</button>
+        <button id="export-btn" class="text-xs bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg px-3 py-1.5 transition-colors">⬇ CSV</button>
+        <button id="logout-btn" class="text-xs text-white/60 hover:text-white ml-2">Esci</button>
+      </div>
+    </header>
+
+    <!-- Stats cards -->
+    <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+          <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide">Tot. feedback</p>
+          <p class="text-2xl font-bold text-blue-900 mt-1" id="stat-total">—</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+          <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide">Positivi 👍</p>
+          <p class="text-2xl font-bold text-emerald-600 mt-1" id="stat-pos">—</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+          <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide">Negativi 👎</p>
+          <p class="text-2xl font-bold text-red-600 mt-1" id="stat-neg">—</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+          <p class="text-xs text-slate-500 font-semibold uppercase tracking-wide">Score qualità</p>
+          <p class="text-2xl font-bold text-slate-700 mt-1" id="stat-score">—</p>
+        </div>
+      </div>
+
+      <!-- Recent feedback table -->
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+          <h2 class="text-sm font-bold text-slate-700">Feedback recenti</h2>
+          <span class="text-xs text-slate-400" id="feedback-count-label"></span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead class="bg-slate-50 text-slate-500">
+              <tr>
+                <th class="text-left px-4 py-2 font-semibold">Data</th>
+                <th class="text-left px-4 py-2 font-semibold">Voto</th>
+                <th class="text-left px-4 py-2 font-semibold w-1/3">Domanda</th>
+                <th class="text-left px-4 py-2 font-semibold w-1/3">Risposta (estratto)</th>
+              </tr>
+            </thead>
+            <tbody id="feedback-tbody" class="divide-y divide-slate-100">
+              <tr><td colspan="4" class="px-4 py-6 text-center text-slate-400">Caricamento…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>
+
+<script>
+(function () {
+  const SESSION_KEY = 'aris-admin-auth';
+
+  const viewLogin = document.getElementById('view-login') as HTMLElement;
+  const viewDash  = document.getElementById('view-dash')  as HTMLElement;
+  const pwdInput  = document.getElementById('pwd-input')  as HTMLInputElement;
+  const loginBtn  = document.getElementById('login-btn')  as HTMLButtonElement;
+  const loginErr  = document.getElementById('login-err')  as HTMLElement;
+  const logoutBtn = document.getElementById('logout-btn') as HTMLButtonElement;
+  const refreshBtn = document.getElementById('refresh-btn') as HTMLButtonElement;
+  const exportBtn  = document.getElementById('export-btn')  as HTMLButtonElement;
+
+  function getStoredToken(): string | null {
+    try { return sessionStorage.getItem(SESSION_KEY); } catch { return null; }
+  }
+
+  function setStoredToken(token: string): void {
+    try { sessionStorage.setItem(SESSION_KEY, token); } catch { /* noop */ }
+  }
+
+  function clearStoredToken(): void {
+    try { sessionStorage.removeItem(SESSION_KEY); } catch { /* noop */ }
+  }
+
+  function showDash(): void {
+    viewLogin.classList.add('hidden');
+    viewDash.classList.remove('hidden');
+    if (dataLoaded) {
+      render();
+    } else {
+      void loadData();
+    }
+  }
+
+  function showLogin(): void {
+    viewDash.classList.add('hidden');
+    viewLogin.classList.remove('hidden');
+  }
+
+  loginBtn.addEventListener('click', () => { void attemptLogin(); });
+  pwdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { void attemptLogin(); } });
+
+  async function attemptLogin(): Promise<void> {
+    const token = pwdInput.value.trim();
+    if (!token) return;
+    loginBtn.disabled = true;
+    const ok = await fetchData(token);
+    loginBtn.disabled = false;
+    if (ok) {
+      setStoredToken(token);
+      loginErr.classList.add('hidden');
+      showDash();
+    } else {
+      loginErr.classList.remove('hidden');
+      pwdInput.select();
+    }
+  }
+
+  logoutBtn.addEventListener('click', () => {
+    clearStoredToken();
+    showLogin();
+  });
+
+  // Ripristino sessione: il token salvato viene riverificato server-side
+  const saved = getStoredToken();
+  if (saved) {
+    fetchData(saved).then((ok) => {
+      if (ok) {
+        showDash();
+      } else {
+        clearStoredToken();
+      }
+    }).catch(() => { /* noop */ });
+  }
+
+  interface FeedbackRow {
+    id:          string;
+    created_at:  string;
+    question:    string;
+    answer:      string;
+    rating:      number;
+    sources:     unknown[];
+    page_url:    string | null;
+  }
+
+  let allRows: FeedbackRow[] = [];
+  let dataLoaded = false;
+
+  async function fetchData(token: string): Promise<boolean> {
+    try {
+      const res = await fetch('/api/aris/admin-stats', {
+        headers: { 'x-admin-secret': token },
+      });
+      if (!res.ok) return false;
+      allRows = (await res.json() as { rows: FeedbackRow[] }).rows ?? [];
+      dataLoaded = true;
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async function loadData(): Promise<void> {
+    const token = getStoredToken();
+    if (!token) { showLogin(); return; }
+    const ok = await fetchData(token);
+    if (!ok) {
+      const tbody = document.getElementById('feedback-tbody');
+      if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-6 text-center text-slate-400">Impossibile caricare i dati. Verifica la configurazione.</td></tr>';
+      return;
+    }
+    render();
+  }
+
+  function render(): void {
+    const total = allRows.length;
+    const pos   = allRows.filter(r => r.rating === 1).length;
+    const neg   = allRows.filter(r => r.rating === -1).length;
+    const score = total > 0 ? Math.round((pos / total) * 100) : 0;
+
+    const el = (id: string) => document.getElementById(id);
+    el('feedback-count-label')!.textContent = total > 0 ? `ultimi ${total}` : '';
+    el('stat-total')!.textContent = String(total);
+    el('stat-pos')!.textContent   = String(pos);
+    el('stat-neg')!.textContent   = String(neg);
+    el('stat-score')!.textContent  = total > 0 ? `${score}%` : '—';
+
+    const tbody = document.getElementById('feedback-tbody')!;
+    if (allRows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-6 text-center text-slate-400">Nessun feedback ancora.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = allRows.map(r => {
+      const date = new Date(r.created_at).toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+      const badge = r.rating === 1
+        ? '<span class="inline-block bg-emerald-100 text-emerald-700 rounded px-1.5 py-0.5 font-bold">👍</span>'
+        : '<span class="inline-block bg-red-100 text-red-700 rounded px-1.5 py-0.5 font-bold">👎</span>';
+      const q = escHtml(r.question.slice(0, 120));
+      const a = escHtml(r.answer.slice(0, 100)) + (r.answer.length > 100 ? '…' : '');
+      return `<tr class="hover:bg-slate-50">
+        <td class="px-4 py-2.5 text-slate-500 whitespace-nowrap">${date}</td>
+        <td class="px-4 py-2.5">${badge}</td>
+        <td class="px-4 py-2.5 text-slate-700">${q}</td>
+        <td class="px-4 py-2.5 text-slate-500">${a}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function escHtml(s: string): string {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function exportCsv(): void {
+    const header = ['data','voto','domanda','risposta'];
+    const rows   = allRows.map(r => [
+      new Date(r.created_at).toISOString(),
+      r.rating === 1 ? 'positivo' : 'negativo',
+      `"${r.question.replace(/"/g,'""')}"`,
+      `"${r.answer.slice(0,300).replace(/"/g,'""')}"`,
+    ].join(','));
+    const csv  = [header.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `aris-feedback-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  refreshBtn.addEventListener('click', loadData);
+  exportBtn.addEventListener('click',  exportCsv);
+})();
+</script>
