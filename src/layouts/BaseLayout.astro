@@ -2,7 +2,8 @@
 import '../styles/global.css';
 import Navbar from '../components/layout/Navbar.astro';
 import Footer from '../components/layout/Footer.astro';
-import ArisWidget from '../components/aris/ArisWidget.astro';
+// Aris (assistente AI) temporaneamente disattivato: componente non rimosso, solo scollegato.
+// Per ripristinarlo: reimportare ArisWidget da '../components/aris/ArisWidget.astro' e rimontarlo qui sotto.
 import sito from '../data/sito.json';
 
 interface Props {
@@ -35,6 +36,5 @@ const titoloPagina = `${titolo} · ${sito.nome}`;
       <slot />
     </main>
     <Footer />
-    <ArisWidget />
   </body>
 </html>

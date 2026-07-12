@@ -155,6 +155,37 @@ const convenzioni = defineCollection({
   }),
 });
 
+// PARTNERSHIP AUTONOME (distinte dalla Discount Card)
+const partnership = defineCollection({
+  type: 'content',
+  schema: z.object({
+    nome: z.string(),
+    categoria: z.string().default('Generale'),
+    descrizione: z.string(),
+    codice: z.string().optional(),
+    vantaggi: z.array(z.string()).default([]),
+    validita: z.string().optional(),
+    spedizione: z.string().optional(),
+    link: z.string().optional(),
+    logo: z.string().optional(),
+    attiva: z.boolean().default(true),
+    ordine: z.number().default(99),
+  }),
+});
+
+// VIDEO (canale YouTube Area Nuova)
+const video = defineCollection({
+  type: 'content',
+  schema: z.object({
+    titolo: z.string(),
+    descrizione: z.string().optional(),
+    youtubeId: z.string().optional(),
+    data: z.coerce.date(),
+    inEvidenza: z.boolean().default(false),
+    ordine: z.number().default(99),
+  }),
+});
+
 export const collections = {
   rappresentanti,
   progetti,
@@ -165,4 +196,6 @@ export const collections = {
   documenti,
   convenzioni,
   'gruppi-whatsapp': gruppiWhatsapp,
+  partnership,
+  video,
 };

@@ -1,0 +1,43 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+
+const partner = (await getCollection('partnership', ({ data }) => data.attiva))
+  .sort((a, b) => a.data.ordine - b.data.ordine);
+---
+
+<BaseLayout
+  titolo="Partnership"
+  descrizione="Le partnership autonome di Area Nuova con attività e servizi dedicati agli studenti UniFg, distinte dalla Discount Card."
+>
+  <PageHeader
+    occhiello="Convenzioni dedicate"
+    titolo="Partnership Area Nuova"
+    sottotitolo="Accordi autonomi con attività e servizi selezionati per gli studenti dell'Università di Foggia, distinti dalla Discount Card."
+  />
+
+  <section class="container-site py-16">
+    <div class="mb-10 rounded-2xl border border-slate-200 bg-slate-50 px-6 py-5 text-sm text-slate-600">
+      Le partnership sono accordi autonomi, distinti dalle convenzioni della <a href="/convenzioni" class="font-semibold text-primary-800 hover:underline">Discount Card</a>. Ogni partner ha condizioni e vantaggi specifici, descritti nella propria pagina dedicata.
+    </div>
+
+    {partner.length === 0 ? (
+      <p class="text-slate-500">Nessuna partnership attiva al momento.</p>
+    ) : (
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {partner.map((p) => (
+          <a
+            href={`/partnership/${p.slug}`}
+            class="flex flex-col rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition-shadow hover:shadow-md"
+          >
+            <span class="text-xs font-semibold uppercase tracking-wide text-primary-700">{p.data.categoria}</span>
+            <h3 class="mt-2 text-lg font-bold text-slate-900">{p.data.nome}</h3>
+            <p class="mt-2 flex-1 text-sm text-slate-600">{p.data.descrizione}</p>
+            <span class="mt-4 text-sm font-semibold text-primary-800">Scopri la partnership →</span>
+          </a>
+        ))}
+      </div>
+    )}
+  </section>
+</BaseLayout>

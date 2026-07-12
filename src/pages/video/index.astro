@@ -1,0 +1,99 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import { formattaData } from '../../lib/utils';
+import sito from '../../data/sito.json';
+
+const video = (await getCollection('video')).sort((a, b) => a.data.ordine - b.data.ordine);
+const inEvidenza = video.find((v) => v.data.inEvidenza) ?? video[0];
+const altri = video.filter((v) => v.slug !== inEvidenza?.slug);
+---
+
+<BaseLayout titolo="Video" descrizione="I video ufficiali di Area Nuova: interventi, eventi e iniziative per gli studenti UniFg.">
+  <PageHeader
+    occhiello="Canale YouTube"
+    titolo="Video"
+    sottotitolo="Interventi, eventi e iniziative di Area Nuova raccontati per immagini."
+  />
+
+  <section class="container-site py-16">
+    {sito.social.youtube && (
+      <div class="mb-10">
+        <a
+          href={sito.social.youtube}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 rounded-lg bg-accent-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-accent-600"
+        >
+          Vai al canale YouTube →
+        </a>
+      </div>
+    )}
+
+    {!inEvidenza ? (
+      <p class="text-slate-500">Nessun video pubblicato al momento.</p>
+    ) : (
+      <>
+        <!-- VIDEO IN EVIDENZA -->
+        <div class="mb-16">
+          <h2 class="mb-4 text-xl font-bold text-slate-900">In evidenza</h2>
+          <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+            {inEvidenza.data.youtubeId ? (
+              <div class="aspect-video w-full">
+                <iframe
+                  class="h-full w-full"
+                  src={`https://www.youtube.com/embed/${inEvidenza.data.youtubeId}`}
+                  title={inEvidenza.data.titolo}
+                  style="border:0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                ></iframe>
+              </div>
+            ) : (
+              <div class="grid aspect-video place-items-center bg-slate-100 text-sm text-slate-500">
+                Video in pubblicazione a breve sul canale YouTube di Area Nuova
+              </div>
+            )}
+            <div class="p-6">
+              <time class="text-xs font-semibold uppercase tracking-wide text-slate-500">{formattaData(inEvidenza.data.data)}</time>
+              <h3 class="mt-1 text-lg font-bold text-slate-900">{inEvidenza.data.titolo}</h3>
+              {inEvidenza.data.descrizione && <p class="mt-2 text-sm text-slate-600">{inEvidenza.data.descrizione}</p>}
+            </div>
+          </div>
+        </div>
+
+        <!-- ALTRI VIDEO -->
+        {altri.length > 0 && (
+          <div>
+            <h2 class="mb-6 text-xl font-bold text-slate-900">Tutti i video</h2>
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {altri.map((v) => (
+                <div class="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
+                  {v.data.youtubeId ? (
+                    <div class="aspect-video w-full">
+                      <iframe
+                        class="h-full w-full"
+                        src={`https://www.youtube.com/embed/${v.data.youtubeId}`}
+                        title={v.data.titolo}
+                        style="border:0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                      ></iframe>
+                    </div>
+                  ) : (
+                    <div class="grid aspect-video place-items-center bg-slate-100 text-xs text-slate-500">Video in arrivo</div>
+                  )}
+                  <div class="p-4">
+                    <time class="text-xs font-semibold uppercase tracking-wide text-slate-500">{formattaData(v.data.data)}</time>
+                    <h3 class="mt-1 font-bold text-slate-900">{v.data.titolo}</h3>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </>
+    )}
+  </section>
+</BaseLayout>

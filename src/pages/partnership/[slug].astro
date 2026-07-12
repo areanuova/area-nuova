@@ -1,0 +1,80 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Badge from '../../components/ui/Badge.astro';
+
+export async function getStaticPaths() {
+  const partner = await getCollection('partnership');
+  return partner.map((p) => ({ params: { slug: p.slug }, props: { partner: p } }));
+}
+
+interface Props { partner: CollectionEntry<'partnership'>; }
+const { partner } = Astro.props;
+const { nome, categoria, descrizione, codice, vantaggi, validita, spedizione, link } = partner.data;
+const { Content } = await partner.render();
+---
+
+<BaseLayout titolo={nome} descrizione={descrizione}>
+  <article class="container-site max-w-3xl py-16">
+    <a href="/partnership" class="text-sm font-semibold text-primary-800 hover:underline">← Tutte le partnership</a>
+
+    <div class="mt-6">
+      <Badge variante="primary">{categoria}</Badge>
+    </div>
+
+    <h1 class="mt-4 text-3xl font-bold sm:text-4xl">{nome}</h1>
+    <p class="mt-4 text-lg text-slate-600">{descrizione}</p>
+
+    {(codice || validita || spedizione) && (
+      <div class="mt-8 grid gap-4 sm:grid-cols-3">
+        {codice && (
+          <div class="rounded-2xl bg-accent-50 p-5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-accent-600">Codice</p>
+            <p class="mt-1 text-lg font-bold text-accent-900">{codice}</p>
+          </div>
+        )}
+        {validita && (
+          <div class="rounded-2xl bg-primary-50 p-5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-primary-600">Validità</p>
+            <p class="mt-1 text-sm font-bold text-primary-900">{validita}</p>
+          </div>
+        )}
+        {spedizione && (
+          <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Spedizione</p>
+            <p class="mt-1 text-sm font-bold text-slate-900">{spedizione}</p>
+          </div>
+        )}
+      </div>
+    )}
+
+    {vantaggi.length > 0 && (
+      <div class="mt-8">
+        <h2 class="text-lg font-bold text-slate-900">Vantaggi</h2>
+        <ul class="mt-3 space-y-2">
+          {vantaggi.map((v) => (
+            <li class="flex gap-2 text-sm text-slate-700">
+              <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-500"></span>
+              {v}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <div class="prose prose-slate mt-8 max-w-none prose-headings:font-display prose-a:text-primary-800">
+      <Content />
+    </div>
+
+    {link && (
+      <a
+        href={link}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="mt-8 inline-flex items-center gap-2 rounded-xl bg-accent-500 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-accent-600"
+      >
+        Vai al sito →
+      </a>
+    )}
+  </article>
+</BaseLayout>

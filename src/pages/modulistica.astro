@@ -11,6 +11,8 @@ const badge: Record<string, { label: string; cls: string }> = {
   proposta: { label: 'Proposta', cls: 'bg-accent-100 text-accent-800' },
   richiesta: { label: 'Richiesta', cls: 'bg-primary-100 text-primary-800' },
 };
+
+const isPdf = (file: string) => file.toLowerCase().endsWith('.pdf');
 ---
 
 <BaseLayout titolo="Mozioni e Documenti" descrizione="Proposte, richieste e atti ufficiali di Area Nuova.">
@@ -44,12 +46,16 @@ const badge: Record<string, { label: string; cls: string }> = {
               )}
               <a
                 href={d.data.file}
-                target="_blank"
-                rel="noopener noreferrer"
+                target={isPdf(d.data.file) ? '_blank' : undefined}
+                rel={isPdf(d.data.file) ? 'noopener noreferrer' : undefined}
                 class="mt-5 inline-flex items-center gap-2 rounded-xl bg-accent-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent-800 transition-colors"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Scarica PDF
+                {isPdf(d.data.file) ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                )}
+                {isPdf(d.data.file) ? 'Scarica PDF' : 'Scopri di più'}
               </a>
             </div>
           ))}
@@ -79,12 +85,16 @@ const badge: Record<string, { label: string; cls: string }> = {
               )}
               <a
                 href={d.data.file}
-                target="_blank"
-                rel="noopener noreferrer"
+                target={isPdf(d.data.file) ? '_blank' : undefined}
+                rel={isPdf(d.data.file) ? 'noopener noreferrer' : undefined}
                 class="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-900 transition-colors"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Scarica PDF
+                {isPdf(d.data.file) ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                )}
+                {isPdf(d.data.file) ? 'Scarica PDF' : 'Scopri di più'}
               </a>
             </div>
           ))}
