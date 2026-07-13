@@ -30,6 +30,12 @@ const progetti = defineCollection({
       dataFine: z.coerce.date().optional(),
       copertina: image().optional(),
       inEvidenza: z.boolean().default(false),
+      // CMS Sprint 4.0: workflow di pubblicazione (draft/review/published/
+      // archived) — campo separato da `stato` sopra, che ha un significato
+      // diverso e preesistente (ciclo di vita del progetto, non pubblicazione).
+      // Default 'published' perché ogni progetto già esistente, privo del
+      // campo, deve restare visibile invariato.
+      statoPubblicazione: z.enum(['draft', 'review', 'published', 'archived']).default('published'),
     }),
 });
 
@@ -56,8 +62,13 @@ const news = defineCollection({
       copertina: image().optional(),
       tag: z.array(z.string()).default([]),
       estratto: z.string(),
+      // `bozza` è il flag storico (pre-CMS): mantenuto per compatibilità,
+      // non più letto dalle pagine pubbliche dallo Sprint 4.0 in poi — il
+      // nuovo campo `stato` è l'unica fonte di verità per la visibilità
+      // pubblica (stesso trattamento di `attiva` in partnership).
       bozza: z.boolean().default(false),
       categoria: z.enum(['comunicato', 'risultati', 'resoconto', 'avviso']).default('comunicato'),
+      stato: z.enum(['draft', 'review', 'published', 'archived']).default('published'),
     }),
 });
 
@@ -88,6 +99,7 @@ const guide = defineCollection({
     perMatricole: z.boolean().default(false),
     ordine: z.number().default(99),
     estratto: z.string().optional(),
+    stato: z.enum(['draft', 'review', 'published', 'archived']).default('published'),
   }),
 });
 
@@ -102,6 +114,7 @@ const documenti = defineCollection({
     // percorso del file dentro /public (es. /documenti/modulo.pdf) oppure URL esterno
     file: z.string(),
     descrizione: z.string().optional(),
+    stato: z.enum(['draft', 'review', 'published', 'archived']).default('published'),
   }),
 });
 
@@ -192,6 +205,7 @@ const video = defineCollection({
     data: z.coerce.date(),
     inEvidenza: z.boolean().default(false),
     ordine: z.number().default(99),
+    stato: z.enum(['draft', 'review', 'published', 'archived']).default('published'),
   }),
 });
 

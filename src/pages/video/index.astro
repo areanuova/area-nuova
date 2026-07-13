@@ -6,7 +6,7 @@ import YoutubeEmbed from '../../components/video/YoutubeEmbed.astro';
 import { formattaData } from '../../lib/utils';
 import sito from '../../data/sito.json';
 
-const video = (await getCollection('video')).sort((a, b) => a.data.ordine - b.data.ordine);
+const video = (await getCollection('video', ({ data }) => data.stato === 'published')).sort((a, b) => a.data.ordine - b.data.ordine);
 const inEvidenza = video.find((v) => v.data.inEvidenza) ?? video[0];
 const altri = video.filter((v) => v.slug !== inEvidenza?.slug);
 ---

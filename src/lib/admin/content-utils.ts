@@ -102,3 +102,51 @@ export function generateFrontmatter(form: PartnershipFrontmatterInput): string {
   righe.push('');
   return righe.join('\n');
 }
+
+// ============================================================
+// Generico (Sprint 4.0) — usato da News/Guide/Documenti/Progetti/Video
+// tramite il registro in content-types.ts. Partnership resta sul percorso
+// dedicato sopra, non toccato: già verificato end-to-end in produzione.
+// ============================================================
+
+/** Path del file per una collection/slug generici, con lo stesso controllo anti path-traversal. */
+export function contentFilePathGeneric(collectionDir: string, slug: string): string {
+  if (!isSafeSlug(slug)) throw new Error(`Slug non sicuro: ${slug}`);
+  const path = `${collectionDir}/${slug}.md`;
+  if (!path.startsWith(`${collectionDir}/`) || path.includes('..')) {
+    throw new Error('Percorso file risultante non valido.');
+  }
+  return path;
+}
+
+export type GenericFieldValue = string | number | boolean | string[] | undefined;
+
+/**
+ * Genera frontmatter generico da una lista ordinata di chiavi e una mappa
+ * di valori. Stesso principio di determinismo di generateFrontmatter:
+ * campi stringa opzionali vuoti omessi, array/boolean/number sempre
+ * scritti (hanno un valore definito anche a "vuoto"/false/0).
+ */
+export function generateFrontmatterGeneric(
+  fieldOrder: string[],
+  values: Record<string, GenericFieldValue>,
+  corpo?: string,
+): string {
+  const righe: string[] = ['---'];
+  for (const key of fieldOrder) {
+    const v = values[key];
+    if (v === undefined) continue;
+    if (Array.isArray(v)) {
+      righe.push(`${key}: ${yamlStringArray(v)}`);
+    } else if (typeof v === 'boolean' || typeof v === 'number') {
+      righe.push(`${key}: ${v}`);
+    } else if (v !== '') {
+      righe.push(`${key}: ${yamlString(v)}`);
+    }
+  }
+  righe.push('---');
+  righe.push('');
+  if (corpo) righe.push(corpo.trim());
+  righe.push('');
+  return righe.join('\n');
+}

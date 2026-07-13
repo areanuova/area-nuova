@@ -1,0 +1,21 @@
+---
+export const prerender = false;
+
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import ContentForm from '../../../../components/admin/ContentForm.astro';
+import { getContentType } from '../../../../lib/admin/content-types';
+
+const { tipo } = Astro.params;
+const typeDef = getContentType(tipo ?? '');
+if (!typeDef) {
+  return Astro.redirect('/admin');
+}
+---
+
+<AdminLayout titolo={`Nuovo — ${typeDef.label}`} minRole="editor">
+  <div class="mx-auto max-w-3xl">
+    <a href={`/admin/contenuti/${tipo}`} class="text-sm font-semibold text-primary-800 hover:underline">← {typeDef.labelPlurale}</a>
+    <h2 class="mt-4 mb-6 text-xl font-bold text-slate-900">Nuovo — {typeDef.label}</h2>
+    <ContentForm mode="create" tipo={tipo!} />
+  </div>
+</AdminLayout>

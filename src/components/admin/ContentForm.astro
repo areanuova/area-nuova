@@ -1,0 +1,251 @@
+---
+// Form generico per News/Guide/Documenti/Progetti/Video (Sprint 4.0), guidato
+// dal registro in src/lib/admin/content-types.ts. Un solo componente serve
+// tutte e cinque le collection: i campi vengono renderizzati dal ciclo su
+// typeDef.fields, lo stesso registro viene importato lato client per sapere
+// come raccogliere/precompilare i valori, senza duplicare la definizione.
+import { getContentType } from '../../lib/admin/content-types';
+
+interface Props {
+  mode: 'create' | 'edit';
+  tipo: string;
+  slug?: string;
+}
+const { mode, tipo, slug = '' } = Astro.props;
+const typeDef = getContentType(tipo);
+if (!typeDef) throw new Error(`Tipo di contenuto sconosciuto: ${tipo}`);
+---
+
+<form id="content-form" data-mode={mode} data-tipo={tipo} data-slug={slug} class="space-y-6">
+  <div id="cf-github-warning" class="hidden rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    <strong>Salvataggio su GitHub non configurato</strong> in questo ambiente (manca <code>GITHUB_SERVICE_TOKEN</code>).
+    Puoi comunque compilare e validare il form: il contenuto non verrà pubblicato finché la variabile non sarà impostata.
+  </div>
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div class="sm:col-span-2">
+      <label for="cf-slug" class="block text-sm font-semibold text-slate-800">Slug <span class="text-red-500">*</span></label>
+      <input id="cf-slug" name="slug" required maxlength="80" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="titolo-contenuto"
+        class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-mono focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+        disabled={mode === 'edit'} />
+      <p class="mt-1 text-xs text-slate-500">Solo lettere minuscole, numeri e trattini. Determina l'URL pubblico.</p>
+    </div>
+
+    {typeDef.fields.map((field) => (
+      <div class={field.type === 'textarea' || field.type === 'stringArray' ? 'sm:col-span-2' : ''}>
+        <label for={`cf-${field.key}`} class="block text-sm font-semibold text-slate-800">
+          {field.label} {field.required && <span class="text-red-500">*</span>}
+        </label>
+
+        {field.type === 'textarea' || field.type === 'stringArray' ? (
+          <textarea
+            id={`cf-${field.key}`}
+            name={field.key}
+            rows={field.type === 'stringArray' ? 4 : 3}
+            maxlength={field.maxLength}
+            required={field.required}
+            class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+          ></textarea>
+        ) : field.type === 'select' ? (
+          <select
+            id={`cf-${field.key}`}
+            name={field.key}
+            class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+          >
+            {(field.options ?? []).map((opt) => <option value={opt.value} selected={mode === 'create' && opt.value === field.default}>{opt.label}</option>)}
+          </select>
+        ) : field.type === 'boolean' ? (
+          <div class="mt-2.5 flex items-center gap-2">
+            <input id={`cf-${field.key}`} name={field.key} type="checkbox" checked={mode === 'create' && field.default === true} class="h-4 w-4 rounded border-slate-300 text-primary-700 focus:ring-primary-500" />
+            <label for={`cf-${field.key}`} class="text-sm text-slate-600">Attivo</label>
+          </div>
+        ) : field.type === 'number' ? (
+          <input id={`cf-${field.key}`} name={field.key} type="number" required={field.required} value={mode === 'create' ? (field.default as string | number | undefined) : undefined}
+            class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+        ) : field.type === 'date' ? (
+          <input id={`cf-${field.key}`} name={field.key} type="date" required={field.required}
+            class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+        ) : (
+          <input id={`cf-${field.key}`} name={field.key} type="text" maxlength={field.maxLength} required={field.required} value={mode === 'create' ? (field.default as string | number | undefined) : undefined}
+            class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+        )}
+
+        {field.helpText && <p class="mt-1 text-xs text-slate-500">{field.helpText}</p>}
+        {field.key === typeDef.statoField && (
+          <p id="cf-stato-hint" class="mt-1 hidden text-xs text-amber-700">Il tuo ruolo non può impostare direttamente questo stato — verrà rifiutato dal server.</p>
+        )}
+      </div>
+    ))}
+
+    {typeDef.hasBody && (
+      <div class="sm:col-span-2">
+        <label for="cf-corpo" class="block text-sm font-semibold text-slate-800">Contenuto pagina (Markdown)</label>
+        <textarea id="cf-corpo" name="corpo" rows={8} maxlength="20000"
+          class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-mono focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+        ></textarea>
+      </div>
+    )}
+  </div>
+
+  <div id="cf-error" role="alert" class="hidden rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"></div>
+  <div id="cf-preview" class="hidden rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs">
+    <p class="font-semibold text-slate-600">Anteprima frontmatter generato (contenuto non pubblicato):</p>
+    <pre id="cf-preview-content" class="mt-2 overflow-x-auto whitespace-pre-wrap font-mono text-slate-700"></pre>
+  </div>
+
+  <div class="flex items-center gap-3">
+    <button type="submit" id="cf-submit" class="rounded-xl bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300">
+      {mode === 'create' ? `Crea ${typeDef.label.toLowerCase()}` : 'Salva modifiche'}
+    </button>
+    <a href={`/admin/contenuti/${tipo}`} class="text-sm font-semibold text-slate-600 hover:underline">Annulla</a>
+  </div>
+</form>
+
+<script>
+  import { canTransition, type CmsRole, type ContentStato } from '../../lib/admin/roles';
+  import { onAdminReady } from '../../lib/admin/ready';
+  import { CONTENT_TYPES, type FieldDef } from '../../lib/admin/content-types';
+
+  // Come in PartnershipForm.astro: questo script è hoistato da Astro in
+  // <head> ed eseguito prima che AdminLayout cloni il <template> protetto —
+  // ogni accesso al DOM va dentro onAdminReady, mai a livello di modulo.
+  onAdminReady(async (detail) => {
+    const currentUser: { role: CmsRole } = detail.user;
+    const accessToken: string | null = detail.accessToken;
+
+    const form = document.getElementById('content-form') as HTMLFormElement;
+    const tipo = form.dataset.tipo!;
+    const mode = form.dataset.mode as 'create' | 'edit';
+    const slug = form.dataset.slug ?? '';
+    const typeDef = CONTENT_TYPES[tipo];
+    if (!typeDef) return;
+
+    let statoOriginale = 'draft';
+    const statoField = typeDef.statoField;
+
+    function fieldEl(key: string): HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null {
+      return document.getElementById(`cf-${key}`) as any;
+    }
+
+    const slugEl = document.getElementById('cf-slug') as HTMLInputElement;
+    const titleEl = fieldEl(typeDef.titleField);
+
+    let slugToccato = false;
+    slugEl.addEventListener('input', () => { slugToccato = true; });
+    titleEl?.addEventListener('input', () => {
+      if (mode !== 'create' || slugToccato || !titleEl) return;
+      slugEl.value = (titleEl as HTMLInputElement).value
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+    });
+
+    const statoEl = fieldEl(statoField) as HTMLSelectElement | null;
+    statoEl?.addEventListener('change', () => {
+      const hint = document.getElementById('cf-stato-hint');
+      if (!hint) return;
+      const da = mode === 'edit' ? statoOriginale : 'draft';
+      const ok = canTransition(currentUser.role, da as ContentStato, statoEl.value as ContentStato);
+      hint.classList.toggle('hidden', ok);
+    });
+
+    function setFieldValue(field: FieldDef, value: unknown) {
+      const el = fieldEl(field.key);
+      if (!el) return;
+      if (field.type === 'boolean') {
+        (el as HTMLInputElement).checked = !!value;
+      } else if (field.type === 'stringArray') {
+        el.value = Array.isArray(value) ? value.join('\n') : '';
+      } else if (field.type === 'date') {
+        el.value = value ? String(value).slice(0, 10) : '';
+      } else if (field.type === 'number') {
+        el.value = value !== undefined && value !== null ? String(value) : (field.default !== undefined ? String(field.default) : '');
+      } else {
+        el.value = value !== undefined && value !== null ? String(value) : (field.default !== undefined ? String(field.default) : '');
+      }
+    }
+
+    async function caricaDatiEsistenti() {
+      if (mode !== 'edit' || !accessToken) return;
+      const res = await fetch(`/api/admin/contenuti/${tipo}/list`, { headers: { Authorization: `Bearer ${accessToken}` } });
+      const data = await res.json();
+      const riga = (data.righe ?? []).find((r: any) => r.slug === slug);
+      if (!riga) {
+        (window as any).adminToast?.(`${typeDef.label} non trovato.`, 'error');
+        return;
+      }
+      slugEl.value = riga.slug ?? '';
+      for (const field of typeDef.fields) setFieldValue(field, riga[field.key]);
+      if (typeDef.hasBody) {
+        const corpoEl = document.getElementById('cf-corpo') as HTMLTextAreaElement | null;
+        if (corpoEl) corpoEl.value = riga.corpo ?? '';
+      }
+      statoOriginale = (riga[statoField] ?? 'draft') as string;
+    }
+
+    await caricaDatiEsistenti();
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('cf-error')!;
+      const previewEl = document.getElementById('cf-preview')!;
+      const warningEl = document.getElementById('cf-github-warning')!;
+      errEl.classList.add('hidden');
+      previewEl.classList.add('hidden');
+      warningEl.classList.add('hidden');
+
+      if (!accessToken) {
+        errEl.textContent = 'Sessione non valida. Ricarica la pagina.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const submitBtn = document.getElementById('cf-submit') as HTMLButtonElement;
+      submitBtn.disabled = true;
+
+      const payload: Record<string, unknown> = { slug: slugEl.value.trim() };
+      for (const field of typeDef.fields) {
+        const el = fieldEl(field.key);
+        if (!el) continue;
+        if (field.type === 'boolean') payload[field.key] = (el as HTMLInputElement).checked;
+        else if (field.type === 'number') payload[field.key] = el.value !== '' ? Number(el.value) : (field.default ?? 0);
+        else if (field.type === 'stringArray') payload[field.key] = el.value.split('\n').map((v) => v.trim()).filter(Boolean);
+        else payload[field.key] = el.value.trim();
+      }
+      if (typeDef.hasBody) {
+        payload.corpo = (document.getElementById('cf-corpo') as HTMLTextAreaElement).value.trim();
+      }
+      if (mode === 'edit') payload.statoPrecedente = statoOriginale;
+
+      try {
+        const res = await fetch(`/api/admin/contenuti/${tipo}/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        if (res.status === 503 && data.error === 'github_not_configured') {
+          warningEl.classList.remove('hidden');
+          previewEl.classList.remove('hidden');
+          document.getElementById('cf-preview-content')!.textContent = data.anteprimaFrontmatter ?? '';
+          (window as any).adminToast?.('Validato, ma non salvato: GitHub non configurato.', 'error');
+          return;
+        }
+
+        if (!res.ok) {
+          errEl.textContent = data.message || data.error || 'Errore durante il salvataggio.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+
+        (window as any).adminToast?.('Salvato correttamente.', 'success');
+        window.location.href = `/admin/contenuti/${tipo}`;
+      } catch (err) {
+        errEl.textContent = String((err as Error)?.message ?? err);
+        errEl.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  });
+</script>

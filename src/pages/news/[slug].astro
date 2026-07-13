@@ -5,7 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { formattaData } from '../../lib/utils';
 
 export async function getStaticPaths() {
-  const news = await getCollection('news', ({ data }) => !data.bozza);
+  const news = await getCollection('news', ({ data }) => data.stato === 'published');
   return news.map((n) => ({ params: { slug: n.slug }, props: { articolo: n } }));
 }
 

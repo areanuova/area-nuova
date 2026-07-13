@@ -6,7 +6,7 @@ import FilterBar from '../../components/ui/FilterBar.astro';
 import ProgettoCard from '../../components/ui/ProgettoCard.astro';
 import { formattaData } from '../../lib/utils';
 
-const progetti = (await getCollection('progetti'))
+const progetti = (await getCollection('progetti', ({ data }) => data.statoPubblicazione === 'published'))
   .sort((a, b) => b.data.dataInizio.getTime() - a.data.dataInizio.getTime());
 
 const risultati = (await getCollection('risultati'))

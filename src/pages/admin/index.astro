@@ -30,10 +30,31 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
           <p class="mt-1 text-sm text-slate-600">Modera gli annunci inviati dagli studenti (pannello esistente).</p>
           <span class="mt-3 inline-block text-sm font-semibold text-primary-800">Apri →</span>
         </a>
-        <div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
-          <h3 class="font-bold text-slate-500">News, Guide, Video, Documenti, Progetti</h3>
-          <p class="mt-1 text-sm text-slate-500">In arrivo — non ancora migrati al pannello unificato. Gestibili oggi via modifica diretta dei file o Decap CMS.</p>
-        </div>
+        <a href="/admin/contenuti/news" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+          <h3 class="font-bold text-slate-900">News</h3>
+          <p class="mt-1 text-sm text-slate-600">Comunicati, risultati, resoconti e avvisi.</p>
+          <span class="mt-3 inline-block text-sm font-semibold text-primary-800">Gestisci →</span>
+        </a>
+        <a href="/admin/contenuti/guide" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+          <h3 class="font-bold text-slate-900">Guide</h3>
+          <p class="mt-1 text-sm text-slate-600">Guide utili per gli studenti, incluse quelle per matricole.</p>
+          <span class="mt-3 inline-block text-sm font-semibold text-primary-800">Gestisci →</span>
+        </a>
+        <a href="/admin/contenuti/documenti" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+          <h3 class="font-bold text-slate-900">Documenti</h3>
+          <p class="mt-1 text-sm text-slate-600">Mozioni, proposte, richieste e modulistica.</p>
+          <span class="mt-3 inline-block text-sm font-semibold text-primary-800">Gestisci →</span>
+        </a>
+        <a href="/admin/contenuti/progetti" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+          <h3 class="font-bold text-slate-900">Progetti</h3>
+          <p class="mt-1 text-sm text-slate-600">Archivio progetti e iniziative di Area Nuova.</p>
+          <span class="mt-3 inline-block text-sm font-semibold text-primary-800">Gestisci →</span>
+        </a>
+        <a href="/admin/contenuti/video" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+          <h3 class="font-bold text-slate-900">Video</h3>
+          <p class="mt-1 text-sm text-slate-600">Video del canale YouTube di Area Nuova.</p>
+          <span class="mt-3 inline-block text-sm font-semibold text-primary-800">Gestisci →</span>
+        </a>
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h3 class="font-bold text-slate-900">Decap CMS</h3>
           <p class="mt-1 text-sm text-slate-600">
@@ -48,7 +69,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       <h2 class="mb-3 text-sm font-bold uppercase tracking-wide text-slate-500">Attività recenti</h2>
       <div id="dash-audit-loading" class="text-sm text-slate-500">Caricamento…</div>
       <div id="dash-audit-unavailable" class="hidden rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
-        Registro attività non disponibile: la tabella <code>cms_audit_log</code> non è ancora stata creata (migration ruoli non applicata).
+        Registro attività non disponibile al momento.
       </div>
       <div id="dash-audit-empty" class="hidden rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
         Nessuna attività registrata finora.

@@ -20,7 +20,10 @@ export const GET = withErrorHandling(async ({ request }: APIContext): Promise<Re
 
   const entries = await getCollection('partnership');
   const righe = entries
-    .map((e) => ({ slug: e.slug, ...e.data }))
+    // `body` (markdown grezzo) incluso esplicitamente: senza, il form di
+    // modifica non può precompilare "Contenuto pagina" e un salvataggio
+    // in modifica cancellerebbe silenziosamente il corpo esistente.
+    .map((e) => ({ slug: e.slug, ...e.data, corpo: e.body }))
     .sort((a, b) => a.ordine - b.ordine);
 
   return Response.json({

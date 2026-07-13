@@ -42,6 +42,11 @@ const { titolo, minRole = 'editor' } = Astro.props;
 const NAV = [
   { href: '/admin', label: 'Dashboard', minRole: 'editor' as CmsRole },
   { href: '/admin/partnership', label: 'Partnership', minRole: 'editor' as CmsRole },
+  { href: '/admin/contenuti/news', label: 'News', minRole: 'editor' as CmsRole },
+  { href: '/admin/contenuti/guide', label: 'Guide', minRole: 'editor' as CmsRole },
+  { href: '/admin/contenuti/documenti', label: 'Documenti', minRole: 'editor' as CmsRole },
+  { href: '/admin/contenuti/progetti', label: 'Progetti', minRole: 'editor' as CmsRole },
+  { href: '/admin/contenuti/video', label: 'Video', minRole: 'editor' as CmsRole },
   { href: '/admin/alloggi', label: 'Alloggi', minRole: 'editor' as CmsRole, external: true },
   { href: '/admin/utenti', label: 'Utenti', minRole: 'super_admin' as CmsRole },
 ];

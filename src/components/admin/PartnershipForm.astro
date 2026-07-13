@@ -182,6 +182,7 @@ const { mode, slug = '' } = Astro.props;
       fields.spedizione.value = riga.spedizione ?? '';
       fields.logo.value = riga.logo ?? '';
       fields.vantaggi.value = (riga.vantaggi ?? []).join('\n');
+      fields.corpo.value = riga.corpo ?? '';
       fields.ordine.value = String(riga.ordine ?? 99);
       fields.stato.value = riga.stato ?? 'published';
       statoOriginale = (riga.stato ?? 'published') as ContentStato;

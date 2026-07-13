@@ -5,7 +5,7 @@ import YoutubeEmbed from '../../components/video/YoutubeEmbed.astro';
 import { formattaData } from '../../lib/utils';
 
 export async function getStaticPaths() {
-  const video = await getCollection('video');
+  const video = await getCollection('video', ({ data }) => data.stato === 'published');
   return video.map((v) => ({ params: { slug: v.slug }, props: { video: v } }));
 }
 

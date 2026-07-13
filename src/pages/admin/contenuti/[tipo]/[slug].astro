@@ -1,0 +1,23 @@
+---
+// SSR: la pagina di modifica deve funzionare per qualunque slug esistente
+// senza richiedere un rebuild — stessa nota di sicurezza di partnership.
+export const prerender = false;
+
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import ContentForm from '../../../../components/admin/ContentForm.astro';
+import { getContentType } from '../../../../lib/admin/content-types';
+
+const { tipo, slug } = Astro.params;
+const typeDef = getContentType(tipo ?? '');
+if (!typeDef) {
+  return Astro.redirect('/admin');
+}
+---
+
+<AdminLayout titolo={`Modifica — ${typeDef.label}`} minRole="editor">
+  <div class="mx-auto max-w-3xl">
+    <a href={`/admin/contenuti/${tipo}`} class="text-sm font-semibold text-primary-800 hover:underline">← {typeDef.labelPlurale}</a>
+    <h2 class="mt-4 mb-6 text-xl font-bold text-slate-900">Modifica — {typeDef.label}</h2>
+    <ContentForm mode="edit" tipo={tipo!} slug={slug} />
+  </div>
+</AdminLayout>

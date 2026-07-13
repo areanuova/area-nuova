@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import FilterBar from '../../components/ui/FilterBar.astro';
 
-const guide = (await getCollection('guide')).sort((a, b) => a.data.ordine - b.data.ordine);
+const guide = (await getCollection('guide', ({ data }) => data.stato === 'published')).sort((a, b) => a.data.ordine - b.data.ordine);
 const matricole = guide.filter((g) => g.data.perMatricole);
 const categorie = [...new Set(guide.map((g) => g.data.categoria))];
 ---

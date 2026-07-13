@@ -10,12 +10,12 @@ import statistiche from '../data/statistiche.json';
 import { eFuturo } from '../lib/utils';
 
 // Progetti in evidenza
-const progetti = (await getCollection('progetti'))
+const progetti = (await getCollection('progetti', ({ data }) => data.statoPubblicazione === 'published'))
   .filter((p) => p.data.inEvidenza)
   .slice(0, 3);
 
-// Ultime news (escluse le bozze)
-const news = (await getCollection('news', ({ data }) => !data.bozza))
+// Ultime news
+const news = (await getCollection('news', ({ data }) => data.stato === 'published'))
   .sort((a, b) => b.data.data.getTime() - a.data.data.getTime())
   .slice(0, 3);
 

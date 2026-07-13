@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/ui/PageHeader.astro';
 
-const tutti = (await getCollection('documenti')).sort((a, b) => b.data.anno - a.data.anno);
+const tutti = (await getCollection('documenti', ({ data }) => data.stato === 'published')).sort((a, b) => b.data.anno - a.data.anno);
 const proposte = tutti.filter((d) => d.data.tipo === 'proposta');
 const richieste = tutti.filter((d) => d.data.tipo === 'richiesta');
 

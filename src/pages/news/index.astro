@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 import NewsCard from '../../components/ui/NewsCard.astro';
 
-const news = (await getCollection('news', ({ data }) => !data.bozza))
+const news = (await getCollection('news', ({ data }) => data.stato === 'published'))
   .sort((a, b) => b.data.data.getTime() - a.data.data.getTime());
 
 const legenda = [

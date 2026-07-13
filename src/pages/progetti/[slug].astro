@@ -6,7 +6,7 @@ import Badge from '../../components/ui/Badge.astro';
 import { formattaData } from '../../lib/utils';
 
 export async function getStaticPaths() {
-  const progetti = await getCollection('progetti');
+  const progetti = await getCollection('progetti', ({ data }) => data.statoPubblicazione === 'published');
   return progetti.map((p) => ({ params: { slug: p.slug }, props: { progetto: p } }));
 }
 

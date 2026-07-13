@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Badge from '../../components/ui/Badge.astro';
 
 export async function getStaticPaths() {
-  const guide = await getCollection('guide');
+  const guide = await getCollection('guide', ({ data }) => data.stato === 'published');
   return guide.map((g) => ({ params: { slug: g.slug }, props: { guida: g } }));
 }
 
