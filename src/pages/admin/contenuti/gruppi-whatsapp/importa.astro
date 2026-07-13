@@ -1,0 +1,172 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout titolo="Importa Gruppi WhatsApp" minRole="editor">
+  <div class="mx-auto max-w-4xl">
+    <a href="/admin/contenuti/gruppi-whatsapp" class="text-sm font-semibold text-primary-800 hover:underline">← Gruppi WhatsApp</a>
+    <h2 class="mt-4 mb-2 text-xl font-bold text-slate-900">Importa Gruppi WhatsApp</h2>
+    <p class="mb-6 text-sm text-slate-600">
+      Carica un file CSV o JSON. Ogni riga viene validata e mostrata in anteprima prima di qualunque scrittura reale —
+      nessun contenuto esistente viene sovrascritto, i duplicati vengono segnalati e scartati, e ogni gruppo importato
+      viene creato sempre come <strong>Bozza</strong>, mai pubblicato automaticamente.
+    </p>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <label for="imp-file" class="block text-sm font-semibold text-slate-800">File CSV o JSON</label>
+      <input id="imp-file" type="file" accept=".csv,.json,application/json,text/csv" class="mt-2 block w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-primary-800 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary-700" />
+      <p class="mt-2 text-xs text-slate-500">
+        Colonne attese (CSV): titolo, area, categoria, corsi (separati da "|"), livello, tipologia, link, ... — usa "Esporta CSV" nell'elenco per ottenere un modello con i dati reali già nel formato corretto.
+      </p>
+    </div>
+
+    <div id="imp-error" class="mt-4 hidden rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"></div>
+
+    <div id="imp-preview" class="mt-6 hidden space-y-6">
+      <div class="grid gap-4 sm:grid-cols-3">
+        <div class="rounded-xl border border-accent-200 bg-accent-50 p-4">
+          <p class="text-xs font-semibold uppercase text-accent-700">Valide</p>
+          <p id="imp-count-valide" class="mt-1 text-2xl font-bold text-accent-900">0</p>
+        </div>
+        <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <p class="text-xs font-semibold uppercase text-amber-700">Duplicate</p>
+          <p id="imp-count-duplicate" class="mt-1 text-2xl font-bold text-amber-900">0</p>
+        </div>
+        <div class="rounded-xl border border-red-200 bg-red-50 p-4">
+          <p class="text-xs font-semibold uppercase text-red-700">Non valide</p>
+          <p id="imp-count-nonvalide" class="mt-1 text-2xl font-bold text-red-900">0</p>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="mb-2 text-sm font-bold text-slate-900">Righe valide (verranno importate come Bozza)</h3>
+        <div id="imp-list-valide" class="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white text-sm"></div>
+      </div>
+      <div id="imp-section-duplicate" class="hidden">
+        <h3 class="mb-2 text-sm font-bold text-slate-900">Righe duplicate (scartate)</h3>
+        <div id="imp-list-duplicate" class="divide-y divide-slate-200 rounded-xl border border-amber-200 bg-amber-50 text-sm"></div>
+      </div>
+      <div id="imp-section-nonvalide" class="hidden">
+        <h3 class="mb-2 text-sm font-bold text-slate-900">Righe non valide (scartate)</h3>
+        <div id="imp-list-nonvalide" class="divide-y divide-slate-200 rounded-xl border border-red-200 bg-red-50 text-sm"></div>
+      </div>
+
+      <button id="imp-confirm" type="button" class="rounded-xl bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300">
+        Conferma importazione
+      </button>
+    </div>
+
+    <div id="imp-result" class="mt-6 hidden rounded-xl border border-slate-200 bg-white p-4 text-sm"></div>
+  </div>
+</AdminLayout>
+
+<script>
+  import { onAdminReady } from '../../../../lib/admin/ready';
+  import { csvToObjects } from '../../../../lib/admin/csv';
+
+  let accessToken: string | null = null;
+  let ultimeRighe: Record<string, unknown>[] = [];
+
+  function escapeHtml(s: unknown): string {
+    return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+  }
+
+  async function eseguiPreview(rows: Record<string, unknown>[]) {
+    const res = await fetch('/api/admin/contenuti/gruppi-whatsapp/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify({ mode: 'preview', rows }),
+    });
+    const data = await res.json();
+    const errEl = document.getElementById('imp-error')!;
+    if (!res.ok) {
+      errEl.textContent = data.message || 'Errore durante la validazione.';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    errEl.classList.add('hidden');
+
+    document.getElementById('imp-count-valide')!.textContent = String(data.valide.length);
+    document.getElementById('imp-count-duplicate')!.textContent = String(data.duplicate.length);
+    document.getElementById('imp-count-nonvalide')!.textContent = String(data.nonValide.length);
+
+    document.getElementById('imp-list-valide')!.innerHTML = data.valide
+      .map((v: any) => `<div class="p-3">${escapeHtml(v.titolo)} <span class="text-slate-400">— slug: ${escapeHtml(v.slug)}</span></div>`).join('')
+      || '<div class="p-3 text-slate-500">Nessuna riga valida.</div>';
+
+    const secDup = document.getElementById('imp-section-duplicate')!;
+    secDup.classList.toggle('hidden', data.duplicate.length === 0);
+    document.getElementById('imp-list-duplicate')!.innerHTML = data.duplicate
+      .map((d: any) => `<div class="p-3">Riga ${d.riga}: <strong>${escapeHtml(d.slug)}</strong> — ${d.motivo === 'esistente' ? 'esiste già' : 'ripetuta nel file'}</div>`).join('');
+
+    const secInv = document.getElementById('imp-section-nonvalide')!;
+    secInv.classList.toggle('hidden', data.nonValide.length === 0);
+    document.getElementById('imp-list-nonvalide')!.innerHTML = data.nonValide
+      .map((n: any) => `<div class="p-3">Riga ${n.riga}${n.slug ? ` (${escapeHtml(n.slug)})` : ''}: ${n.errori.map(escapeHtml).join('; ')}</div>`).join('');
+
+    const confirmBtn = document.getElementById('imp-confirm') as HTMLButtonElement;
+    confirmBtn.disabled = data.valide.length === 0;
+
+    document.getElementById('imp-preview')!.classList.remove('hidden');
+    document.getElementById('imp-result')!.classList.add('hidden');
+  }
+
+  onAdminReady(async (detail) => {
+    accessToken = detail.accessToken;
+
+    const fileInput = document.getElementById('imp-file') as HTMLInputElement;
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      const errEl = document.getElementById('imp-error')!;
+      try {
+        let rows: Record<string, unknown>[];
+        if (file.name.toLowerCase().endsWith('.json')) {
+          const parsed = JSON.parse(text);
+          rows = Array.isArray(parsed) ? parsed : [parsed];
+        } else {
+          rows = csvToObjects(text);
+        }
+        if (rows.length === 0) throw new Error('Il file non contiene righe da importare.');
+        ultimeRighe = rows;
+        await eseguiPreview(rows);
+      } catch (err) {
+        errEl.textContent = `File non leggibile: ${String((err as Error)?.message ?? err)}`;
+        errEl.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('imp-confirm')?.addEventListener('click', async () => {
+      const confirmBtn = document.getElementById('imp-confirm') as HTMLButtonElement;
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Importazione in corso…';
+      try {
+        const res = await fetch('/api/admin/contenuti/gruppi-whatsapp/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+          body: JSON.stringify({ mode: 'commit', rows: ultimeRighe }),
+        });
+        const data = await res.json();
+        const resultEl = document.getElementById('imp-result')!;
+        if (!res.ok) {
+          resultEl.innerHTML = `<p class="text-red-700">${escapeHtml(data.message || data.error || 'Importazione fallita.')}</p>`;
+        } else {
+          resultEl.innerHTML = `
+            <p class="font-semibold text-slate-900">Importazione completata</p>
+            <p class="mt-1">Importati: <strong>${data.importati.length}</strong> · Falliti: <strong>${data.falliti.length}</strong></p>
+            ${data.falliti.length > 0 ? `<div class="mt-2 text-red-700">${data.falliti.map((f: any) => `${escapeHtml(f.slug)}: ${escapeHtml(f.errore)}`).join('<br/>')}</div>` : ''}
+            <p class="mt-2 text-slate-500">Tutti i gruppi importati sono in stato Bozza: aprili dall'elenco per rivederli e pubblicarli.</p>
+          `;
+          (window as any).adminToast?.(`${data.importati.length} gruppi importati come bozza.`, 'success');
+        }
+        resultEl.classList.remove('hidden');
+        document.getElementById('imp-preview')!.classList.add('hidden');
+      } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Conferma importazione';
+      }
+    });
+  });
+</script>

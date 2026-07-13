@@ -24,7 +24,16 @@ if (!typeDef) {
           <option value="archived">Archiviato</option>
         </select>
       </div>
-      <a id="cl-new-link" href={`/admin/contenuti/${tipo}/nuova`} class="rounded-xl bg-accent-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent-700">+ Nuovo</a>
+      <div class="flex flex-wrap gap-2">
+        {tipo === 'gruppi-whatsapp' && (
+          <>
+            <button id="cl-export-csv" type="button" class="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-primary-500 hover:text-primary-800">Esporta CSV</button>
+            <button id="cl-export-json" type="button" class="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-primary-500 hover:text-primary-800">Esporta JSON</button>
+            <a href="/admin/contenuti/gruppi-whatsapp/importa" class="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-primary-500 hover:text-primary-800">Importa</a>
+          </>
+        )}
+        <a id="cl-new-link" href={`/admin/contenuti/${tipo}/nuova`} class="rounded-xl bg-accent-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent-700">+ Nuovo</a>
+      </div>
     </div>
 
     <p id="cl-nota" class="mb-4 hidden text-xs text-slate-500"></p>
@@ -111,6 +120,24 @@ if (!typeDef) {
     if (currentUser && !hasPermission(currentUser.role, 'content.edit')) {
       document.getElementById('cl-new-link')?.classList.add('hidden');
     }
+
+    async function scaricaExport(formato: 'csv' | 'json') {
+      const res = await fetch(`/api/admin/contenuti/gruppi-whatsapp/export?format=${formato}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (!res.ok) {
+        (window as any).adminToast?.('Esportazione fallita.', 'error');
+        return;
+      }
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `gruppi-whatsapp.${formato}`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+    document.getElementById('cl-export-csv')?.addEventListener('click', () => scaricaExport('csv'));
+    document.getElementById('cl-export-json')?.addEventListener('click', () => scaricaExport('json'));
 
     const loadingEl = document.getElementById('cl-loading')!;
     const errorEl = document.getElementById('cl-error')!;

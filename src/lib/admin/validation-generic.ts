@@ -4,6 +4,7 @@
 // del file) e ogni campo URL passa da isSafeUrl (solo https://).
 import { z } from 'astro:content';
 import { isSafeUrl } from './content-utils';
+import { isSafeWhatsappLink } from './whatsapp';
 import type { ContentTypeDef, FieldDef } from './content-types';
 
 function schemaForField(field: FieldDef): z.ZodTypeAny {
@@ -20,6 +21,14 @@ function schemaForField(field: FieldDef): z.ZodTypeAny {
       const base = z.string().max(field.maxLength ?? 300);
       const refined = base.refine((v) => !v || isSafeUrl(v), 'URL non valido: deve iniziare con https://');
       return field.required ? refined : refined.or(z.literal(''));
+    }
+    case 'whatsapp-link': {
+      const base = z.string().max(field.maxLength ?? 300);
+      const refined = base.refine(
+        (v) => !v || isSafeWhatsappLink(v),
+        'Link non valido: deve essere un formato chat.whatsapp.com o whatsapp.com/channel riconosciuto.',
+      );
+      return field.required ? refined.refine((v) => v.length > 0, `${field.label} è obbligatorio`) : refined.or(z.literal(''));
     }
     case 'select': {
       const values = (field.options ?? []).map((o) => o.value);

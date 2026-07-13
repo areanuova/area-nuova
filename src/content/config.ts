@@ -119,9 +119,15 @@ const documenti = defineCollection({
 });
 
 // GRUPPI WHATSAPP UNIFG
+// Sprint 5.0: schema esteso con workflow CMS e metadati completi. Tutti i
+// campi nuovi sono opzionali o con default per restare compatibili con i
+// contenuti già esistenti (in particolare `attivo`, mantenuto per
+// compatibilità come `bozza`/`attiva` altrove — non più letto dalle pagine
+// pubbliche, sostituito da `stato`).
 const gruppiWhatsapp = defineCollection({
   type: 'content',
   schema: z.object({
+    // --- campi storici (Sprint 2) ---
     area: z.enum([
       'medica',
       'giuridica',
@@ -137,6 +143,35 @@ const gruppiWhatsapp = defineCollection({
     link: z.string().url(),
     attivo: z.boolean().default(true),
     ordine: z.number().default(99),
+
+    // --- Sprint 5.0 ---
+    descrizione: z.string().optional(),
+    categoria: z.string().default('Generale'),
+    dipartimento: z.string().optional(),
+    sede: z.string().optional(),
+    annoCorso: z.string().optional(),
+    insegnamento: z.string().optional(),
+    // tipo di gruppo sul piano tecnico WhatsApp, distinto da `tipologia`
+    // (contesto/sotto-categoria libera già in uso, es. "semestre-filtro")
+    tipoGruppo: z
+      .enum(['gruppo', 'community', 'canale', 'broadcast', 'link-esterno', 'temporaneo'])
+      .default('gruppo'),
+    pubblico: z.string().optional(),
+    // percorso di un QR personalizzato caricato manualmente; se assente il
+    // pannello genera il QR automaticamente dal link al momento della vista
+    qrCode: z.string().optional(),
+    qrAltText: z.string().optional(),
+    copertina: z.string().optional(),
+    inEvidenza: z.boolean().default(false),
+    dataApertura: z.coerce.date().optional(),
+    dataScadenza: z.coerce.date().optional(),
+    referente: z.string().optional(),
+    contattoReferente: z.string().optional(),
+    noteInterne: z.string().optional(),
+    seoTitle: z.string().optional(),
+    seoDescription: z.string().optional(),
+    linkVerificatoIl: z.coerce.date().optional(),
+    stato: z.enum(['draft', 'review', 'published', 'archived']).default('published'),
   }),
 });
 

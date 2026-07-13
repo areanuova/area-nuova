@@ -65,6 +65,20 @@ if (!typeDef) throw new Error(`Tipo di contenuto sconosciuto: ${tipo}`);
         ) : field.type === 'date' ? (
           <input id={`cf-${field.key}`} name={field.key} type="date" required={field.required}
             class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+        ) : field.type === 'whatsapp-link' ? (
+          <div>
+            <input id={`cf-${field.key}`} name={field.key} type="text" maxlength={field.maxLength} required={field.required}
+              class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-mono focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+            <div class="mt-2 flex flex-wrap items-center gap-2">
+              <span id={`cf-${field.key}-status`} class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500">Non verificato</span>
+              <button type="button" id={`cf-${field.key}-qr-btn`} class="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 hover:border-primary-500 hover:text-primary-800 disabled:cursor-not-allowed disabled:opacity-50" disabled>
+                Genera anteprima QR
+              </button>
+            </div>
+            <div id={`cf-${field.key}-qr-preview`} class="mt-2 hidden">
+              <img id={`cf-${field.key}-qr-img`} alt="Anteprima QR code" class="h-32 w-32 rounded-lg border border-slate-200" />
+            </div>
+          </div>
         ) : (
           <input id={`cf-${field.key}`} name={field.key} type="text" maxlength={field.maxLength} required={field.required} value={mode === 'create' ? (field.default as string | number | undefined) : undefined}
             class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
@@ -105,6 +119,7 @@ if (!typeDef) throw new Error(`Tipo di contenuto sconosciuto: ${tipo}`);
   import { canTransition, type CmsRole, type ContentStato } from '../../lib/admin/roles';
   import { onAdminReady } from '../../lib/admin/ready';
   import { CONTENT_TYPES, type FieldDef } from '../../lib/admin/content-types';
+  import { classifyWhatsappLink } from '../../lib/admin/whatsapp';
 
   // Come in PartnershipForm.astro: questo script è hoistato da Astro in
   // <head> ed eseguito prima che AdminLayout cloni il <template> protetto —
@@ -183,6 +198,57 @@ if (!typeDef) throw new Error(`Tipo di contenuto sconosciuto: ${tipo}`);
     }
 
     await caricaDatiEsistenti();
+
+    // Campi whatsapp-link: badge di validità formato (mai una verifica di
+    // raggiungibilità reale, solo formato — vedi src/lib/admin/whatsapp.ts)
+    // e generazione QR on-demand, mai salvato finché non si preme "Salva".
+    for (const field of typeDef.fields) {
+      if (field.type !== 'whatsapp-link') continue;
+      const input = fieldEl(field.key) as HTMLInputElement | null;
+      const statusEl = document.getElementById(`cf-${field.key}-status`);
+      const qrBtn = document.getElementById(`cf-${field.key}-qr-btn`) as HTMLButtonElement | null;
+      const qrPreview = document.getElementById(`cf-${field.key}-qr-preview`);
+      const qrImg = document.getElementById(`cf-${field.key}-qr-img`) as HTMLImageElement | null;
+      if (!input || !statusEl || !qrBtn) continue;
+
+      const refresh = () => {
+        const status = classifyWhatsappLink(input.value);
+        if (status === 'valid_format') {
+          statusEl.textContent = 'Formato valido';
+          statusEl.className = 'rounded-full bg-accent-100 px-2.5 py-0.5 text-xs font-semibold text-accent-800';
+          qrBtn.disabled = false;
+        } else if (status === 'invalid_format') {
+          statusEl.textContent = 'Formato non valido';
+          statusEl.className = 'rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700';
+          qrBtn.disabled = true;
+        } else {
+          statusEl.textContent = 'Non verificato';
+          statusEl.className = 'rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-500';
+          qrBtn.disabled = true;
+        }
+        qrPreview?.classList.add('hidden');
+      };
+      input.addEventListener('input', refresh);
+      refresh();
+
+      qrBtn.addEventListener('click', async () => {
+        if (!qrImg || !qrPreview) return;
+        qrBtn.disabled = true;
+        try {
+          const res = await fetch(`/api/admin/qr?text=${encodeURIComponent(input.value)}&format=svg`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          if (!res.ok) throw new Error('Generazione QR fallita.');
+          const blob = await res.blob();
+          qrImg.src = URL.createObjectURL(blob);
+          qrPreview.classList.remove('hidden');
+        } catch (err) {
+          (window as any).adminToast?.(String((err as Error)?.message ?? err), 'error');
+        } finally {
+          qrBtn.disabled = false;
+        }
+      });
+    }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();

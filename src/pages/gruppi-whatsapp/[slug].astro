@@ -1,0 +1,116 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Badge from '../../components/ui/Badge.astro';
+import { isGruppoVisibilePubblicamente, isNuovo, isInScadenza } from '../../lib/gruppi-whatsapp';
+
+export async function getStaticPaths() {
+  const gruppi = await getCollection('gruppi-whatsapp', ({ data }) => isGruppoVisibilePubblicamente(data));
+  return gruppi.map((g) => ({ params: { slug: g.slug }, props: { gruppo: g } }));
+}
+
+interface Props { gruppo: CollectionEntry<'gruppi-whatsapp'>; }
+const { gruppo } = Astro.props;
+const { data } = gruppo;
+const { Content } = await gruppo.render();
+const nuovo = isNuovo(data);
+const inScadenza = isInScadenza(data);
+const qrSrc = data.qrCode || `/api/qr?text=${encodeURIComponent(data.link)}`;
+---
+
+<BaseLayout titolo={data.seoTitle || data.titolo} descrizione={data.seoDescription || data.descrizione || data.titolo}>
+  <article class="container-site max-w-3xl py-16">
+    <a href="/gruppi-whatsapp" class="text-sm font-semibold text-primary-800 hover:underline">← Tutti i gruppi WhatsApp</a>
+
+    <div class="mt-6 flex flex-wrap items-center gap-2">
+      <Badge variante="primary">{data.categoria}</Badge>
+      {data.inEvidenza && <Badge variante="accent">In evidenza</Badge>}
+      {nuovo && <Badge variante="accent">Nuovo</Badge>}
+      {inScadenza && <Badge variante="neutro">In scadenza</Badge>}
+    </div>
+
+    <h1 class="mt-4 text-3xl font-bold sm:text-4xl">{data.titolo}</h1>
+    {data.descrizione && <p class="mt-4 text-lg text-slate-600">{data.descrizione}</p>}
+
+    <div class="mt-6 grid gap-4 text-sm sm:grid-cols-2">
+      {data.dipartimento && <p><span class="font-semibold text-slate-700">Dipartimento:</span> {data.dipartimento}</p>}
+      {data.sede && <p><span class="font-semibold text-slate-700">Sede:</span> {data.sede}</p>}
+      {data.annoCorso && <p><span class="font-semibold text-slate-700">Anno di corso:</span> {data.annoCorso}</p>}
+      {data.annoAccademico && <p><span class="font-semibold text-slate-700">Anno accademico:</span> {data.annoAccademico}</p>}
+      {data.insegnamento && <p><span class="font-semibold text-slate-700">Insegnamento:</span> {data.insegnamento}</p>}
+      {data.pubblico && <p><span class="font-semibold text-slate-700">Pubblico:</span> {data.pubblico}</p>}
+    </div>
+
+    {data.corsi.length > 0 && (
+      <div class="mt-4 flex flex-wrap gap-1.5">
+        {data.corsi.map((corso) => <span class="rounded-md bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-800">{corso}</span>)}
+      </div>
+    )}
+
+    <div class="prose prose-slate mt-8 max-w-none prose-headings:font-display prose-a:text-primary-800">
+      <Content />
+    </div>
+
+    <div class="mt-10 grid gap-6 rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:grid-cols-[auto_1fr] sm:items-center">
+      <img src={qrSrc} alt={data.qrAltText || `QR code per entrare nel gruppo WhatsApp ${data.titolo}`} width="160" height="160" class="h-40 w-40 rounded-xl border border-slate-200 bg-white" loading="lazy" />
+      <div>
+        <p class="text-sm text-slate-600">Inquadra il QR con la fotocamera oppure usa il pulsante per entrare direttamente nel gruppo.</p>
+        <div class="mt-4 flex flex-wrap gap-3">
+          <a
+            href={data.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 rounded-xl bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#1ebe5a]"
+          >
+            Entra nel gruppo →
+          </a>
+          <button id="wg-copy" type="button" data-link={data.link} class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:border-primary-500 hover:text-primary-800">
+            Copia link
+          </button>
+          <button id="wg-share" type="button" data-link={data.link} data-title={data.titolo} class="hidden inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:border-primary-500 hover:text-primary-800">
+            Condividi
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-16 rounded-2xl border border-slate-200 bg-white px-8 py-8 sm:flex sm:items-center sm:justify-between sm:gap-8">
+      <div class="mb-4 sm:mb-0">
+        <h2 class="text-lg font-bold text-slate-900">Questo link non funziona più?</h2>
+        <p class="mt-1 text-sm text-slate-600">Segnalacelo: verifichiamo e aggiorniamo il gruppo il prima possibile.</p>
+      </div>
+      <a href="/segnalazioni" class="inline-block shrink-0 rounded-lg bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-900">
+        Invia una segnalazione
+      </a>
+    </div>
+  </article>
+</BaseLayout>
+
+<script>
+  const copyBtn = document.getElementById('wg-copy') as HTMLButtonElement | null;
+  const shareBtn = document.getElementById('wg-share') as HTMLButtonElement | null;
+
+  copyBtn?.addEventListener('click', async () => {
+    const link = copyBtn.dataset.link ?? '';
+    try {
+      await navigator.clipboard.writeText(link);
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copiato ✓';
+      setTimeout(() => { copyBtn.textContent = original; }, 2000);
+    } catch {
+      // Clipboard API non disponibile (contesto non sicuro o permesso negato):
+      // nessun crash, il pulsante "Entra nel gruppo" resta comunque disponibile.
+    }
+  });
+
+  if (navigator.share) {
+    shareBtn?.classList.remove('hidden');
+    shareBtn?.addEventListener('click', async () => {
+      try {
+        await navigator.share({ title: shareBtn.dataset.title ?? '', url: shareBtn.dataset.link ?? '' });
+      } catch {
+        // Annullato dall'utente o non supportato in questo contesto: nessun errore da mostrare.
+      }
+    });
+  }
+</script>
