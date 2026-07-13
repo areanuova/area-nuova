@@ -10,7 +10,17 @@
 import { getAdminSupabase } from '../aris/supabase-admin';
 import type { AdminUser } from './roles';
 
-export type AuditAzione = 'create' | 'update' | 'publish' | 'archive' | 'error';
+// Sprint 5.0B (Fase 11): elenco esteso di azioni tracciabili. `azione` resta
+// una colonna text libera (nessuna migration di schema necessaria per
+// aggiungere valori) — questo union type è solo un contratto lato codice,
+// per evitare refusi tra i chiamanti.
+export type AuditAzione =
+  | 'create' | 'update' | 'publish' | 'archive' | 'error'
+  | 'duplicate' | 'bulk_update' | 'assign' | 'review_request' | 'approve' | 'reject'
+  | 'import' | 'export' | 'media_upload' | 'media_replace' | 'media_delete'
+  | 'restore_version' | 'settings_update'
+  | 'invite' | 'reinvite' | 'role_change' | 'suspend' | 'reactivate'
+  | 'schedule' | 'schedule_run';
 
 export interface AuditEvent {
   utente: AdminUser;
@@ -82,5 +92,43 @@ export async function getRecentAuditEvents(limit = 10): Promise<
     return { righe: data ?? [], disponibile: true };
   } catch {
     return { righe: [], disponibile: false };
+  }
+}
+
+export interface AuditQueryFiltri {
+  azione?: string;
+  collezione?: string;
+  page?: number;
+  perPage?: number;
+}
+
+export interface AuditQueryResult {
+  righe: Array<{ id: string; azione: string; collezione: string; entry_id: string; dettagli: unknown; created_at: string; admin_id: string | null }>;
+  totale: number;
+  disponibile: boolean;
+}
+
+/** Elenco filtrato e paginato, usato dalla pagina /admin/audit (Fase 11). */
+export async function queryAuditEvents(filtri: AuditQueryFiltri): Promise<AuditQueryResult> {
+  const page = Math.max(1, filtri.page ?? 1);
+  const perPage = Math.min(100, Math.max(1, filtri.perPage ?? 25));
+  const from = (page - 1) * perPage;
+  const to = from + perPage - 1;
+
+  try {
+    const sb = getAdminSupabase();
+    let query = sb
+      .from('cms_audit_log')
+      .select('id, azione, collezione, entry_id, dettagli, created_at, admin_id', { count: 'exact' })
+      .order('created_at', { ascending: false });
+
+    if (filtri.azione) query = query.eq('azione', filtri.azione);
+    if (filtri.collezione) query = query.eq('collezione', filtri.collezione);
+
+    const { data, error, count } = await query.range(from, to);
+    if (error) return { righe: [], totale: 0, disponibile: false };
+    return { righe: data ?? [], totale: count ?? 0, disponibile: true };
+  } catch {
+    return { righe: [], totale: 0, disponibile: false };
   }
 }

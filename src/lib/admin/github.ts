@@ -39,6 +39,13 @@ export interface CommitContentFileResult {
   htmlUrl: string;
 }
 
+// Sprint 5.0B: unica eccezione esplicita a "solo src/content/" — il file
+// singleton delle impostazioni del sito (src/data/sito.json, già
+// esistente e già letto da Footer/Navbar/BaseLayout). Elencata per intero
+// e non come prefisso di directory, per non allargare la superficie di
+// scrittura oltre questo singolo file già pubblico e non sensibile.
+const PERCORSI_EXTRA_CONSENTITI = new Set<string>(['src/data/sito.json']);
+
 function getToken(): string | undefined {
   return import.meta.env.GITHUB_SERVICE_TOKEN;
 }
@@ -80,7 +87,9 @@ export async function commitContentFile(
   // Path traversal: il chiamante deve già aver validato/sanitizzato path e
   // slug (vedi validation.ts) — qui aggiungiamo una verifica difensiva
   // indipendente, per non fidarci di un solo livello di controllo.
-  if (input.path.includes('..') || input.path.startsWith('/') || !input.path.startsWith('src/content/')) {
+  const percorsoConsentito =
+    input.path.startsWith('src/content/') || PERCORSI_EXTRA_CONSENTITI.has(input.path);
+  if (input.path.includes('..') || input.path.startsWith('/') || !percorsoConsentito) {
     throw new Error(`Percorso non consentito: ${input.path}`);
   }
 
@@ -118,4 +127,49 @@ export async function commitContentFile(
 
   const result = (await res.json()) as { commit: { sha: string; html_url: string } };
   return { commitSha: result.commit.sha, htmlUrl: result.commit.html_url };
+}
+
+export interface FileCommitInfo {
+  sha: string;
+  message: string;
+  author: string;
+  date: string;
+  htmlUrl: string;
+}
+
+/**
+ * Cronologia dei commit per un singolo file (Sprint 5.0B, Fase 6 —
+ * versioning). Usa direttamente la cronologia Git reale, coerente con
+ * l'architettura "ogni salvataggio è un commit" già in uso: nessuna
+ * tabella di versioni da mantenere in sincronia.
+ */
+export async function listFileCommits(path: string, limit = 20): Promise<FileCommitInfo[]> {
+  const res = await githubRequest(
+    `/repos/${REPO_OWNER}/${REPO_NAME}/commits?path=${encodeURIComponent(path)}&sha=${REPO_BRANCH}&per_page=${limit}`,
+  );
+  if (!res.ok) {
+    throw new Error(`Impossibile leggere la cronologia (HTTP ${res.status}).`);
+  }
+  const data = (await res.json()) as Array<{
+    sha: string;
+    html_url: string;
+    commit: { message: string; author: { name: string; date: string } };
+  }>;
+  return data.map((c) => ({
+    sha: c.sha,
+    message: c.commit.message,
+    author: c.commit.author.name,
+    date: c.commit.author.date,
+    htmlUrl: c.html_url,
+  }));
+}
+
+/** Contenuto testuale (decodificato da base64) di un file a un dato commit/ref. */
+export async function getFileAtRef(path: string, ref: string): Promise<string> {
+  const res = await githubRequest(`/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?ref=${ref}`);
+  if (!res.ok) {
+    throw new Error(`Impossibile leggere il file alla revisione ${ref} (HTTP ${res.status}).`);
+  }
+  const data = (await res.json()) as { content: string; encoding: string };
+  return Buffer.from(data.content, data.encoding as BufferEncoding).toString('utf-8');
 }

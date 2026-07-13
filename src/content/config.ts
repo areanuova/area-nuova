@@ -36,6 +36,11 @@ const progetti = defineCollection({
       // Default 'published' perché ogni progetto già esistente, privo del
       // campo, deve restare visibile invariato.
       statoPubblicazione: z.enum(['draft', 'review', 'published', 'archived']).default('published'),
+      // Sprint 5.0B (Fase 7): pianificazione. Letti solo dal cron
+      // /api/cron/scheduled-publish, mai dalle pagine pubbliche (che
+      // continuano a fidarsi esclusivamente di `statoPubblicazione`).
+      pubblicaIl: z.coerce.date().optional(),
+      archiviaIl: z.coerce.date().optional(),
     }),
 });
 
@@ -69,6 +74,11 @@ const news = defineCollection({
       bozza: z.boolean().default(false),
       categoria: z.enum(['comunicato', 'risultati', 'resoconto', 'avviso']).default('comunicato'),
       stato: z.enum(['draft', 'review', 'published', 'archived']).default('published'),
+      // Sprint 5.0B (Fase 7): pianificazione. Letti solo dal cron
+      // /api/cron/scheduled-publish, mai dalle pagine pubbliche (che
+      // continuano a fidarsi esclusivamente di `stato`).
+      pubblicaIl: z.coerce.date().optional(),
+      archiviaIl: z.coerce.date().optional(),
     }),
 });
 
@@ -100,6 +110,11 @@ const guide = defineCollection({
     ordine: z.number().default(99),
     estratto: z.string().optional(),
     stato: z.enum(['draft', 'review', 'published', 'archived']).default('published'),
+    // Sprint 5.0B (Fase 7): pianificazione. Letti solo dal cron
+    // /api/cron/scheduled-publish, mai dalle pagine pubbliche (che
+    // continuano a fidarsi esclusivamente di `stato`).
+    pubblicaIl: z.coerce.date().optional(),
+    archiviaIl: z.coerce.date().optional(),
   }),
 });
 
@@ -115,6 +130,11 @@ const documenti = defineCollection({
     file: z.string(),
     descrizione: z.string().optional(),
     stato: z.enum(['draft', 'review', 'published', 'archived']).default('published'),
+    // Sprint 5.0B (Fase 7): pianificazione. Letti solo dal cron
+    // /api/cron/scheduled-publish, mai dalle pagine pubbliche (che
+    // continuano a fidarsi esclusivamente di `stato`).
+    pubblicaIl: z.coerce.date().optional(),
+    archiviaIl: z.coerce.date().optional(),
   }),
 });
 
@@ -172,6 +192,11 @@ const gruppiWhatsapp = defineCollection({
     seoDescription: z.string().optional(),
     linkVerificatoIl: z.coerce.date().optional(),
     stato: z.enum(['draft', 'review', 'published', 'archived']).default('published'),
+    // Sprint 5.0B (Fase 7): pianificazione. Letti solo dal cron
+    // /api/cron/scheduled-publish, mai dalle pagine pubbliche (che
+    // continuano a fidarsi esclusivamente di `stato`).
+    pubblicaIl: z.coerce.date().optional(),
+    archiviaIl: z.coerce.date().optional(),
   }),
 });
 
@@ -241,6 +266,11 @@ const video = defineCollection({
     inEvidenza: z.boolean().default(false),
     ordine: z.number().default(99),
     stato: z.enum(['draft', 'review', 'published', 'archived']).default('published'),
+    // Sprint 5.0B (Fase 7): pianificazione. Letti solo dal cron
+    // /api/cron/scheduled-publish, mai dalle pagine pubbliche (che
+    // continuano a fidarsi esclusivamente di `stato`).
+    pubblicaIl: z.coerce.date().optional(),
+    archiviaIl: z.coerce.date().optional(),
   }),
 });
 

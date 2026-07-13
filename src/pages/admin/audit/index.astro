@@ -1,0 +1,114 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+<AdminLayout titolo="Registro attività" minRole="admin">
+  <div class="mx-auto max-w-5xl">
+    <h1 class="text-xl font-bold text-slate-900">Registro attività</h1>
+    <p class="mt-1 text-sm text-slate-600">Ogni operazione rilevante compiuta dal pannello CMS, con filtri e paginazione.</p>
+
+    <div id="audit-non-disponibile" class="mt-6 hidden rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+      Il registro attività non è disponibile in questo ambiente (tabella non ancora creata).
+    </div>
+
+    <div class="mt-6 flex flex-wrap items-center gap-3">
+      <select id="audit-filtro-azione" class="rounded-xl border border-slate-300 px-3 py-2 text-sm">
+        <option value="">Tutte le azioni</option>
+      </select>
+      <input id="audit-filtro-collezione" placeholder="Filtra per collezione…" class="rounded-xl border border-slate-300 px-3 py-2 text-sm" />
+      <button id="audit-filtra-btn" class="rounded-xl bg-primary-800 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700">Filtra</button>
+      <span id="audit-totale" class="text-sm text-slate-500"></span>
+    </div>
+
+    <div class="mt-4 overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <tr>
+            <th class="px-4 py-3">Data</th>
+            <th class="px-4 py-3">Azione</th>
+            <th class="px-4 py-3">Collezione</th>
+            <th class="px-4 py-3">Elemento</th>
+            <th class="px-4 py-3">Dettagli</th>
+          </tr>
+        </thead>
+        <tbody id="audit-righe" class="divide-y divide-slate-100"></tbody>
+      </table>
+    </div>
+
+    <div class="mt-4 flex items-center justify-between">
+      <button id="audit-prev" class="rounded-xl border border-slate-300 px-4 py-2 text-sm disabled:opacity-40" disabled>← Precedenti</button>
+      <span id="audit-pagina" class="text-sm text-slate-500"></span>
+      <button id="audit-next" class="rounded-xl border border-slate-300 px-4 py-2 text-sm disabled:opacity-40" disabled>Successivi →</button>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  import { onAdminReady } from '../../../lib/admin/ready';
+
+  const AZIONI = [
+    'create','update','publish','archive','error','duplicate','bulk_update','assign',
+    'review_request','approve','reject','import','export','media_upload','media_replace',
+    'media_delete','restore_version','settings_update','invite','reinvite','role_change',
+    'suspend','reactivate','schedule','schedule_run',
+  ];
+
+  onAdminReady(({ accessToken }) => {
+    const selAzione = document.getElementById('audit-filtro-azione') as HTMLSelectElement;
+    const inputCollezione = document.getElementById('audit-filtro-collezione') as HTMLInputElement;
+    const righeBody = document.getElementById('audit-righe')!;
+    const totaleEl = document.getElementById('audit-totale')!;
+    const paginaEl = document.getElementById('audit-pagina')!;
+    const prevBtn = document.getElementById('audit-prev') as HTMLButtonElement;
+    const nextBtn = document.getElementById('audit-next') as HTMLButtonElement;
+    const nonDisponibile = document.getElementById('audit-non-disponibile')!;
+
+    AZIONI.forEach((a) => {
+      const opt = document.createElement('option');
+      opt.value = a;
+      opt.textContent = a;
+      selAzione.appendChild(opt);
+    });
+
+    let pagina = 1;
+    let totale = 0;
+    const perPage = 25;
+
+    async function carica() {
+      if (!accessToken) return;
+      const params = new URLSearchParams({ page: String(pagina) });
+      if (selAzione.value) params.set('azione', selAzione.value);
+      if (inputCollezione.value.trim()) params.set('collezione', inputCollezione.value.trim());
+
+      const res = await fetch(`/api/admin/audit/query?${params}`, { headers: { Authorization: `Bearer ${accessToken}` } });
+      const data = await res.json();
+
+      if (!res.ok || !data.disponibile) {
+        nonDisponibile.classList.remove('hidden');
+        righeBody.innerHTML = '';
+        return;
+      }
+      nonDisponibile.classList.add('hidden');
+
+      totale = data.totale;
+      totaleEl.textContent = `${totale} eventi`;
+      paginaEl.textContent = `Pagina ${pagina} di ${Math.max(1, Math.ceil(totale / perPage))}`;
+      prevBtn.disabled = pagina <= 1;
+      nextBtn.disabled = pagina * perPage >= totale;
+
+      righeBody.innerHTML = data.righe.map((r: any) => `
+        <tr>
+          <td class="whitespace-nowrap px-4 py-3 text-slate-500">${new Date(r.created_at).toLocaleString('it-IT')}</td>
+          <td class="px-4 py-3 font-medium text-slate-900">${r.azione}</td>
+          <td class="px-4 py-3 text-slate-600">${r.collezione}</td>
+          <td class="px-4 py-3 text-slate-600">${r.entry_id}</td>
+          <td class="max-w-xs truncate px-4 py-3 text-xs text-slate-400" title="${(JSON.stringify(r.dettagli ?? {})).replace(/"/g, '&quot;')}">${JSON.stringify(r.dettagli ?? {})}</td>
+        </tr>`).join('') || '<tr><td colspan="5" class="px-4 py-6 text-center text-slate-400">Nessun evento</td></tr>';
+    }
+
+    document.getElementById('audit-filtra-btn')?.addEventListener('click', () => { pagina = 1; carica(); });
+    prevBtn.addEventListener('click', () => { if (pagina > 1) { pagina--; carica(); } });
+    nextBtn.addEventListener('click', () => { pagina++; carica(); });
+
+    carica();
+  });
+</script>

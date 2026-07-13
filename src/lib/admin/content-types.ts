@@ -61,6 +61,21 @@ const STATO_OPTIONS = [
   { value: 'archived', label: 'Archiviato' },
 ];
 
+// Sprint 5.0B (Fase 7) — campi di pianificazione, uguali per ogni tipo di
+// contenuto generico. Letti solo dal cron /api/cron/scheduled-publish (una
+// volta al giorno: vedi vercel.json e la route stessa per il perché non è
+// più frequente), mai dalle pagine pubbliche.
+const SCHEDULING_FIELDS: FieldDef[] = [
+  {
+    key: 'pubblicaIl', label: 'Pubblica automaticamente il', type: 'date',
+    helpText: 'Se impostata e lo stato è ancora bozza/revisione, il contenuto passa a "Pubblicato" al primo passaggio giornaliero del cron (non è istantaneo).',
+  },
+  {
+    key: 'archiviaIl', label: 'Archivia automaticamente il', type: 'date',
+    helpText: 'Se impostata e lo stato è ancora pubblicato, il contenuto passa ad "Archiviato" al primo passaggio giornaliero del cron (non è istantaneo).',
+  },
+];
+
 export const CONTENT_TYPES: Record<string, ContentTypeDef> = {
   news: {
     tipo: 'news',
@@ -88,9 +103,10 @@ export const CONTENT_TYPES: Record<string, ContentTypeDef> = {
       { key: 'tag', label: 'Tag (uno per riga)', type: 'stringArray' },
       {
         key: 'copertina', label: 'Copertina (percorso immagine già presente nel repo)', type: 'text', maxLength: 300,
-        helpText: 'Es. /images/news/copertina.jpg. Il pannello non carica nuovi file: lasciare vuoto o riusare un percorso già esistente.',
+        helpText: 'Es. /images/news/copertina.jpg oppure un URL da /admin/media (pulsante "Copia URL").',
       },
       { key: 'stato', label: 'Stato', type: 'select', default: 'draft', options: STATO_OPTIONS },
+      ...SCHEDULING_FIELDS,
     ],
   },
 
@@ -110,6 +126,7 @@ export const CONTENT_TYPES: Record<string, ContentTypeDef> = {
       { key: 'ordine', label: 'Ordine', type: 'number', default: 99 },
       { key: 'estratto', label: 'Estratto', type: 'textarea', maxLength: 500 },
       { key: 'stato', label: 'Stato', type: 'select', default: 'draft', options: STATO_OPTIONS },
+      ...SCHEDULING_FIELDS,
     ],
   },
 
@@ -138,10 +155,11 @@ export const CONTENT_TYPES: Record<string, ContentTypeDef> = {
       { key: 'anno', label: 'Anno', type: 'number', required: true, default: new Date().getFullYear() },
       {
         key: 'file', label: 'File (percorso in /public o URL esterno)', type: 'text', required: true, maxLength: 300,
-        helpText: 'Es. /documenti/modulo.pdf oppure un URL esterno completo. Il pannello non carica nuovi file.',
+        helpText: 'Es. /documenti/modulo.pdf, un URL esterno, oppure un URL da /admin/media (pulsante "Copia URL").',
       },
       { key: 'descrizione', label: 'Descrizione', type: 'textarea', maxLength: 500 },
       { key: 'stato', label: 'Stato', type: 'select', default: 'draft', options: STATO_OPTIONS },
+      ...SCHEDULING_FIELDS,
     ],
   },
 
@@ -173,10 +191,11 @@ export const CONTENT_TYPES: Record<string, ContentTypeDef> = {
       { key: 'dataFine', label: 'Data fine', type: 'date' },
       {
         key: 'copertina', label: 'Copertina (percorso immagine già presente nel repo)', type: 'text', maxLength: 300,
-        helpText: 'Es. /images/progetti/copertina.jpg. Il pannello non carica nuovi file: lasciare vuoto o riusare un percorso già esistente.',
+        helpText: 'Es. /images/progetti/copertina.jpg oppure un URL da /admin/media (pulsante "Copia URL").',
       },
       { key: 'inEvidenza', label: 'In evidenza', type: 'boolean' },
       { key: 'statoPubblicazione', label: 'Stato pubblicazione', type: 'select', default: 'draft', options: STATO_OPTIONS },
+      ...SCHEDULING_FIELDS,
     ],
   },
 
@@ -200,6 +219,7 @@ export const CONTENT_TYPES: Record<string, ContentTypeDef> = {
       { key: 'inEvidenza', label: 'In evidenza', type: 'boolean' },
       { key: 'ordine', label: 'Ordine', type: 'number', default: 99 },
       { key: 'stato', label: 'Stato', type: 'select', default: 'draft', options: STATO_OPTIONS },
+      ...SCHEDULING_FIELDS,
     ],
   },
 
@@ -263,6 +283,7 @@ export const CONTENT_TYPES: Record<string, ContentTypeDef> = {
       { key: 'inEvidenza', label: 'In evidenza in homepage', type: 'boolean' },
       { key: 'ordine', label: 'Ordine', type: 'number', default: 99 },
       { key: 'stato', label: 'Stato', type: 'select', default: 'draft', options: STATO_OPTIONS },
+      ...SCHEDULING_FIELDS,
     ],
   },
 };

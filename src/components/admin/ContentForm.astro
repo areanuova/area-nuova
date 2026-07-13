@@ -107,6 +107,8 @@ if (!typeDef) throw new Error(`Tipo di contenuto sconosciuto: ${tipo}`);
     <pre id="cf-preview-content" class="mt-2 overflow-x-auto whitespace-pre-wrap font-mono text-slate-700"></pre>
   </div>
 
+  <p id="cf-autosave-indicator" class="text-xs text-slate-400"></p>
+
   <div class="flex items-center gap-3">
     <button type="submit" id="cf-submit" class="rounded-xl bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300">
       {mode === 'create' ? `Crea ${typeDef.label.toLowerCase()}` : 'Salva modifiche'}
@@ -114,6 +116,13 @@ if (!typeDef) throw new Error(`Tipo di contenuto sconosciuto: ${tipo}`);
     <a href={`/admin/contenuti/${tipo}`} class="text-sm font-semibold text-slate-600 hover:underline">Annulla</a>
   </div>
 </form>
+
+{mode === 'edit' && (
+  <div class="mt-10 border-t border-slate-200 pt-6">
+    <h2 class="text-sm font-bold uppercase tracking-wide text-slate-500">Cronologia versioni</h2>
+    <div id="cf-history-list" class="mt-3 space-y-2 text-sm text-slate-500">Caricamento…</div>
+  </div>
+)}
 
 <script>
   import { canTransition, type CmsRole, type ContentStato } from '../../lib/admin/roles';
@@ -198,6 +207,149 @@ if (!typeDef) throw new Error(`Tipo di contenuto sconosciuto: ${tipo}`);
     }
 
     await caricaDatiEsistenti();
+
+    // ------------------------------------------------------------------
+    // Autosalvataggio locale + recupero bozza (Sprint 5.0B, Fase 4).
+    // Mai un commit GitHub qui: solo localStorage, per non creare un
+    // commit a ogni battitura. Chiave per tipo+slug, quindi non collide
+    // tra contenuti diversi né tra "nuovo" e "modifica" dello stesso slug.
+    // ------------------------------------------------------------------
+    const autosaveKey = `cf-autosave-${tipo}-${mode === 'create' ? 'nuovo' : slug}`;
+    const autosaveIndicator = document.getElementById('cf-autosave-indicator')!;
+    let formSporco = false;
+
+    function leggiValoriForm(): Record<string, unknown> {
+      const dati: Record<string, unknown> = { slug: slugEl.value };
+      for (const field of typeDef.fields) {
+        const el = fieldEl(field.key);
+        if (!el) continue;
+        dati[field.key] = field.type === 'boolean' ? (el as HTMLInputElement).checked : el.value;
+      }
+      if (typeDef.hasBody) {
+        dati.corpo = (document.getElementById('cf-corpo') as HTMLTextAreaElement | null)?.value ?? '';
+      }
+      return dati;
+    }
+
+    function salvaBozzaLocale() {
+      localStorage.setItem(autosaveKey, JSON.stringify({ timestamp: Date.now(), dati: leggiValoriForm() }));
+      autosaveIndicator.textContent = `Bozza locale salvata alle ${new Date().toLocaleTimeString('it-IT')}`;
+    }
+
+    let autosaveTimer: ReturnType<typeof setTimeout> | undefined;
+    form.addEventListener('input', () => {
+      formSporco = true;
+      autosaveIndicator.textContent = 'Modifiche non salvate…';
+      clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(salvaBozzaLocale, 1500);
+    });
+
+    window.addEventListener('beforeunload', (e) => {
+      if (!formSporco) return;
+      e.preventDefault();
+      e.returnValue = '';
+    });
+
+    // Recupero: se esiste una bozza locale, propone di ripristinarla sopra
+    // ai dati appena caricati dal server. Scelta esplicita dell'utente,
+    // mai un ripristino silenzioso che sovrascriva senza chiedere.
+    const bozzaGrezza = localStorage.getItem(autosaveKey);
+    if (bozzaGrezza) {
+      try {
+        const bozza = JSON.parse(bozzaGrezza) as { timestamp: number; dati: Record<string, unknown> };
+        const ora = new Date(bozza.timestamp).toLocaleString('it-IT');
+        const vuoiRecuperare = confirm(
+          `È stata trovata una bozza locale non salvata del ${ora} (probabilmente da una chiusura anomala della pagina). Vuoi recuperarla? Annulla per scartarla e continuare con la versione salvata.`,
+        );
+        if (vuoiRecuperare) {
+          for (const field of typeDef.fields) {
+            const el = fieldEl(field.key);
+            if (!el) continue;
+            const val = bozza.dati[field.key];
+            if (field.type === 'boolean') (el as HTMLInputElement).checked = !!val;
+            else el.value = String(val ?? '');
+          }
+          if (typeDef.hasBody) {
+            const corpoEl = document.getElementById('cf-corpo') as HTMLTextAreaElement | null;
+            if (corpoEl) corpoEl.value = String(bozza.dati.corpo ?? '');
+          }
+          autosaveIndicator.textContent = `Bozza locale del ${ora} recuperata — non ancora salvata sul server.`;
+          formSporco = true;
+        } else {
+          localStorage.removeItem(autosaveKey);
+        }
+      } catch {
+        localStorage.removeItem(autosaveKey);
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // Cronologia versioni (Sprint 5.0B, Fase 6) — solo modalità modifica.
+    // ------------------------------------------------------------------
+    if (mode === 'edit') {
+      const historyList = document.getElementById('cf-history-list');
+      const puoRipristinare = currentUser.role === 'admin' || currentUser.role === 'super_admin';
+
+      (async () => {
+        if (!historyList || !accessToken) return;
+        try {
+          const res = await fetch(`/api/admin/contenuti/${tipo}/history?slug=${encodeURIComponent(slug)}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            historyList.textContent = 'Cronologia non disponibile.';
+            return;
+          }
+          const commits = data.commits as { sha: string; message: string; author: string; date: string }[];
+          if (commits.length === 0) {
+            historyList.textContent = 'Nessuna cronologia disponibile.';
+            return;
+          }
+          historyList.innerHTML = commits.map((c, i) => `
+            <div class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2.5">
+              <div class="min-w-0">
+                <p class="truncate font-medium text-slate-800">${c.message}</p>
+                <p class="text-xs text-slate-400">${c.author} · ${new Date(c.date).toLocaleString('it-IT')} · ${c.sha.slice(0, 7)}</p>
+              </div>
+              ${i === 0
+                ? '<span class="shrink-0 rounded-full bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-800">Attuale</span>'
+                : puoRipristinare
+                  ? `<button type="button" data-restore-sha="${c.sha}" class="cf-restore-btn shrink-0 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-primary-500 hover:text-primary-800">Ripristina</button>`
+                  : ''}
+            </div>`).join('');
+
+          historyList.querySelectorAll<HTMLButtonElement>('.cf-restore-btn').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+              const sha = btn.dataset.restoreSha!;
+              const conferma1 = confirm('Ripristinare questa revisione? Verrà creato un nuovo commit con il contenuto storico — la cronologia attuale resta comunque consultabile.');
+              if (!conferma1) return;
+              const conferma2 = confirm('Confermi definitivamente il ripristino? Questa azione sovrascriverà i dati attuali del contenuto.');
+              if (!conferma2) return;
+              btn.disabled = true;
+              btn.textContent = 'Ripristino…';
+              try {
+                const res = await fetch(`/api/admin/contenuti/${tipo}/restore`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+                  body: JSON.stringify({ slug, sha, confirm: true }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || data.error || 'Ripristino fallito.');
+                (window as any).adminToast?.('Revisione ripristinata.', 'success');
+                window.location.reload();
+              } catch (err) {
+                (window as any).adminToast?.(String((err as Error)?.message ?? err), 'error');
+                btn.disabled = false;
+                btn.textContent = 'Ripristina';
+              }
+            });
+          });
+        } catch {
+          historyList.textContent = 'Cronologia non disponibile.';
+        }
+      })();
+    }
 
     // Campi whatsapp-link: badge di validità formato (mai una verifica di
     // raggiungibilità reale, solo formato — vedi src/lib/admin/whatsapp.ts)
@@ -304,6 +456,8 @@ if (!typeDef) throw new Error(`Tipo di contenuto sconosciuto: ${tipo}`);
           return;
         }
 
+        localStorage.removeItem(autosaveKey);
+        formSporco = false;
         (window as any).adminToast?.('Salvato correttamente.', 'success');
         window.location.href = `/admin/contenuti/${tipo}`;
       } catch (err) {

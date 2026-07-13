@@ -31,6 +31,20 @@ const titoloPagina = `${titolo} · ${sito.nome}`;
     <meta property="og:locale" content="it_IT" />
   </head>
   <body class="flex min-h-screen flex-col">
+    {sito.manutenzione?.attiva && (
+      <div class="bg-amber-500 px-4 py-2 text-center text-sm font-semibold text-white">
+        {sito.manutenzione.messaggio || 'Stiamo effettuando alcuni aggiornamenti.'}
+      </div>
+    )}
+    {sito.banner?.attivo && sito.banner.messaggio && (
+      <div class="bg-primary-800 px-4 py-2 text-center text-sm text-white">
+        {sito.banner.link ? (
+          <a href={sito.banner.link} class="underline hover:no-underline">{sito.banner.messaggio}</a>
+        ) : (
+          sito.banner.messaggio
+        )}
+      </div>
+    )}
     <Navbar />
     <main class="flex-1">
       <slot />

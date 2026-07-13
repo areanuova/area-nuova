@@ -3,15 +3,27 @@
   "slogan": "La rappresentanza studentesca dell'Università di Foggia",
   "descrizione": "Ascoltiamo, rappresentiamo e miglioriamo l'esperienza universitaria di chi studia a Foggia.",
   "email": "areanuova@unifg.it",
+  "telefono": "",
+  "indirizzo": "",
   "cittaUniversita": "Università di Foggia",
   "social": {
     "instagram": "https://instagram.com/areanuovaunifg",
     "facebook": "https://www.facebook.com/area.nuova.5",
     "telegram": "",
-    "youtube": ""
+    "youtube": "",
+    "whatsapp": ""
   },
   "form": {
-  "segnalazioni": "https://docs.google.com/forms/d/e/1FAIpQLSd1t7aH0vQ-EzLKlFsjSN7CQRJQsppFoTmXws9_DkeYPUqBuA/viewform?embedded=true",
-  "entra": "https://forms.gle/rxhiWPo1R4ypems66"
-}
+    "segnalazioni": "https://docs.google.com/forms/d/e/1FAIpQLSd1t7aH0vQ-EzLKlFsjSN7CQRJQsppFoTmXws9_DkeYPUqBuA/viewform?embedded=true",
+    "entra": "https://forms.gle/rxhiWPo1R4ypems66"
+  },
+  "banner": {
+    "attivo": false,
+    "messaggio": "",
+    "link": ""
+  },
+  "manutenzione": {
+    "attiva": false,
+    "messaggio": "Stiamo effettuando alcuni aggiornamenti. Alcune sezioni potrebbero essere temporaneamente instabili."
+  }
 }

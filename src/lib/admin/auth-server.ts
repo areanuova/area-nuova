@@ -4,29 +4,41 @@
 // affidabile). Separato da auth-client.ts apposta — vedi commento lì.
 import { supabase } from '../supabase';
 import { getAdminSupabase } from '../aris/supabase-admin';
-import { COMPATIBILITY_ROLE, type AdminUser, type CmsRole } from './roles';
+import { COMPATIBILITY_ROLE, type AdminUser, type CmsRole, type PermessiExtra } from './roles';
+
+interface AdminRow {
+  id: string;
+  email: string;
+  role?: string;
+  attivo?: boolean;
+  sospeso?: boolean;
+  permessi_extra?: PermessiExtra;
+}
 
 /**
  * Legge la riga admin_users per l'email indicata, tentando prima lo schema
- * esteso (role, attivo — introdotto da 20260712000000_cms_roles.sql, non
- * ancora applicato sul remoto) e ripiegando sullo schema minimo reale
- * (id, email) se le colonne non esistono. Nessuna riscrittura necessaria
- * quando la migration verrà applicata in futuro.
+ * più esteso (role, attivo, sospeso, permessi_extra — Sprint 5.0B, non
+ * ancora applicato sul remoto) e ripiegando via via su schemi più minimi
+ * se le colonne non esistono, fino al minimo reale (id, email). Nessuna
+ * riscrittura necessaria quando la migration verrà applicata in futuro —
+ * stesso pattern già usato per role/attivo dallo Sprint 3.1.
  */
-async function fetchAdminRow(
-  email: string,
-): Promise<{ id: string; email: string; role?: string; attivo?: boolean } | null> {
+async function fetchAdminRow(email: string): Promise<AdminRow | null> {
   const sb = getAdminSupabase();
+
+  const completo = await sb
+    .from('admin_users')
+    .select('id, email, role, attivo, sospeso, permessi_extra')
+    .eq('email', email)
+    .maybeSingle();
+  if (!completo.error) return completo.data;
 
   const esteso = await sb
     .from('admin_users')
     .select('id, email, role, attivo')
     .eq('email', email)
     .maybeSingle();
-
-  if (!esteso.error) {
-    return esteso.data;
-  }
+  if (!esteso.error) return esteso.data;
 
   const minimo = await sb.from('admin_users').select('id, email').eq('email', email).maybeSingle();
   if (minimo.error) {
@@ -35,7 +47,7 @@ async function fetchAdminRow(
   return minimo.data;
 }
 
-function toAdminUser(row: { id: string; email: string; role?: string; attivo?: boolean }): AdminUser {
+function toAdminUser(row: AdminRow): AdminUser {
   const compatibilityMode = row.role === undefined;
   return {
     id: row.id,
@@ -43,6 +55,8 @@ function toAdminUser(row: { id: string; email: string; role?: string; attivo?: b
     role: compatibilityMode ? COMPATIBILITY_ROLE : (row.role as CmsRole),
     attivo: row.attivo ?? true,
     compatibilityMode,
+    sospeso: row.sospeso,
+    permessiExtra: row.permessi_extra,
   };
 }
 
@@ -62,7 +76,7 @@ export async function requireAdminUser(
 ): Promise<
   | { ok: true; user: AdminUser }
   | { ok: false; status: 401; reason: 'missing_token' | 'invalid_token' }
-  | { ok: false; status: 403; reason: 'not_admin' | 'inactive' }
+  | { ok: false; status: 403; reason: 'not_admin' | 'inactive' | 'sospeso' }
 > {
   const authHeader = request.headers.get('Authorization') ?? '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
@@ -86,6 +100,9 @@ export async function requireAdminUser(
   const adminUser = toAdminUser(row);
   if (!adminUser.attivo) {
     return { ok: false, status: 403, reason: 'inactive' };
+  }
+  if (adminUser.sospeso === true) {
+    return { ok: false, status: 403, reason: 'sospeso' };
   }
 
   return { ok: true, user: adminUser };

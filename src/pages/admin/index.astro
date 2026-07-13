@@ -43,6 +43,11 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         <div id="dash-att-incompleti" class="hidden rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700"></div>
         <div id="dash-att-github" class="hidden rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"></div>
       </div>
+
+      <div id="dash-programmate" class="mt-4 hidden">
+        <h3 class="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">Attività programmate</h3>
+        <ul id="dash-programmate-list" class="space-y-1.5 text-sm text-slate-600"></ul>
+      </div>
     </section>
 
     <section>
@@ -86,6 +91,21 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         <a href="/admin/contenuti/video" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
           <h3 class="font-bold text-slate-900">Video</h3>
           <p class="mt-1 text-sm text-slate-600">Video del canale YouTube di Area Nuova.</p>
+          <span class="mt-3 inline-block text-sm font-semibold text-primary-800">Gestisci →</span>
+        </a>
+        <a href="/admin/media" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+          <h3 class="font-bold text-slate-900">Media</h3>
+          <p class="mt-1 text-sm text-slate-600">Libreria immagini, QR e documenti caricati dal pannello.</p>
+          <span class="mt-3 inline-block text-sm font-semibold text-primary-800">Gestisci →</span>
+        </a>
+        <a href="/admin/audit" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+          <h3 class="font-bold text-slate-900">Registro attività</h3>
+          <p class="mt-1 text-sm text-slate-600">Cronologia completa filtrabile di ogni operazione CMS.</p>
+          <span class="mt-3 inline-block text-sm font-semibold text-primary-800">Apri →</span>
+        </a>
+        <a href="/admin/impostazioni" class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+          <h3 class="font-bold text-slate-900">Impostazioni sito</h3>
+          <p class="mt-1 text-sm text-slate-600">Contatti, social, banner e modalità manutenzione (solo Super Admin).</p>
           <span class="mt-3 inline-block text-sm font-semibold text-primary-800">Gestisci →</span>
         </a>
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -163,6 +183,13 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
           el.textContent = 'GITHUB_SERVICE_TOKEN non configurato in questo ambiente: i salvataggi CMS non verranno pubblicati.';
         }
         attention.classList.toggle('hidden', !mostraAttention);
+
+        if (stats.attivitaProgrammate?.length > 0) {
+          document.getElementById('dash-programmate')!.classList.remove('hidden');
+          document.getElementById('dash-programmate-list')!.innerHTML = stats.attivitaProgrammate
+            .map((a: any) => `<li>${a.azione === 'pubblica' ? 'Pubblicazione' : 'Archiviazione'} programmata: <strong>${a.titolo}</strong> (${a.collezione}) — ${new Date(a.quando).toLocaleDateString('it-IT')}</li>`)
+            .join('');
+        }
       }
     } catch {
       // La dashboard resta comunque utilizzabile senza le statistiche.

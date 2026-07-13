@@ -31,6 +31,7 @@ export const GET = withErrorHandling(async ({ request }: APIContext): Promise<Re
 
   const conteggiPerStato: Record<string, Record<Stato, number>> = {};
   const contenutiIncompleti: { collezione: string; slug: string; titolo: string; problema: string }[] = [];
+  const attivitaProgrammate: { collezione: string; slug: string; titolo: string; azione: string; quando: string }[] = [];
   let totalePubblicati = 0, totaleBozze = 0, totaleRevisione = 0, totaleArchiviati = 0;
 
   for (const collezione of GESTITE) {
@@ -52,9 +53,16 @@ export const GET = withErrorHandling(async ({ request }: APIContext): Promise<Re
       if (collezione === 'gruppi-whatsapp' && stato !== 'archived' && !e.data.link) {
         contenutiIncompleti.push({ collezione, slug: e.slug, titolo, problema: 'Senza link WhatsApp' });
       }
+      if (e.data.pubblicaIl) {
+        attivitaProgrammate.push({ collezione, slug: e.slug, titolo, azione: 'pubblica', quando: new Date(e.data.pubblicaIl).toISOString() });
+      }
+      if (e.data.archiviaIl) {
+        attivitaProgrammate.push({ collezione, slug: e.slug, titolo, azione: 'archivia', quando: new Date(e.data.archiviaIl).toISOString() });
+      }
     }
     conteggiPerStato[collezione] = conteggio;
   }
+  attivitaProgrammate.sort((a, b) => a.quando.localeCompare(b.quando));
 
   const gruppi = await getCollection('gruppi-whatsapp');
   const gruppiInScadenza = gruppi.filter((g) => statoDi('gruppi-whatsapp', g.data) === 'published' && isInScadenza(g.data as any, 14))
@@ -77,6 +85,7 @@ export const GET = withErrorHandling(async ({ request }: APIContext): Promise<Re
     gruppiDaVerificare,
     contenutiIncompleti: contenutiIncompleti.slice(0, 20),
     contenutiIncompletiTotale: contenutiIncompleti.length,
+    attivitaProgrammate: attivitaProgrammate.slice(0, 20),
     githubConfigurato: isGithubConfigured(),
     utenti: { attivi: utentiAttivi, totali: utentiTotali },
   });

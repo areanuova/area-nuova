@@ -3,6 +3,10 @@
     {
       "path": "/api/aris/sync-external",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/scheduled-publish",
+      "schedule": "30 3 * * *"
     }
   ]
 }

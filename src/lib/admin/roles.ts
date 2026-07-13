@@ -28,6 +28,9 @@ export interface AdminUser {
   attivo: boolean;
   /** true se il ruolo è un default di compatibilità, non un valore reale letto dal database. */
   compatibilityMode: boolean;
+  /** Sprint 5.0B — assente (undefined) finché la colonna non esiste sul remoto: mai trattato come true implicito. */
+  sospeso?: boolean;
+  permessiExtra?: PermessiExtra;
 }
 
 const ROLE_RANK: Record<CmsRole, number> = { editor: 0, admin: 1, super_admin: 2 };
@@ -84,9 +87,21 @@ export type Permission =
   | 'content.publish'
   | 'content.manage'
   | 'users.manage'
-  | 'audit.view';
+  | 'audit.view'
+  | 'settings.manage'
+  | 'media.manage'
+  | 'notifications.view';
 
-export function hasPermission(role: CmsRole, permission: Permission): boolean {
+/**
+ * Capacità opzionali oltre al ruolo base (Sprint 5.0B). Layer additivo:
+ * amplia sempre e solo, non sostituisce mai il controllo di ruolo — vedi
+ * la colonna `permessi_extra` su admin_users (migration
+ * 20260714000000_sprint5b_platform.sql). Tenuto deliberatamente minimo
+ * (un solo campo jsonb, mai un secondo sistema di ruoli parallelo).
+ */
+export type PermessiExtra = Partial<Record<'media.manage', boolean>>;
+
+export function hasPermission(role: CmsRole, permission: Permission, extra?: PermessiExtra): boolean {
   switch (permission) {
     case 'content.edit':
       return canEditContent(role);
@@ -97,6 +112,12 @@ export function hasPermission(role: CmsRole, permission: Permission): boolean {
       return canManageUsers(role);
     case 'audit.view':
       return role === 'super_admin' || role === 'admin';
+    case 'settings.manage':
+      return role === 'super_admin';
+    case 'media.manage':
+      return role === 'super_admin' || role === 'admin' || extra?.['media.manage'] === true;
+    case 'notifications.view':
+      return true;
     default:
       return false;
   }
