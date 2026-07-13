@@ -1,9 +1,12 @@
 ---
 nome: Officina Studenti
-categoria: Servizi per studenti
-descrizione: "Partnership Area Nuova con Officina Studenti, dedicata agli studenti dell'Università di Foggia."
+categoria: Libreria e cartoleria
+descrizione: "CODICE SCONTO -15% SU TUTTI GLI ACQUISTI"
+codice: LUG26ANUOVA15
 vantaggi: []
-stato: archived
-ordine: 2
+validita: LUGLIO 2026
+link: "https://www.appuntiofficinastudenti.com/"
+stato: draft
+ordine: 1
 ---
 
