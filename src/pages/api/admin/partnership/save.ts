@@ -17,8 +17,9 @@ import {
   generateFrontmatter,
 } from '../../../../lib/admin/validation';
 import { commitContentFile, isGithubConfigured, GithubNonConfiguratoError } from '../../../../lib/admin/github';
+import { withErrorHandling } from '../../../../lib/admin/api-handler';
 
-export async function POST({ request }: APIContext): Promise<Response> {
+export const POST = withErrorHandling(async ({ request }: APIContext): Promise<Response> => {
   const auth = await requireAdminUser(request);
   if (!auth.ok) {
     return Response.json({ error: auth.reason }, { status: auth.status });
@@ -125,4 +126,4 @@ export async function POST({ request }: APIContext): Promise<Response> {
     });
     return Response.json({ error: 'github_write_failed', message }, { status: 502 });
   }
-}
+});

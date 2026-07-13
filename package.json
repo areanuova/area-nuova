@@ -6,7 +6,7 @@
   "engines": { "node": "22" },
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/astro-build.mjs",
+    "build": "astro build",
     "postbuild": "node scripts/patch-vercel-runtime.mjs",
     "preview": "astro preview",
     "astro": "astro",

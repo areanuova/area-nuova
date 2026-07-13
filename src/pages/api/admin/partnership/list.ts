@@ -10,8 +10,9 @@ export const prerender = false;
 import type { APIContext } from 'astro';
 import { getCollection } from 'astro:content';
 import { requireAdminUser } from '../../../../lib/admin/auth-server';
+import { withErrorHandling } from '../../../../lib/admin/api-handler';
 
-export async function GET({ request }: APIContext): Promise<Response> {
+export const GET = withErrorHandling(async ({ request }: APIContext): Promise<Response> => {
   const auth = await requireAdminUser(request);
   if (!auth.ok) {
     return Response.json({ error: auth.reason }, { status: auth.status });
@@ -29,4 +30,4 @@ export async function GET({ request }: APIContext): Promise<Response> {
     // salvata potrebbe non comparire subito qui.
     nota: 'Elenco letto dallo snapshot dell\'ultimo deploy (Content Collections). In sviluppo locale è sempre aggiornato in tempo reale; in produzione riflette le modifiche solo dopo il prossimo deploy innescato dal commit su GitHub.',
   });
-}
+});

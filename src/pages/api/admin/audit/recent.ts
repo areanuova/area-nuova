@@ -9,8 +9,9 @@ import type { APIContext } from 'astro';
 import { requireAdminUser } from '../../../../lib/admin/auth-server';
 import { hasPermission } from '../../../../lib/admin/roles';
 import { getRecentAuditEvents } from '../../../../lib/admin/audit';
+import { withErrorHandling } from '../../../../lib/admin/api-handler';
 
-export async function GET({ request }: APIContext): Promise<Response> {
+export const GET = withErrorHandling(async ({ request }: APIContext): Promise<Response> => {
   const auth = await requireAdminUser(request);
   if (!auth.ok) {
     return Response.json({ error: auth.reason }, { status: auth.status });
@@ -21,4 +22,4 @@ export async function GET({ request }: APIContext): Promise<Response> {
 
   const result = await getRecentAuditEvents(10);
   return Response.json(result);
-}
+});

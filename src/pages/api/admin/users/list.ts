@@ -10,8 +10,9 @@ import type { APIContext } from 'astro';
 import { requireAdminUser } from '../../../../lib/admin/auth-server';
 import { hasPermission } from '../../../../lib/admin/roles';
 import { getAdminSupabase } from '../../../../lib/aris/supabase-admin';
+import { withErrorHandling } from '../../../../lib/admin/api-handler';
 
-export async function GET({ request }: APIContext): Promise<Response> {
+export const GET = withErrorHandling(async ({ request }: APIContext): Promise<Response> => {
   const auth = await requireAdminUser(request);
   if (!auth.ok) {
     return Response.json({ error: auth.reason }, { status: auth.status });
@@ -27,4 +28,4 @@ export async function GET({ request }: APIContext): Promise<Response> {
     : (await sb.from('admin_users').select('id, email, created_at').order('created_at', { ascending: true })).data;
 
   return Response.json({ righe: righe ?? [], schemaEsteso: !esteso.error });
-}
+});
