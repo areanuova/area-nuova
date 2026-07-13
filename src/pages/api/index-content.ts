@@ -9,13 +9,18 @@ import { ARIS_CONFIG } from '../../lib/aris/config';
 import type { ArisDocument } from '../../lib/aris/types';
 
 export async function POST({ request }: APIContext): Promise<Response> {
-  // Auth via header
+  // Auth via header — fail-closed: se ARIS_ADMIN_KEY non è configurata,
+  // l'endpoint resta inaccessibile (coerente con /api/aris/admin-stats).
+  // Prima dello Sprint 2.1 questo controllo era saltato del tutto quando
+  // la env var non era impostata, rendendo l'endpoint di scrittura
+  // pubblico e non autenticato — vedi docs/ADMIN_FOUNDATIONS.md.
   const adminKey = import.meta.env.ARIS_ADMIN_KEY;
-  if (adminKey) {
-    const auth = request.headers.get('Authorization') ?? '';
-    if (auth !== `Bearer ${adminKey}`) {
-      return Response.json({ error: 'Non autorizzato.' }, { status: 401 });
-    }
+  if (!adminKey) {
+    return Response.json({ error: 'Endpoint non configurato.' }, { status: 401 });
+  }
+  const auth = request.headers.get('Authorization') ?? '';
+  if (auth !== `Bearer ${adminKey}`) {
+    return Response.json({ error: 'Non autorizzato.' }, { status: 401 });
   }
 
   const ip = getClientIp(request);

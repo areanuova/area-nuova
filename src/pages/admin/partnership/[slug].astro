@@ -1,0 +1,20 @@
+---
+// SSR (non getStaticPaths): la pagina di modifica deve funzionare per
+// qualunque slug esistente senza richiedere un rebuild, e i dati veri sono
+// comunque caricati client-side da /api/admin/partnership/list (vedi nota
+// sulla sicurezza in AdminLayout/list.ts — niente dati incorporati via SSR).
+export const prerender = false;
+
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import PartnershipForm from '../../../components/admin/PartnershipForm.astro';
+
+const { slug } = Astro.params;
+---
+
+<AdminLayout titolo="Modifica Partnership" minRole="editor">
+  <div class="mx-auto max-w-3xl">
+    <a href="/admin/partnership" class="text-sm font-semibold text-primary-800 hover:underline">← Tutte le Partnership</a>
+    <h2 class="mt-4 mb-6 text-xl font-bold text-slate-900">Modifica Partnership</h2>
+    <PartnershipForm mode="edit" slug={slug} />
+  </div>
+</AdminLayout>

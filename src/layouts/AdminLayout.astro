@@ -1,0 +1,403 @@
+---
+// Layout condiviso per tutte le pagine del pannello CMS unificato
+// (Sprint 3). Non riusa BaseLayout.astro (pensato per le pagine
+// pubbliche, con Navbar/Footer del sito) — qui serve un guscio admin
+// dedicato: sidebar per ruolo, badge utente, logout, stati di
+// caricamento/errore/non autorizzato.
+//
+// L'autenticazione è verificata SOLO lato client per la CHROME della pagina
+// (nessuna sessione server-side via cookie in questo progetto — stesso
+// pattern già in uso in /admin/alloggi.astro, limite architetturale noto e
+// documentato, non risolvibile senza introdurre un meccanismo di sessione
+// server che è fuori dall'ambito di questo sprint). Il controllo che conta
+// per la sicurezza reale — dati e scritture — è lato server, su ogni
+// endpoint /api/admin/* (src/lib/admin/auth-server.ts, requireAdminUser).
+//
+// Sprint 3.1 — FIX: la chrome protetta (sidebar, topbar, slot con la
+// pagina figlia) NON viene più renderizzata come <div hidden> nell'HTML
+// iniziale. Un <div class="hidden lg:grid ..."> aveva un bug di cascata
+// CSS reale (non solo teorico): su viewport ≥1024px, la regola
+// responsive `.lg\:grid{display:grid}` di Tailwind (emessa dentro un
+// blocco @media, quindi dopo le utility di base nel foglio di stile
+// generato) vince su `.hidden{display:none}` a parità di specificità —
+// rendendo la dashboard visibile SUBITO su desktop, indipendentemente
+// da auth state o esecuzione JS. Nessun accorgimento CSS/JS aggiuntivo
+// sulla stessa classe può risolverlo in modo affidabile: la chrome ora
+// vive dentro un <template>, il cui contenuto non fa parte dell'albero
+// DOM renderizzato (non selezionabile, non disegnato, immune a qualsiasi
+// bug di cascata) finché non viene clonato ed inserito via script, solo
+// dopo che requireAdminUser lato client (getAdminUserClient) conferma un
+// account admin attivo con ruolo sufficiente.
+import '../styles/global.css';
+import type { CmsRole } from '../lib/admin/roles';
+
+interface Props {
+  titolo: string;
+  /** Ruolo minimo richiesto per vedere il contenuto di questa pagina. */
+  minRole?: CmsRole;
+}
+
+const { titolo, minRole = 'editor' } = Astro.props;
+
+const NAV = [
+  { href: '/admin', label: 'Dashboard', minRole: 'editor' as CmsRole },
+  { href: '/admin/partnership', label: 'Partnership', minRole: 'editor' as CmsRole },
+  { href: '/admin/alloggi', label: 'Alloggi', minRole: 'editor' as CmsRole, external: true },
+  { href: '/admin/utenti', label: 'Utenti', minRole: 'super_admin' as CmsRole },
+];
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow, noarchive" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>{titolo} · Area Nuova Admin</title>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased">
+
+    <!-- STATO: caricamento -->
+    <div id="admin-boot-loading" class="grid min-h-screen place-items-center">
+      <div class="flex items-center gap-3 text-slate-500">
+        <svg class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+        </svg>
+        <span class="text-sm">Verifica accesso in corso…</span>
+      </div>
+    </div>
+
+    <!-- STATO: login -->
+    <div id="admin-boot-login" class="hidden grid min-h-screen place-items-center px-4">
+      <div class="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h1 class="text-lg font-bold">Accesso amministrazione</h1>
+        <p class="mt-1 text-sm text-slate-600">Inserisci la tua email: riceverai un link di accesso.</p>
+        <form id="admin-login-form" class="mt-4 space-y-3">
+          <input
+            type="email"
+            id="admin-login-email"
+            required
+            placeholder="nome@unifg.it"
+            class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+          />
+          <button
+            type="submit"
+            id="admin-login-btn"
+            class="w-full rounded-xl bg-primary-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+          >
+            Invia link di accesso
+          </button>
+        </form>
+        <p id="admin-login-error" role="alert" class="mt-3 hidden text-sm text-red-600"></p>
+        <p id="admin-login-success" class="mt-3 hidden text-sm text-accent-700">Controlla la tua email per il link di accesso.</p>
+      </div>
+    </div>
+
+    <!-- STATO: non autorizzato (autenticato ma non in admin_users, o ruolo insufficiente) -->
+    <div id="admin-boot-forbidden" class="hidden grid min-h-screen place-items-center px-4 text-center">
+      <div>
+        <h1 class="text-lg font-bold text-slate-900">Accesso non consentito</h1>
+        <p id="admin-forbidden-msg" class="mt-2 max-w-sm text-sm text-slate-600">Il tuo account non è abilitato per questa sezione.</p>
+        <button id="admin-forbidden-signout" class="mt-4 text-sm font-semibold text-primary-800 hover:underline">Esci e riprova</button>
+      </div>
+    </div>
+
+    <!-- STATO: errore -->
+    <div id="admin-boot-error" class="hidden grid min-h-screen place-items-center px-4 text-center">
+      <div>
+        <h1 class="text-lg font-bold text-red-700">Errore</h1>
+        <p id="admin-error-msg" class="mt-2 max-w-sm text-sm text-slate-600"></p>
+        <button id="admin-error-signout" class="mt-4 text-sm font-semibold text-primary-800 hover:underline">Esci e riprova</button>
+      </div>
+    </div>
+
+    <!-- STATO: contenuto — punto di innesto, vuoto finché boot() non conferma
+         un account admin attivo. Nessuna classe "hidden": la sua invisibilità
+         dipende dall'essere letteralmente privo di figli, non da CSS. -->
+    <div id="admin-boot-content-mount"></div>
+
+    <!-- Chrome protetta: inerte, mai parte dell'albero DOM renderizzato
+         finché boot() non la clona qui dentro (vedi commento in testa al file). -->
+    <template id="admin-boot-content-template">
+    <div class="lg:grid lg:grid-cols-[14rem_1fr]">
+      <!-- Sidebar (desktop) -->
+      <aside class="hidden border-r border-slate-200 bg-white lg:block">
+        <div class="flex h-16 items-center gap-2 border-b border-slate-200 px-5">
+          <img src="/images/logo-tondo.png" alt="Area Nuova" class="h-7 w-7" width="28" height="28" />
+          <span class="font-display text-sm font-bold">Admin</span>
+        </div>
+        <nav class="space-y-1 p-3" aria-label="Navigazione amministrazione">
+          {NAV.map((item) => (
+            <a
+              href={item.href}
+              data-min-role={item.minRole}
+              class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-primary-800"
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+      </aside>
+
+      <div class="flex min-h-screen flex-col">
+        <!-- Topbar -->
+        <header class="flex h-16 items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 lg:px-6">
+          <div class="flex items-center gap-3 lg:hidden">
+            <button id="admin-mobile-toggle" aria-label="Apri menu" aria-expanded="false" class="grid h-9 w-9 place-items-center rounded-lg text-slate-700 hover:bg-slate-100">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <span class="font-display text-sm font-bold">Admin</span>
+          </div>
+          <h1 class="hidden text-base font-bold text-slate-900 lg:block">{titolo}</h1>
+          <div class="flex items-center gap-3">
+            <span id="admin-user-email" class="hidden text-sm text-slate-600 sm:inline"></span>
+            <span id="admin-user-role-badge" class="inline-flex items-center rounded-full bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-800"></span>
+            <button id="admin-logout" class="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100">Esci</button>
+          </div>
+        </header>
+
+        <!-- Menu mobile -->
+        <nav id="admin-mobile-menu" class="hidden border-b border-slate-200 bg-white lg:hidden" aria-label="Navigazione amministrazione (mobile)">
+          <div class="space-y-1 p-3">
+            {NAV.map((item) => (
+              <a
+                href={item.href}
+                data-min-role={item.minRole}
+                class="admin-nav-link block rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+              >
+                {item.label}
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        <h1 class="px-4 pt-4 text-lg font-bold text-slate-900 lg:hidden">{titolo}</h1>
+
+        <!-- Feedback operazioni (toast semplice, riusabile dalle pagine figlie) -->
+        <div id="admin-toast" role="status" aria-live="polite" class="fixed bottom-4 right-4 z-50 hidden max-w-sm rounded-xl px-4 py-3 text-sm font-medium shadow-lg"></div>
+
+        <main class="flex-1 p-4 lg:p-6">
+          <slot />
+        </main>
+      </div>
+    </div>
+    </template>
+
+    <script is:inline define:vars={{ minRole }}>
+      window.__ADMIN_MIN_ROLE__ = minRole;
+    </script>
+    <script>
+      import { supabase } from '../lib/supabase';
+      import { getAdminUserClient } from '../lib/admin/auth-client';
+      import { hasRole, ROLE_LABEL } from '../lib/admin/roles';
+
+      const views = {
+        loading: document.getElementById('admin-boot-loading')!,
+        login: document.getElementById('admin-boot-login')!,
+        forbidden: document.getElementById('admin-boot-forbidden')!,
+        error: document.getElementById('admin-boot-error')!,
+      };
+      const contentMount = document.getElementById('admin-boot-content-mount') as HTMLDivElement;
+      const contentTemplate = document.getElementById('admin-boot-content-template') as HTMLTemplateElement;
+
+      // Unica funzione che gestisce la visibilità di tutti gli stati. Per
+      // 'content' non usa mai classi CSS: monta (clona il <template>) o
+      // smonta (rimuove tutti i figli) il contenuto protetto, così la sua
+      // assenza dal DOM è reale e non dipende da alcuna regola di stile.
+      function showView(name: keyof typeof views | 'content') {
+        for (const key of Object.keys(views) as (keyof typeof views)[]) {
+          views[key].classList.toggle('hidden', key !== name);
+        }
+        if (name === 'content') {
+          if (!contentMount.hasChildNodes()) {
+            contentMount.appendChild(contentTemplate.content.cloneNode(true));
+          }
+        } else if (contentMount.hasChildNodes()) {
+          contentMount.replaceChildren();
+        }
+      }
+
+      function toast(message: string, tone: 'success' | 'error' = 'success') {
+        // #admin-toast vive dentro il contenuto clonato dal <template>: esiste
+        // solo dopo il mount. Chiamare il toast prima del login non è un caso
+        // d'uso reale (nessun punto del codice lo fa), ma resta difensivo.
+        const el = document.getElementById('admin-toast');
+        if (!el) return;
+        el.textContent = message;
+        el.className = `fixed bottom-4 right-4 z-50 max-w-sm rounded-xl px-4 py-3 text-sm font-medium shadow-lg ${
+          tone === 'success' ? 'bg-accent-700 text-white' : 'bg-red-600 text-white'
+        }`;
+        setTimeout(() => el.classList.add('hidden'), 4000);
+      }
+      // Esposto per le pagine figlie (Partnership, Utenti...) senza duplicare la logica del toast.
+      (window as any).adminToast = toast;
+
+      let booted = false;
+
+      async function boot(hasSession: boolean) {
+        if (booted) return;
+        booted = true;
+        showView('loading');
+
+        if (!hasSession) {
+          booted = false;
+          showView('login');
+          return;
+        }
+
+        try {
+          const result = await getAdminUserClient();
+
+          if (result.status === 'db_error') {
+            // Errore reale (query fallita, es. RLS) — mai mostrato come "non
+            // consentito": quel messaggio è riservato a un account
+            // genuinamente assente da admin_users, non a un guasto database.
+            showView('error');
+            document.getElementById('admin-error-msg')!.textContent =
+              `Verifica dell'account amministratore fallita per un errore del database (${result.code ?? 'n/d'}): ${result.message}`;
+            return;
+          }
+
+          if (result.status === 'not_admin') {
+            showView('forbidden');
+            document.getElementById('admin-forbidden-msg')!.textContent =
+              'Il tuo account non è presente nell\'elenco degli amministratori. Contatta un Super Admin per richiedere l\'accesso.';
+            return;
+          }
+
+          const user = result.user;
+
+          // Account presente ma disattivato (attivo=false): accesso negato,
+          // prima ancora di guardare il ruolo. Controllo mancante prima dello
+          // Sprint 3.1 — lato server requireAdminUser lo verificava già
+          // (403 'inactive'), ma la chrome client-side non lo controllava mai.
+          if (!user.attivo) {
+            showView('forbidden');
+            document.getElementById('admin-forbidden-msg')!.textContent =
+              'Il tuo account amministrativo è stato disattivato. Contatta un Super Admin se ritieni sia un errore.';
+            return;
+          }
+
+          const minRole = (window as any).__ADMIN_MIN_ROLE__ as 'editor' | 'admin' | 'super_admin';
+          if (!hasRole(user.role, minRole)) {
+            showView('forbidden');
+            document.getElementById('admin-forbidden-msg')!.textContent =
+              `Questa sezione richiede il ruolo "${ROLE_LABEL[minRole]}" o superiore. Il tuo ruolo attuale è "${ROLE_LABEL[user.role]}".`;
+            return;
+          }
+
+          // Monta la chrome protetta PRIMA di popolarla: gli elementi che
+          // seguono (topbar, nav) vivono dentro il <template> e non esistono
+          // nel DOM finché showView('content') non li clona qui dentro.
+          showView('content');
+
+          // Popola topbar
+          document.getElementById('admin-user-email')!.textContent = user.email;
+          const badge = document.getElementById('admin-user-role-badge')!;
+          badge.textContent = ROLE_LABEL[user.role] + (user.compatibilityMode ? ' · compatibilità' : '');
+          if (user.compatibilityMode) {
+            badge.title = 'Migration ruoli non ancora applicata: ruolo assegnato per compatibilità, non verificato dal database.';
+            badge.classList.add('ring-1', 'ring-amber-300');
+          }
+
+          // Mostra/nasconde le voci di nav in base al ruolo
+          document.querySelectorAll<HTMLElement>('.admin-nav-link').forEach((link) => {
+            const required = (link.dataset.minRole ?? 'editor') as 'editor' | 'admin' | 'super_admin';
+            link.classList.toggle('hidden', !hasRole(user.role, required));
+          });
+
+          // Segnala alle pagine figlie che l'utente è pronto (email + token per
+          // fetch verso /api/admin/*). Il dettaglio viene anche salvato in
+          // window.__adminReadyDetail__ PRIMA del dispatch: gli script delle
+          // pagine figlie ora iniziano a caricare solo dopo il mount (erano
+          // già presenti nell'HTML prima dello Sprint 3.1), quindi potrebbero
+          // registrare il proprio listener dopo che l'evento è già passato —
+          // onAdminReady() (src/lib/admin/ready.ts) controlla prima questo
+          // valore, così nessun evento va perso indipendentemente dai tempi
+          // di caricamento del modulo.
+          const { data: sessionData } = await supabase.auth.getSession();
+          const detail = { user, accessToken: sessionData.session?.access_token ?? null };
+          (window as any).__adminReadyDetail__ = detail;
+          document.dispatchEvent(new CustomEvent('admin:ready', { detail }));
+        } catch (err) {
+          showView('error');
+          document.getElementById('admin-error-msg')!.textContent = String((err as Error)?.message ?? err);
+        }
+      }
+
+      // Login
+      document.getElementById('admin-login-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const emailInput = document.getElementById('admin-login-email') as HTMLInputElement;
+        const btn = document.getElementById('admin-login-btn') as HTMLButtonElement;
+        const errEl = document.getElementById('admin-login-error')!;
+        const successEl = document.getElementById('admin-login-success')!;
+        errEl.classList.add('hidden');
+
+        const email = emailInput.value.trim().toLowerCase();
+        if (!email) return;
+
+        btn.disabled = true;
+        btn.textContent = 'Invio in corso…';
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: window.location.href },
+        });
+        btn.disabled = false;
+        btn.textContent = 'Invia link di accesso';
+
+        if (error) {
+          errEl.textContent = error.message;
+          errEl.classList.remove('hidden');
+        } else {
+          document.getElementById('admin-login-form')!.classList.add('hidden');
+          successEl.classList.remove('hidden');
+        }
+      });
+
+      async function handleSignOut() {
+        await supabase.auth.signOut();
+        (window as any).__adminReadyDetail__ = null;
+        booted = false;
+        showView('login');
+      }
+      // #admin-logout vive dentro il <template>: non esiste ancora quando
+      // questo script gira la prima volta, quindi un getElementById diretto
+      // non troverebbe nulla a cui agganciarsi. Delega su document, che è
+      // sempre presente — funziona indipendentemente da quando (o se) la
+      // chrome viene montata.
+      document.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).closest('#admin-logout')) handleSignOut();
+      });
+      document.getElementById('admin-forbidden-signout')?.addEventListener('click', handleSignOut);
+      document.getElementById('admin-error-signout')?.addEventListener('click', handleSignOut);
+
+      // Menu mobile — stesso motivo: delega invece di getElementById diretto,
+      // #admin-mobile-toggle e #admin-mobile-menu vivono dentro il <template>.
+      document.addEventListener('click', (e) => {
+        const toggle = (e.target as HTMLElement).closest('#admin-mobile-toggle') as HTMLElement | null;
+        if (!toggle) return;
+        const mobileMenu = document.getElementById('admin-mobile-menu');
+        const isOpen = mobileMenu?.classList.toggle('hidden');
+        toggle.setAttribute('aria-expanded', String(!isOpen));
+      });
+
+      // Boot
+      showView('loading');
+      const safety = setTimeout(() => {
+        if (!booted) {
+          showView('error');
+          document.getElementById('admin-error-msg')!.textContent = 'Tempo scaduto durante la verifica dell\'accesso. Riprova.';
+        }
+      }, 8000);
+
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'TOKEN_REFRESHED') return;
+        clearTimeout(safety);
+        boot(!!session);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,56 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout titolo="Gestione utenti" minRole="super_admin">
+  <div class="mx-auto max-w-3xl">
+    <div class="mb-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+      <strong>Sola lettura.</strong> Questa sezione mostra l'elenco degli amministratori esistenti; azioni di
+      gestione (promozione, disattivazione, creazione) non sono ancora implementate nel pannello.
+    </div>
+
+    <div id="us-loading" class="text-sm text-slate-500">Caricamento…</div>
+    <div id="us-error" class="hidden rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"></div>
+    <div id="us-list" class="hidden divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white"></div>
+  </div>
+</AdminLayout>
+
+<script>
+  import { onAdminReady } from '../../../lib/admin/ready';
+
+  onAdminReady(async ({ accessToken }) => {
+    const loadingEl = document.getElementById('us-loading')!;
+    const errorEl = document.getElementById('us-error')!;
+    const listEl = document.getElementById('us-list')!;
+
+    try {
+      const res = await fetch('/api/admin/users/list', { headers: { Authorization: `Bearer ${accessToken}` } });
+      const data = await res.json();
+      loadingEl.classList.add('hidden');
+
+      if (!res.ok) {
+        errorEl.textContent = 'Accesso riservato al ruolo Super Admin.';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      listEl.classList.remove('hidden');
+      listEl.innerHTML = (data.righe ?? [])
+        .map(
+          (r: any) => `
+          <div class="flex items-center justify-between gap-4 p-4">
+            <div>
+              <p class="font-semibold text-slate-900">${r.email}</p>
+              <p class="text-xs text-slate-500">${r.role ?? 'admin (compatibilità)'} · dal ${r.created_at ? new Date(r.created_at).toLocaleDateString('it-IT') : 'n/d'}</p>
+            </div>
+            <span class="text-xs text-slate-400">Azioni non disponibili in questo sprint</span>
+          </div>`,
+        )
+        .join('');
+    } catch (err) {
+      loadingEl.classList.add('hidden');
+      errorEl.textContent = String((err as Error)?.message ?? err);
+      errorEl.classList.remove('hidden');
+    }
+  });
+</script>

@@ -35,8 +35,7 @@ Per chi aderisce al programma sono previste misure concrete per non far pesare l
 
 - flessibilità nelle date degli appelli d'esame, in caso di coincidenza con sedute degli organi collegiali o impegni istituzionali documentati;
 - accesso prioritario a materiali e-learning e supporto di tutor didattici;
-- possibilità di iscrizione a tempo parziale;
-- in caso di performance di eccellenza, esoneri parziali dalla contribuzione studentesca.
+- possibilità di iscrizione a tempo parziale.
 
 Queste tutele non sono automatiche: si basano su una valutazione di merito, legata alla partecipazione effettiva (almeno il 70% delle sedute) e alla capacità di produrre un contributo concreto (mozioni, ordini del giorno, pareri).
 
@@ -50,7 +49,7 @@ Il cuore del programma è un sistema di certificazione digitale basato sugli **O
 
 ## Riconoscimento di CFU e Diploma Supplement
 
-L'ottenimento dell'Open Badge è collegato al riconoscimento di Crediti Formativi Universitari, proporzionati al livello di responsabilità: 2 CFU per i livelli base e intermedi, fino a 4 CFU per i componenti degli organi di governo e 6 CFU per la Presidenza del Consiglio degli Studenti. Questi crediti, inseriti tra le attività a scelta o extra-curriculari, vengono formalizzati nel **Diploma Supplement**, il documento che accompagna il titolo di laurea con il dettaglio del percorso formativo, dando così visibilità internazionale all'impegno svolto.
+L'ottenimento dell'Open Badge è collegato al riconoscimento di Crediti Formativi Universitari, proporzionati al livello di responsabilità. Questi crediti, inseriti tra le attività a scelta o extra-curriculari, vengono formalizzati nel **Diploma Supplement**, il documento che accompagna il titolo di laurea con il dettaglio del percorso formativo, dando così visibilità internazionale all'impegno svolto.
 
 ## Riconoscimento di merito e menzione alla proclamazione
 

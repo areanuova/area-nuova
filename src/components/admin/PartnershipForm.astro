@@ -1,0 +1,259 @@
+---
+// Form condiviso per creazione e modifica Partnership — un solo posto dove
+// vivono i campi, così list/nuova/[slug] non duplicano markup o logica di
+// invio. `mode="edit"` precompila e invia con `statoPrecedente`; `mode="create"`
+// parte vuoto con stato iniziale "draft".
+interface Props {
+  mode: 'create' | 'edit';
+  slug?: string;
+}
+const { mode, slug = '' } = Astro.props;
+---
+
+<form id="partnership-form" data-mode={mode} data-slug={slug} class="space-y-6">
+  <div id="pf-github-warning" class="hidden rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    <strong>Salvataggio su GitHub non configurato</strong> in questo ambiente (manca <code>GITHUB_SERVICE_TOKEN</code>).
+    Puoi comunque compilare e validare il form: il contenuto non verrà pubblicato finché la variabile non sarà impostata.
+  </div>
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div class="sm:col-span-2">
+      <label for="pf-nome" class="block text-sm font-semibold text-slate-800">Nome <span class="text-red-500">*</span></label>
+      <input id="pf-nome" name="nome" required maxlength="120" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+    </div>
+
+    <div>
+      <label for="pf-slug" class="block text-sm font-semibold text-slate-800">Slug <span class="text-red-500">*</span></label>
+      <input id="pf-slug" name="slug" required maxlength="80" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="nome-partner"
+        class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-mono focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+        disabled={mode === 'edit'} />
+      <p class="mt-1 text-xs text-slate-500">Solo lettere minuscole, numeri e trattini. Determina l'URL pubblico.</p>
+    </div>
+
+    <div>
+      <label for="pf-categoria" class="block text-sm font-semibold text-slate-800">Categoria</label>
+      <input id="pf-categoria" name="categoria" maxlength="60" placeholder="Generale" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+    </div>
+
+    <div class="sm:col-span-2">
+      <label for="pf-descrizione" class="block text-sm font-semibold text-slate-800">Descrizione <span class="text-red-500">*</span></label>
+      <textarea id="pf-descrizione" name="descrizione" required rows="3" maxlength="500" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"></textarea>
+    </div>
+
+    <div>
+      <label for="pf-codice" class="block text-sm font-semibold text-slate-800">Codice sconto</label>
+      <input id="pf-codice" name="codice" maxlength="60" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-mono focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+    </div>
+
+    <div>
+      <label for="pf-link" class="block text-sm font-semibold text-slate-800">Link esterno</label>
+      <input id="pf-link" name="link" type="url" placeholder="https://" maxlength="300" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+      <p class="mt-1 text-xs text-slate-500">Solo https://. Se vuoto, il pulsante non comparirà sulla pagina pubblica.</p>
+    </div>
+
+    <div>
+      <label for="pf-validita" class="block text-sm font-semibold text-slate-800">Validità</label>
+      <input id="pf-validita" name="validita" maxlength="120" placeholder="Es. Anno Accademico 2026/2027" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+    </div>
+
+    <div>
+      <label for="pf-spedizione" class="block text-sm font-semibold text-slate-800">Spedizione</label>
+      <input id="pf-spedizione" name="spedizione" maxlength="120" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+    </div>
+
+    <div>
+      <label for="pf-logo" class="block text-sm font-semibold text-slate-800">Logo (percorso immagine)</label>
+      <input id="pf-logo" name="logo" maxlength="300" placeholder="/images/uploads/logo.png" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-mono focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+    </div>
+
+    <div class="sm:col-span-2">
+      <label for="pf-vantaggi" class="block text-sm font-semibold text-slate-800">Vantaggi (uno per riga)</label>
+      <textarea id="pf-vantaggi" name="vantaggi" rows="4" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"></textarea>
+    </div>
+
+    <div class="sm:col-span-2">
+      <label for="pf-corpo" class="block text-sm font-semibold text-slate-800">Contenuto pagina (opzionale, Markdown)</label>
+      <textarea id="pf-corpo" name="corpo" rows="5" maxlength="5000" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-mono focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"></textarea>
+    </div>
+
+    <div>
+      <label for="pf-ordine" class="block text-sm font-semibold text-slate-800">Ordine</label>
+      <input id="pf-ordine" name="ordine" type="number" min="0" max="999" value="99" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+    </div>
+
+    <div>
+      <label for="pf-stato" class="block text-sm font-semibold text-slate-800">Stato</label>
+      <select id="pf-stato" name="stato" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200">
+        <option value="draft">Bozza</option>
+        <option value="review">In revisione</option>
+        <option value="published">Pubblicato</option>
+        <option value="archived">Archiviato</option>
+      </select>
+      <p id="pf-stato-hint" class="mt-1 hidden text-xs text-amber-700">Il tuo ruolo non può impostare direttamente questo stato — verrà rifiutato dal server.</p>
+    </div>
+  </div>
+
+  <div id="pf-error" role="alert" class="hidden rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"></div>
+  <div id="pf-preview" class="hidden rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs">
+    <p class="font-semibold text-slate-600">Anteprima frontmatter generato (contenuto non pubblicato):</p>
+    <pre id="pf-preview-content" class="mt-2 overflow-x-auto whitespace-pre-wrap font-mono text-slate-700"></pre>
+  </div>
+
+  <div class="flex items-center gap-3">
+    <button type="submit" id="pf-submit" class="rounded-xl bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-slate-300">
+      {mode === 'create' ? 'Crea partnership' : 'Salva modifiche'}
+    </button>
+    <a href="/admin/partnership" class="text-sm font-semibold text-slate-600 hover:underline">Annulla</a>
+  </div>
+</form>
+
+<script>
+  import { canTransition, type CmsRole, type ContentStato } from '../../lib/admin/roles';
+  import { onAdminReady } from '../../lib/admin/ready';
+
+  // Astro hoista questo script (non-inline) in <head>: viene eseguito subito
+  // al caricamento della pagina, molto prima che AdminLayout cloni il
+  // <template> protetto nel DOM (operazione asincrona, dopo la verifica
+  // dell'account). Un accesso a #partnership-form a livello di modulo
+  // troverebbe quindi sempre null e interromperebbe l'intero script con
+  // un'eccezione non gestita — mai raggiungendo la registrazione del
+  // submit handler (bug Sprint 3.1: form irraggiungibile/non salvabile).
+  // Ogni accesso al DOM del form va quindi dentro onAdminReady, che
+  // garantisce (vedi AdminLayout.astro, boot()) che il mount sia già
+  // avvenuto prima che il callback venga eseguito.
+  onAdminReady(async (detail) => {
+    const currentUser: { role: CmsRole } = detail.user;
+    const accessToken: string | null = detail.accessToken;
+    let statoOriginale: ContentStato = 'draft';
+
+    const form = document.getElementById('partnership-form') as HTMLFormElement;
+    const mode = form.dataset.mode as 'create' | 'edit';
+    const slug = form.dataset.slug ?? '';
+
+    const fields = {
+      nome: document.getElementById('pf-nome') as HTMLInputElement,
+      slug: document.getElementById('pf-slug') as HTMLInputElement,
+      categoria: document.getElementById('pf-categoria') as HTMLInputElement,
+      descrizione: document.getElementById('pf-descrizione') as HTMLTextAreaElement,
+      codice: document.getElementById('pf-codice') as HTMLInputElement,
+      link: document.getElementById('pf-link') as HTMLInputElement,
+      validita: document.getElementById('pf-validita') as HTMLInputElement,
+      spedizione: document.getElementById('pf-spedizione') as HTMLInputElement,
+      logo: document.getElementById('pf-logo') as HTMLInputElement,
+      vantaggi: document.getElementById('pf-vantaggi') as HTMLTextAreaElement,
+      corpo: document.getElementById('pf-corpo') as HTMLTextAreaElement,
+      ordine: document.getElementById('pf-ordine') as HTMLInputElement,
+      stato: document.getElementById('pf-stato') as HTMLSelectElement,
+    };
+
+    // Slug auto-proposto dal nome, solo in creazione e solo finché l'utente non lo tocca manualmente.
+    let slugToccato = false;
+    fields.slug.addEventListener('input', () => { slugToccato = true; });
+    fields.nome.addEventListener('input', () => {
+      if (mode !== 'create' || slugToccato) return;
+      fields.slug.value = fields.nome.value
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+    });
+
+    fields.stato.addEventListener('change', () => {
+      const hint = document.getElementById('pf-stato-hint')!;
+      const da = mode === 'edit' ? statoOriginale : 'draft';
+      const ok = canTransition(currentUser.role, da, fields.stato.value as ContentStato);
+      hint.classList.toggle('hidden', ok);
+    });
+
+    async function caricaDatiEsistenti() {
+      if (mode !== 'edit' || !accessToken) return;
+      const res = await fetch('/api/admin/partnership/list', { headers: { Authorization: `Bearer ${accessToken}` } });
+      const data = await res.json();
+      const riga = (data.righe ?? []).find((r: any) => r.slug === slug);
+      if (!riga) {
+        (window as any).adminToast?.('Partnership non trovata.', 'error');
+        return;
+      }
+      fields.nome.value = riga.nome ?? '';
+      fields.slug.value = riga.slug ?? '';
+      fields.categoria.value = riga.categoria ?? '';
+      fields.descrizione.value = riga.descrizione ?? '';
+      fields.codice.value = riga.codice ?? '';
+      fields.link.value = riga.link ?? '';
+      fields.validita.value = riga.validita ?? '';
+      fields.spedizione.value = riga.spedizione ?? '';
+      fields.logo.value = riga.logo ?? '';
+      fields.vantaggi.value = (riga.vantaggi ?? []).join('\n');
+      fields.ordine.value = String(riga.ordine ?? 99);
+      fields.stato.value = riga.stato ?? 'published';
+      statoOriginale = (riga.stato ?? 'published') as ContentStato;
+    }
+
+    await caricaDatiEsistenti();
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('pf-error')!;
+      const previewEl = document.getElementById('pf-preview')!;
+      const warningEl = document.getElementById('pf-github-warning')!;
+      errEl.classList.add('hidden');
+      previewEl.classList.add('hidden');
+      warningEl.classList.add('hidden');
+
+      if (!accessToken) {
+        errEl.textContent = 'Sessione non valida. Ricarica la pagina.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const submitBtn = document.getElementById('pf-submit') as HTMLButtonElement;
+      submitBtn.disabled = true;
+
+      const payload: Record<string, unknown> = {
+        slug: fields.slug.value.trim(),
+        nome: fields.nome.value.trim(),
+        categoria: fields.categoria.value.trim() || 'Generale',
+        descrizione: fields.descrizione.value.trim(),
+        codice: fields.codice.value.trim(),
+        link: fields.link.value.trim(),
+        validita: fields.validita.value.trim(),
+        spedizione: fields.spedizione.value.trim(),
+        logo: fields.logo.value.trim(),
+        vantaggi: fields.vantaggi.value.split('\n').map((v) => v.trim()).filter(Boolean),
+        corpo: fields.corpo.value.trim(),
+        ordine: Number(fields.ordine.value) || 99,
+        stato: fields.stato.value,
+      };
+      if (mode === 'edit') payload.statoPrecedente = statoOriginale;
+
+      try {
+        const res = await fetch('/api/admin/partnership/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        if (res.status === 503 && data.error === 'github_not_configured') {
+          warningEl.classList.remove('hidden');
+          previewEl.classList.remove('hidden');
+          document.getElementById('pf-preview-content')!.textContent = data.anteprimaFrontmatter ?? '';
+          (window as any).adminToast?.('Validato, ma non salvato: GitHub non configurato.', 'error');
+          return;
+        }
+
+        if (!res.ok) {
+          errEl.textContent = data.message || data.error || 'Errore durante il salvataggio.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+
+        (window as any).adminToast?.('Salvato correttamente.', 'success');
+        window.location.href = '/admin/partnership';
+      } catch (err) {
+        errEl.textContent = String((err as Error)?.message ?? err);
+        errEl.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+  });
+</script>

@@ -1,0 +1,66 @@
+-- ============================================================
+-- HARDENING DIFENSIVO P3 (NON UNA VULNERABILITÀ) — privilegi EXECUTE
+-- su public.is_admin()
+-- Sprint 2.3 — Attività 5
+--
+-- ⚠️  NON APPLICATO. Non applicare automaticamente in nessun caso —
+--     vedi analisi sotto prima di decidere.
+-- ============================================================
+
+-- Stato precedente (verificato, sola lettura, 2026-07-12):
+--   PUBLIC          EXECUTE
+--   postgres        EXECUTE
+--   anon            EXECUTE
+--   authenticated   EXECUTE
+--   service_role    EXECUTE
+--
+-- Analisi prima di proporre qualunque modifica (come richiesto):
+--
+-- 1. Le policy RLS reali che richiamano is_admin() sono ESATTAMENTE due,
+--    entrambe scoped `to authenticated`, MAI `to anon`:
+--      "Admin: SELECT tutti gli annunci"  (alloggi, SELECT)
+--      "Admin: UPDATE stato e scade_il"   (alloggi, UPDATE)
+--    Nessuna policy che si applica al ruolo anon richiama is_admin() —
+--    verificato leggendo tutte le policy reali su alloggi, admin_users,
+--    storage.objects (Sprint 2.2/2.3).
+-- 2. Nessuna chiamata diretta a is_admin() dal codice applicativo di
+--    questo repository (verificato Sprint 2.2 — grep su tutto src/).
+-- 3. Effetto collaterale REALE di una revoca a PUBLIC: oggi un client
+--    anonimo può chiamare direttamente GET /rest/v1/rpc/is_admin e
+--    ricevere `false` (verificato Sprint 2.2). Dopo la revoca,
+--    riceverebbe un errore di permesso negato invece di `false`. Nessun
+--    codice applicativo dipende da questa chiamata diretta, ma è un
+--    cambio di comportamento osservabile dall'esterno, non solo interno.
+--
+-- Conclusione dell'analisi: la configurazione minima proposta
+-- dall'Attività 5 (solo authenticated + service_role) è coerente con
+-- l'uso reale osservato. Nessuna delle tre verifiche richieste ha
+-- trovato una ragione per NON procedere, se si desidera applicarlo.
+-- Resta comunque hardening difensivo (riduce la superficie di chi può
+-- invocare la funzione, che oggi risponde comunque `false` per anon —
+-- non chiude alcuna falla nota), non la correzione di una vulnerabilità.
+
+-- SQL esatto proposto:
+revoke execute on function public.is_admin() from public;
+grant execute on function public.is_admin() to authenticated;
+grant execute on function public.is_admin() to service_role;
+
+-- Query di verifica (sola lettura, da eseguire prima e dopo):
+--   select grantee, privilege_type
+--   from information_schema.routine_privileges
+--   where routine_schema = 'public' and routine_name = 'is_admin';
+--
+-- Atteso PRIMA: righe per PUBLIC, postgres, anon, authenticated, service_role
+-- Atteso DOPO:  righe per postgres (proprietario, implicito), authenticated,
+--               service_role — non più per PUBLIC né per anon esplicitamente
+--
+-- Piano di rollback:
+--   grant execute on function public.is_admin() to public;
+--
+-- Test da eseguire dopo un'eventuale applicazione:
+--   1. Login admin su /admin/alloggi funziona ancora (chiama is_admin()
+--      indirettamente via le policy SELECT/UPDATE come utente authenticated).
+--   2. Lettura pubblica di /alloggi (ruolo anon, non richiama is_admin()) invariata.
+--   3. GET /rest/v1/rpc/is_admin con anon key: atteso passare da `false` (200)
+--      a un errore di permesso (403) — verificare che questo cambio non
+--      rompa nulla che oggi si affidi silenziosamente al valore `false`.

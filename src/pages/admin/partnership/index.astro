@@ -1,0 +1,126 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout titolo="Partnership" minRole="editor">
+  <div class="mx-auto max-w-5xl">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap gap-2">
+        <input id="pl-search" type="search" placeholder="Cerca per nome…" class="rounded-xl border border-slate-300 px-4 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200" />
+        <select id="pl-filter-stato" class="rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200">
+          <option value="">Tutti gli stati</option>
+          <option value="draft">Bozza</option>
+          <option value="review">In revisione</option>
+          <option value="published">Pubblicato</option>
+          <option value="archived">Archiviato</option>
+        </select>
+      </div>
+      <a id="pl-new-link" href="/admin/partnership/nuova" class="rounded-xl bg-accent-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-accent-700">+ Nuova Partnership</a>
+    </div>
+
+    <p id="pl-nota" class="mb-4 hidden text-xs text-slate-500"></p>
+    <div id="pl-loading" class="text-sm text-slate-500">Caricamento…</div>
+    <div id="pl-empty" class="hidden rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500">
+      Nessuna partnership trovata.
+    </div>
+    <div id="pl-error" class="hidden rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"></div>
+    <div id="pl-list" class="hidden divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white"></div>
+  </div>
+</AdminLayout>
+
+<script>
+  import { STATO_LABEL, hasPermission, type CmsRole, type ContentStato } from '../../../lib/admin/roles';
+  import { onAdminReady } from '../../../lib/admin/ready';
+
+  let righeComplete: any[] = [];
+  let currentUser: { role: CmsRole } | null = null;
+  let accessToken: string | null = null;
+
+  const STATO_STYLE: Record<ContentStato, string> = {
+    draft: 'bg-slate-100 text-slate-700',
+    review: 'bg-amber-100 text-amber-800',
+    published: 'bg-accent-100 text-accent-800',
+    archived: 'bg-red-50 text-red-700',
+  };
+
+  function render() {
+    const search = (document.getElementById('pl-search') as HTMLInputElement).value.trim().toLowerCase();
+    const filtroStato = (document.getElementById('pl-filter-stato') as HTMLSelectElement).value;
+
+    const righe = righeComplete.filter((r) => {
+      if (filtroStato && r.stato !== filtroStato) return false;
+      if (search && !r.nome.toLowerCase().includes(search)) return false;
+      return true;
+    });
+
+    const listEl = document.getElementById('pl-list')!;
+    const emptyEl = document.getElementById('pl-empty')!;
+
+    if (righe.length === 0) {
+      listEl.classList.add('hidden');
+      emptyEl.classList.remove('hidden');
+      return;
+    }
+    emptyEl.classList.add('hidden');
+    listEl.classList.remove('hidden');
+
+    listEl.innerHTML = righe
+      .map(
+        (r) => `
+        <div class="flex items-center justify-between gap-4 p-4">
+          <div class="min-w-0">
+            <p class="truncate font-semibold text-slate-900">${escapeHtml(r.nome)}</p>
+            <p class="truncate text-xs text-slate-500">${escapeHtml(r.categoria)} · slug: ${escapeHtml(r.slug)}</p>
+          </div>
+          <span class="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATO_STYLE[r.stato as ContentStato] ?? 'bg-slate-100 text-slate-700'}">${STATO_LABEL[r.stato as ContentStato] ?? r.stato}</span>
+          <a href="/admin/partnership/${encodeURIComponent(r.slug)}" class="shrink-0 text-sm font-semibold text-primary-800 hover:underline">Modifica →</a>
+        </div>`,
+      )
+      .join('');
+  }
+
+  function escapeHtml(s: string): string {
+    return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+  }
+
+  onAdminReady(async (detail) => {
+    currentUser = detail.user;
+    accessToken = detail.accessToken;
+
+    // Come in PartnershipForm.astro: questo script è hoistato da Astro in
+    // <head> ed eseguito prima che AdminLayout cloni il <template> protetto.
+    // Gli elementi search/filtro non esistono ancora se agganciati a livello
+    // di modulo (l'optional chaining evitava un'eccezione, ma i listener non
+    // venivano mai registrati) — vanno agganciati qui, dopo il mount.
+    document.getElementById('pl-search')?.addEventListener('input', render);
+    document.getElementById('pl-filter-stato')?.addEventListener('change', render);
+
+    if (currentUser && !hasPermission(currentUser.role, 'content.edit')) {
+      document.getElementById('pl-new-link')?.classList.add('hidden');
+    }
+
+    const loadingEl = document.getElementById('pl-loading')!;
+    const errorEl = document.getElementById('pl-error')!;
+    try {
+      const res = await fetch('/api/admin/partnership/list', { headers: { Authorization: `Bearer ${accessToken}` } });
+      const data = await res.json();
+      loadingEl.classList.add('hidden');
+      if (!res.ok) {
+        errorEl.textContent = data.message || 'Errore nel caricamento.';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      righeComplete = data.righe ?? [];
+      if (data.nota) {
+        const notaEl = document.getElementById('pl-nota')!;
+        notaEl.textContent = data.nota;
+        notaEl.classList.remove('hidden');
+      }
+      render();
+    } catch (err) {
+      loadingEl.classList.add('hidden');
+      errorEl.textContent = String((err as Error)?.message ?? err);
+      errorEl.classList.remove('hidden');
+    }
+  });
+</script>

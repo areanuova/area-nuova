@@ -340,6 +340,11 @@ import SicurezzaBadge from '../../components/alloggi/SicurezzaBadge.astro';
   const fotoErrore = document.getElementById('foto-errore') as HTMLParagraphElement;
 
   const FORMATI_VALIDI = ['image/jpeg', 'image/png', 'image/webp'];
+  const ESTENSIONE_DA_MIME: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
+  };
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
   const MAX_FILES = 5;
 
@@ -424,7 +429,11 @@ import SicurezzaBadge from '../../components/alloggi/SicurezzaBadge.astro';
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const ext = file.name.split('.').pop() ?? 'jpg';
+      // L'estensione del percorso è derivata dal MIME già validato
+      // (FORMATI_VALIDI), non dal nome file originale: il nome scelto
+      // dall'utente non è un dato fidato e non deve determinare come il
+      // file viene salvato nello Storage pubblico.
+      const ext = ESTENSIONE_DA_MIME[file.type] ?? 'jpg';
       const path = `pending/${uuid}-${i}.${ext}`;
 
       const { error: uploadError } = await supabase.storage

@@ -1,0 +1,12 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import PartnershipForm from '../../../components/admin/PartnershipForm.astro';
+---
+
+<AdminLayout titolo="Nuova Partnership" minRole="editor">
+  <div class="mx-auto max-w-3xl">
+    <a href="/admin/partnership" class="text-sm font-semibold text-primary-800 hover:underline">← Tutte le Partnership</a>
+    <h2 class="mt-4 mb-6 text-xl font-bold text-slate-900">Nuova Partnership</h2>
+    <PartnershipForm mode="create" />
+  </div>
+</AdminLayout>

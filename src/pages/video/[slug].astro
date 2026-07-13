@@ -1,0 +1,29 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import YoutubeEmbed from '../../components/video/YoutubeEmbed.astro';
+import { formattaData } from '../../lib/utils';
+
+export async function getStaticPaths() {
+  const video = await getCollection('video');
+  return video.map((v) => ({ params: { slug: v.slug }, props: { video: v } }));
+}
+
+interface Props { video: CollectionEntry<'video'>; }
+const { video } = Astro.props;
+const { titolo, descrizione, data, youtubeId } = video.data;
+---
+
+<BaseLayout titolo={titolo} descrizione={descrizione ?? titolo}>
+  <article class="container-site max-w-3xl py-16">
+    <a href="/video" class="text-sm font-semibold text-primary-800 hover:underline">← Tutti i video</a>
+
+    <time class="mt-6 block text-xs font-semibold uppercase tracking-wide text-slate-500">{formattaData(data)}</time>
+    <h1 class="mt-1 text-3xl font-bold sm:text-4xl">{titolo}</h1>
+    {descrizione && <p class="mt-4 text-lg text-slate-600">{descrizione}</p>}
+
+    <div class="mt-8">
+      <YoutubeEmbed youtubeId={youtubeId} title={titolo} />
+    </div>
+  </article>
+</BaseLayout>

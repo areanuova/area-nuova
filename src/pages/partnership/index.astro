@@ -3,7 +3,9 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageHeader from '../../components/ui/PageHeader.astro';
 
-const partner = (await getCollection('partnership', ({ data }) => data.attiva))
+// Sprint 3: la visibilità pubblica è determinata da `stato === 'published'`
+// (introdotto dal pannello CMS), non più dal vecchio flag `attiva`.
+const partner = (await getCollection('partnership', ({ data }) => data.stato === 'published'))
   .sort((a, b) => a.data.ordine - b.data.ordine);
 ---
 

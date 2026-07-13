@@ -1,0 +1,44 @@
+---
+// Embed YouTube riusabile: normalizza server-side qualunque formato ammesso
+// in `youtubeId` (ID nudo, URL completo, youtu.be) e genera sempre un
+// iframe verso youtube-nocookie.com. Se il valore manca o non è valido,
+// mostra un messaggio esplicito invece di un iframe rotto o vuoto — mai un
+// errore silenzioso, mai un embed con un ID non validato.
+import { extractYoutubeId, youtubeEmbedUrl, youtubeWatchUrl } from '../../lib/youtube';
+
+interface Props {
+  youtubeId?: string;
+  title: string;
+}
+
+const { youtubeId, title } = Astro.props;
+const id = extractYoutubeId(youtubeId);
+---
+
+{id ? (
+  <div>
+    <div class="aspect-video w-full overflow-hidden rounded-2xl bg-slate-900">
+      <iframe
+        class="h-full w-full"
+        src={youtubeEmbedUrl(id)}
+        title={title}
+        loading="lazy"
+        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        style="border:0"
+      ></iframe>
+    </div>
+    <a
+      href={youtubeWatchUrl(id)}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="mt-4 inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-primary-500 hover:text-primary-800"
+    >
+      Guarda su YouTube →
+    </a>
+  </div>
+) : (
+  <div class="grid aspect-video place-items-center rounded-2xl bg-slate-100 text-sm text-slate-500">
+    Video non disponibile
+  </div>
+)}

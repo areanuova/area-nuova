@@ -1,6 +1,12 @@
-# Esclude le funzioni Vercel legacy (GitHub OAuth per Decap CMS).
-# Le API routes di Astro (src/pages/api/) gestiscono tutto il routing via _render.
-# Includere questa directory causerebbe un conflitto che blocca tutti gli endpoint /api/*.
-# NOTA: il pattern deve iniziare con / per ancorarlo alla root del progetto,
-# altrimenti gitignore-semantics escluderebbe anche src/pages/api/.
-/api/
+# Storicamente questo file escludeva /api/ (funzioni Vercel legacy per
+# l'OAuth GitHub di Decap CMS), perché la presenza di una cartella api/ in
+# root faceva sì che Vercel riservasse l'intero prefisso /api/* alle proprie
+# funzioni "zero-config", scavalcando le route Astro sotto src/pages/api/
+# (chat, health, aris/*, ecc.) e causando 404 su tutte.
+#
+# Dallo Sprint 2.1 la cartella api/ non esiste più: gli endpoint OAuth di
+# Decap (auth, callback) sono stati migrati in src/pages/api/, che è già
+# servito correttamente dal renderer Astro. Nessuna esclusione è più
+# necessaria — questo file resta vuoto intenzionalmente, non rimosso, per
+# scoraggiare la reintroduzione accidentale di una cartella api/ in root
+# senza rileggere questa nota.

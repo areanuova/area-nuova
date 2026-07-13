@@ -25,9 +25,12 @@ try {
 // Patch 2: ensure /api/* routes reach _render before handle:filesystem.
 //
 // When the project root has an api/ directory, vercel build (VERCEL=1)
-// strips /api/* routes from the adapter-generated config.json. Since
-// .vercelignore excludes those legacy OAuth files, no platform functions
-// are deployed — causing every /api/* request to 404.
+// strips /api/* routes from the adapter-generated config.json (it reserves
+// the whole /api/* prefix for root-level zero-config Functions). As of
+// Sprint 2.1 there is no root api/ directory anymore — the Decap CMS OAuth
+// endpoints (auth, callback) were migrated into src/pages/api/ precisely to
+// remove this conflict at the source. This patch is kept as defense in
+// depth in case a root api/ directory is reintroduced in the future.
 //
 // This patch re-injects the routes using a scan of src/pages/api/ and
 // moves them before handle:filesystem so platform-level detection cannot
@@ -90,6 +93,8 @@ try {
     '^\\/api\\/aris\\/admin-stats\\/?$',
     '^\\/api\\/aris\\/feedback\\/?$',
     '^\\/api\\/aris\\/sync-external\\/?$',
+    '^\\/api\\/auth\\/?$',
+    '^\\/api\\/callback\\/?$',
   ];
 
   const expectedSrcs = scannedRoutes.length > 0 ? scannedRoutes : FALLBACK_ROUTES;

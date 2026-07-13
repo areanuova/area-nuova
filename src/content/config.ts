@@ -168,7 +168,13 @@ const partnership = defineCollection({
     spedizione: z.string().optional(),
     link: z.string().optional(),
     logo: z.string().optional(),
+    // `attiva` è il flag storico (pre-CMS): mantenuto per compatibilità,
+    // non più letto dalle pagine pubbliche dallo Sprint 3 in poi. Il nuovo
+    // campo `stato` (introdotto dal pannello CMS, Sprint 3) è l'unica fonte
+    // di verità per la visibilità pubblica. Default 'published' affinché
+    // ogni contenuto esistente, privo del campo, resti visibile invariato.
     attiva: z.boolean().default(true),
+    stato: z.enum(['draft', 'review', 'published', 'archived']).default('published'),
     ordine: z.number().default(99),
   }),
 });
@@ -179,6 +185,9 @@ const video = defineCollection({
   schema: z.object({
     titolo: z.string(),
     descrizione: z.string().optional(),
+    // Unico campo per il riferimento YouTube (nessun url/link/embedUrl
+    // duplicato): accetta ID nudo, URL completo o youtu.be — normalizzato
+    // e validato server-side da src/lib/youtube.ts prima di ogni embed.
     youtubeId: z.string().optional(),
     data: z.coerce.date(),
     inEvidenza: z.boolean().default(false),

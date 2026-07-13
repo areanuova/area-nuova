@@ -12,7 +12,8 @@
     "astro": "astro",
     "aris:index": "node scripts/ingest-aris.mjs",
     "aris:sync-external": "node scripts/sync-aris-external.mjs",
-    "aris:test-live": "node scripts/test-aris-live.mjs"
+    "aris:test-live": "node scripts/test-aris-live.mjs",
+    "cms:verify": "node --experimental-strip-types scripts/verify-cms-sprint3.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.1.6",

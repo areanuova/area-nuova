@@ -4,7 +4,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Badge from '../../components/ui/Badge.astro';
 
 export async function getStaticPaths() {
-  const partner = await getCollection('partnership');
+  // Sprint 3: solo i contenuti pubblicati generano una pagina pubblica —
+  // una bozza o un contenuto archiviato non deve essere raggiungibile
+  // nemmeno conoscendone l'URL diretto.
+  const partner = await getCollection('partnership', ({ data }) => data.stato === 'published');
   return partner.map((p) => ({ params: { slug: p.slug }, props: { partner: p } }));
 }
 
