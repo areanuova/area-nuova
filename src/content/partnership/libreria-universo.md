@@ -1,12 +1,12 @@
 ---
 nome: Libreria Universo
 categoria: Libreria e cartoleria
-descrizione: Partnership Area Nuova con Libreria Universo, dedicata agli studenti dell'Università di Foggia.
+descrizione: "Partnership Area Nuova con Libreria Universo, dedicata agli studenti dell'Università di Foggia."
+codice: ANUOVA
 vantaggi: []
-attiva: true
+validita: Anno Accademico 2025/2026
+link: "https://www.libreriauniverso.it/home/4fa4a688200ec0bbc1a40d710c9c395d"
+stato: published
 ordine: 1
 ---
 
-Libreria Universo è partner di Area Nuova con una convenzione dedicata agli studenti UniFg.
-
-> **Contenuti in aggiornamento.** Codice sconto, modalità di spedizione, vantaggi nel dettaglio e link ufficiale saranno pubblicati non appena disponibili. Per informazioni nel frattempo scrivi ad [areanuova@unifg.it](mailto:areanuova@unifg.it).
