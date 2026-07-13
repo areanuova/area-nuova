@@ -9,7 +9,7 @@ tipologia: "test-sprint-5"
 link: "https://chat.whatsapp.com/TestSprint50FakeXXXX"
 inEvidenza: true
 ordine: 99
-stato: published
+stato: archived
 ---
 
 Contenuto di test per verificare il modulo Gruppi WhatsApp dello Sprint 5.0.
