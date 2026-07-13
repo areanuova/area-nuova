@@ -1,9 +1,9 @@
 ---
 nome: Test CMS Partnership
-categoria: Generale
-descrizione: "Contenuto di test per verificare il flusso end-to-end del CMS Partnership (creazione, salvataggio, pubblicazione, archiviazione). Nessun dato reale. Modificato per il test di aggiornamento."
+categoria: Generale (Sprint 3.2)
+descrizione: "Contenuto di test per verificare il flusso end-to-end del CMS Partnership. Nessun dato reale. Retest Sprint 3.2."
 vantaggi: []
-stato: archived
+stato: draft
 ordine: 99
 ---
 
