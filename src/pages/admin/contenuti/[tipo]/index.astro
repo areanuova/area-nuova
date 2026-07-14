@@ -37,6 +37,20 @@ if (!typeDef) {
     </div>
 
     <p id="cl-nota" class="mb-4 hidden text-xs text-slate-500"></p>
+
+    <div id="cl-bulk-bar" class="mb-4 hidden flex-wrap items-center gap-3 rounded-xl border border-primary-200 bg-primary-50 p-3">
+      <span id="cl-bulk-count" class="text-sm font-semibold text-primary-900"></span>
+      <select id="cl-bulk-stato" class="rounded-lg border border-slate-300 px-2 py-1.5 text-sm">
+        <option value="draft">→ Bozza</option>
+        <option value="review">→ In revisione</option>
+        <option value="published">→ Pubblicato</option>
+        <option value="archived">→ Archiviato</option>
+      </select>
+      <button id="cl-bulk-apply" type="button" class="rounded-lg bg-primary-800 px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary-700">Applica stato</button>
+      <button id="cl-bulk-archive" type="button" class="rounded-lg border border-red-300 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-50">Archivia selezionati</button>
+      <button id="cl-bulk-clear" type="button" class="text-sm text-slate-500 hover:underline">Deseleziona tutto</button>
+    </div>
+
     <div id="cl-loading" class="text-sm text-slate-500">Caricamento…</div>
     <div id="cl-empty" class="hidden rounded-xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-500">
       Nessun contenuto trovato.
@@ -57,6 +71,7 @@ if (!typeDef) {
   let righeComplete: any[] = [];
   let currentUser: { role: CmsRole } | null = null;
   let accessToken: string | null = null;
+  const selezionati = new Set<string>();
 
   const STATO_STYLE: Record<ContentStato, string> = {
     draft: 'bg-slate-100 text-slate-700',
@@ -92,20 +107,77 @@ if (!typeDef) {
     emptyEl.classList.add('hidden');
     listEl.classList.remove('hidden');
 
+    const puoModificare = currentUser ? hasPermission(currentUser.role, 'content.edit') : false;
+
     listEl.innerHTML = righe
       .map((r) => {
         const stato = r[statoField] as ContentStato;
         return `
         <div class="flex items-center justify-between gap-4 p-4">
-          <div class="min-w-0">
-            <p class="truncate font-semibold text-slate-900">${escapeHtml(r[typeDef.titleField])}</p>
-            <p class="truncate text-xs text-slate-500">slug: ${escapeHtml(r.slug)}</p>
+          <div class="flex min-w-0 items-center gap-3">
+            ${puoModificare ? `<input type="checkbox" class="cl-row-check h-4 w-4 rounded border-slate-300" data-slug="${escapeHtml(r.slug)}" ${selezionati.has(r.slug) ? 'checked' : ''} />` : ''}
+            <div class="min-w-0">
+              <p class="truncate font-semibold text-slate-900">${escapeHtml(r[typeDef.titleField])}</p>
+              <p class="truncate text-xs text-slate-500">slug: ${escapeHtml(r.slug)}</p>
+            </div>
           </div>
           <span class="shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATO_STYLE[stato] ?? 'bg-slate-100 text-slate-700'}">${STATO_LABEL[stato] ?? stato}</span>
-          <a href="/admin/contenuti/${tipo}/${encodeURIComponent(r.slug)}" class="shrink-0 text-sm font-semibold text-primary-800 hover:underline">Modifica →</a>
+          <div class="flex shrink-0 items-center gap-3">
+            ${puoModificare ? `<button type="button" class="cl-duplica-btn text-sm font-semibold text-slate-600 hover:underline" data-slug="${escapeHtml(r.slug)}">Duplica</button>` : ''}
+            <a href="/admin/contenuti/${tipo}/${encodeURIComponent(r.slug)}" class="text-sm font-semibold text-primary-800 hover:underline">Modifica →</a>
+          </div>
         </div>`;
       })
       .join('');
+
+    listEl.querySelectorAll<HTMLInputElement>('.cl-row-check').forEach((el) => {
+      el.addEventListener('change', () => {
+        if (el.checked) selezionati.add(el.dataset.slug!);
+        else selezionati.delete(el.dataset.slug!);
+        aggiornaBarraBulk();
+      });
+    });
+    listEl.querySelectorAll<HTMLButtonElement>('.cl-duplica-btn').forEach((el) => {
+      el.addEventListener('click', () => eseguiBulk('duplicate', [el.dataset.slug!]));
+    });
+  }
+
+  function aggiornaBarraBulk() {
+    const bar = document.getElementById('cl-bulk-bar')!;
+    const count = document.getElementById('cl-bulk-count')!;
+    if (selezionati.size === 0) {
+      bar.classList.add('hidden');
+      bar.classList.remove('flex');
+      return;
+    }
+    bar.classList.remove('hidden');
+    bar.classList.add('flex');
+    count.textContent = `${selezionati.size} selezionati`;
+  }
+
+  async function eseguiBulk(azione: 'transition' | 'duplicate', slugs: string[], nuovoStato?: string) {
+    if (!accessToken || !typeDef) return;
+    try {
+      const res = await fetch(`/api/admin/contenuti/${tipo}/bulk`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({ slugs, azione, nuovoStato }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        (window as any).adminToast?.(data.message || data.error || 'Operazione fallita.', 'error');
+        return;
+      }
+      (window as any).adminToast?.(
+        `${data.successi} completati${data.falliti > 0 ? `, ${data.falliti} falliti` : ''}.`,
+        data.falliti > 0 ? 'error' : 'success',
+      );
+      selezionati.clear();
+      aggiornaBarraBulk();
+      window.location.reload();
+    } catch (err) {
+      (window as any).adminToast?.(String((err as Error)?.message ?? err), 'error');
+    }
   }
 
   onAdminReady(async (detail) => {
@@ -138,6 +210,23 @@ if (!typeDef) {
     }
     document.getElementById('cl-export-csv')?.addEventListener('click', () => scaricaExport('csv'));
     document.getElementById('cl-export-json')?.addEventListener('click', () => scaricaExport('json'));
+
+    document.getElementById('cl-bulk-apply')?.addEventListener('click', () => {
+      const nuovoStato = (document.getElementById('cl-bulk-stato') as HTMLSelectElement).value;
+      if (selezionati.size === 0) return;
+      if (!confirm(`Cambiare stato a ${selezionati.size} elementi?`)) return;
+      eseguiBulk('transition', Array.from(selezionati), nuovoStato);
+    });
+    document.getElementById('cl-bulk-archive')?.addEventListener('click', () => {
+      if (selezionati.size === 0) return;
+      if (!confirm(`Archiviare ${selezionati.size} elementi?`)) return;
+      eseguiBulk('transition', Array.from(selezionati), 'archived');
+    });
+    document.getElementById('cl-bulk-clear')?.addEventListener('click', () => {
+      selezionati.clear();
+      aggiornaBarraBulk();
+      render();
+    });
 
     const loadingEl = document.getElementById('cl-loading')!;
     const errorEl = document.getElementById('cl-error')!;
