@@ -348,6 +348,14 @@ const NAV = [
           const detail = { user, accessToken: sessionData.session?.access_token ?? null };
           (window as any).__adminReadyDetail__ = detail;
           document.dispatchEvent(new CustomEvent('admin:ready', { detail }));
+
+          // "Ultima attività" (Sprint 5.0B) — una volta per sessione browser,
+          // mai a ogni caricamento pagina (vedi commento in touch.ts).
+          const touchFlag = `admin-touched-${new Date().toISOString().slice(0, 10)}`;
+          if (detail.accessToken && !sessionStorage.getItem(touchFlag)) {
+            sessionStorage.setItem(touchFlag, '1');
+            fetch('/api/admin/users/touch', { method: 'POST', headers: { Authorization: `Bearer ${detail.accessToken}` } }).catch(() => {});
+          }
         } catch (err) {
           showView('error');
           document.getElementById('admin-error-msg')!.textContent = String((err as Error)?.message ?? err);

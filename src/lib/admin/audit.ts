@@ -98,6 +98,7 @@ export async function getRecentAuditEvents(limit = 10): Promise<
 export interface AuditQueryFiltri {
   azione?: string;
   collezione?: string;
+  adminId?: string;
   page?: number;
   perPage?: number;
 }
@@ -124,6 +125,7 @@ export async function queryAuditEvents(filtri: AuditQueryFiltri): Promise<AuditQ
 
     if (filtri.azione) query = query.eq('azione', filtri.azione);
     if (filtri.collezione) query = query.eq('collezione', filtri.collezione);
+    if (filtri.adminId) query = query.eq('admin_id', filtri.adminId);
 
     const { data, error, count } = await query.range(from, to);
     if (error) return { righe: [], totale: 0, disponibile: false };

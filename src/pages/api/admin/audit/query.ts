@@ -19,8 +19,9 @@ export const GET = withErrorHandling(async ({ request, url }: APIContext): Promi
 
   const azione = url.searchParams.get('azione') || undefined;
   const collezione = url.searchParams.get('collezione') || undefined;
+  const adminId = url.searchParams.get('adminId') || undefined;
   const page = Number(url.searchParams.get('page') ?? '1') || 1;
 
-  const result = await queryAuditEvents({ azione, collezione, page, perPage: 25 });
+  const result = await queryAuditEvents({ azione, collezione, adminId, page, perPage: 25 });
   return Response.json(result);
 });

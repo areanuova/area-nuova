@@ -20,6 +20,12 @@ const bodySchema = z.object({
   id: z.string().uuid(),
   role: z.enum(CMS_ROLES as [CmsRole, ...CmsRole[]]).optional(),
   attivo: z.boolean().optional(),
+  // Sprint 5.0B (Fase 10) — richiedono la migration 20260714000000 sulle
+  // colonne admin_users; se le colonne non esistono ancora, l'update
+  // ripiega automaticamente su un tentativo senza questi campi (vedi sotto).
+  sospeso: z.boolean().optional(),
+  sospesoMotivo: z.string().max(500).optional(),
+  noteInterne: z.string().max(1000).optional(),
 });
 
 export const POST = withErrorHandling(async ({ request }: APIContext): Promise<Response> => {
@@ -42,8 +48,8 @@ export const POST = withErrorHandling(async ({ request }: APIContext): Promise<R
   if (!parsed.success) {
     return Response.json({ error: 'validation_error', issues: parsed.error.issues }, { status: 400 });
   }
-  const { id, role, attivo } = parsed.data;
-  if (role === undefined && attivo === undefined) {
+  const { id, role, attivo, sospeso, sospesoMotivo, noteInterne } = parsed.data;
+  if ([role, attivo, sospeso, sospesoMotivo, noteInterne].every((v) => v === undefined)) {
     return Response.json({ error: 'nothing_to_update' }, { status: 400 });
   }
 
@@ -55,11 +61,60 @@ export const POST = withErrorHandling(async ({ request }: APIContext): Promise<R
   }
 
   const sb = getAdminSupabase();
-  const updates: Record<string, unknown> = {};
-  if (role !== undefined) updates.role = role;
-  if (attivo !== undefined) updates.attivo = attivo;
 
-  const { data, error } = await sb.from('admin_users').update(updates).eq('id', id).select('id, email, role, attivo').maybeSingle();
+  // Protezione "ultimo Super Admin": se il target è oggi super_admin attivo
+  // e la modifica lo declasserebbe/disattiverebbe/sospenderebbe, verifica
+  // che esista almeno un altro super_admin attivo prima di procedere.
+  const declassamento = (role !== undefined && role !== 'super_admin') || attivo === false || sospeso === true;
+  if (declassamento) {
+    const { data: target } = await sb.from('admin_users').select('role, attivo').eq('id', id).maybeSingle();
+    if (target?.role === 'super_admin' && target.attivo) {
+      const { count } = await sb
+        .from('admin_users')
+        .select('id', { count: 'exact', head: true })
+        .eq('role', 'super_admin')
+        .eq('attivo', true)
+        .neq('id', id);
+      if (!count || count < 1) {
+        return Response.json(
+          { error: 'ultimo_super_admin', message: 'Questo è l\'unico Super Admin attivo: non può essere declassato, disattivato o sospeso. Promuovi prima un altro account.' },
+          { status: 403 },
+        );
+      }
+    }
+  }
+
+  const updatesCompleti: Record<string, unknown> = {};
+  if (role !== undefined) updatesCompleti.role = role;
+  if (attivo !== undefined) updatesCompleti.attivo = attivo;
+  if (sospeso !== undefined) {
+    updatesCompleti.sospeso = sospeso;
+    updatesCompleti.sospeso_motivo = sospeso ? (sospesoMotivo ?? null) : null;
+    updatesCompleti.sospeso_il = sospeso ? new Date().toISOString() : null;
+  }
+  if (noteInterne !== undefined) updatesCompleti.note_interne = noteInterne;
+
+  let { data, error } = await sb.from('admin_users').update(updatesCompleti).eq('id', id).select('id, email, role, attivo').maybeSingle();
+
+  let colonneNonDisponibili = false;
+  if (error && (sospeso !== undefined || noteInterne !== undefined)) {
+    // Migration 20260714000000 non ancora applicata: ripiega su solo role/attivo,
+    // che esistono da sempre — mai far fallire l'intera richiesta per un
+    // campo opzionale non ancora supportato dallo schema remoto.
+    colonneNonDisponibili = true;
+    const updatesBase: Record<string, unknown> = {};
+    if (role !== undefined) updatesBase.role = role;
+    if (attivo !== undefined) updatesBase.attivo = attivo;
+    if (Object.keys(updatesBase).length > 0) {
+      ({ data, error } = await sb.from('admin_users').update(updatesBase).eq('id', id).select('id, email, role, attivo').maybeSingle());
+    } else {
+      return Response.json(
+        { error: 'colonne_non_disponibili', message: 'Sospensione/note richiedono la migration Sprint 5.0B, non ancora applicata su questo ambiente.' },
+        { status: 409 },
+      );
+    }
+  }
+
   if (error) {
     return Response.json({ error: 'update_failed', message: error.message }, { status: 502 });
   }
@@ -69,11 +124,11 @@ export const POST = withErrorHandling(async ({ request }: APIContext): Promise<R
 
   await logAuditEvent({
     utente: auth.user,
-    azione: 'update',
+    azione: sospeso === true ? 'suspend' : sospeso === false ? 'reactivate' : role !== undefined ? 'role_change' : 'update',
     collezione: 'admin_users',
     entryId: data.email,
-    dettagli: { targetId: id, role, attivo },
+    dettagli: { targetId: id, role, attivo, sospeso, colonneNonDisponibili },
   });
 
-  return Response.json({ ok: true, utente: data });
+  return Response.json({ ok: true, utente: data, colonneNonDisponibili });
 });

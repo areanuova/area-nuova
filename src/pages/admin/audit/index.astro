@@ -72,12 +72,20 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     let pagina = 1;
     let totale = 0;
     const perPage = 25;
+    const adminIdFiltro = new URLSearchParams(window.location.search).get('adminId') ?? '';
+    if (adminIdFiltro) {
+      const avviso = document.createElement('p');
+      avviso.className = 'mt-2 text-xs text-slate-500';
+      avviso.textContent = 'Filtrato per un singolo amministratore (dal link "Attività" in Gestione utenti).';
+      document.querySelector('h1')?.insertAdjacentElement('afterend', avviso);
+    }
 
     async function carica() {
       if (!accessToken) return;
       const params = new URLSearchParams({ page: String(pagina) });
       if (selAzione.value) params.set('azione', selAzione.value);
       if (inputCollezione.value.trim()) params.set('collezione', inputCollezione.value.trim());
+      if (adminIdFiltro) params.set('adminId', adminIdFiltro);
 
       const res = await fetch(`/api/admin/audit/query?${params}`, { headers: { Authorization: `Bearer ${accessToken}` } });
       const data = await res.json();

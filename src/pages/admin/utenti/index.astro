@@ -64,26 +64,34 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     listEl.classList.remove('hidden');
     errorEl.classList.add('hidden');
     const righe = data.righe ?? [];
+    const sospensioneDisponibile = !!data.sospensioneDisponibile;
     listEl.innerHTML = righe
       .map((r: any) => {
         const isSelf = r.id === selfId;
         const roleOptions = ['editor', 'admin', 'super_admin']
           .map((v) => `<option value="${v}" ${r.role === v ? 'selected' : ''}>${ROLE_LABEL[v as CmsRole]}</option>`)
           .join('');
+        const ultimaAttivita = r.ultima_attivita ? new Date(r.ultima_attivita).toLocaleString('it-IT') : 'mai registrata';
         return `
-          <div class="flex flex-wrap items-center justify-between gap-3 p-4" data-row-id="${r.id}">
-            <div class="min-w-0">
-              <p class="font-semibold text-slate-900">${escapeHtml(r.email)}</p>
-              <p class="text-xs text-slate-500">dal ${r.created_at ? new Date(r.created_at).toLocaleDateString('it-IT') : 'n/d'}${isSelf ? ' · account corrente' : ''}</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <select class="us-role-select rounded-lg border border-slate-300 px-2 py-1.5 text-sm" data-id="${r.id}" ${isSelf ? 'disabled' : ''}>
-                ${roleOptions}
-              </select>
-              <label class="flex items-center gap-1.5 text-sm text-slate-600">
-                <input type="checkbox" class="us-attivo-toggle h-4 w-4 rounded border-slate-300 text-primary-700 focus:ring-primary-500" data-id="${r.id}" ${r.attivo ? 'checked' : ''} ${isSelf ? 'disabled' : ''} />
-                Attivo
-              </label>
+          <div class="p-4" data-row-id="${r.id}">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="min-w-0">
+                <p class="font-semibold text-slate-900">${escapeHtml(r.email)}${r.sospeso ? ' <span class="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">Sospeso</span>' : ''}</p>
+                <p class="text-xs text-slate-500">dal ${r.created_at ? new Date(r.created_at).toLocaleDateString('it-IT') : 'n/d'}${isSelf ? ' · account corrente' : ''}${sospensioneDisponibile ? ` · ultima attività: ${ultimaAttivita}` : ''}</p>
+                ${r.sospeso && r.sospeso_motivo ? `<p class="mt-1 text-xs text-red-700">Motivo sospensione: ${escapeHtml(r.sospeso_motivo)}</p>` : ''}
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <select class="us-role-select rounded-lg border border-slate-300 px-2 py-1.5 text-sm" data-id="${r.id}" ${isSelf ? 'disabled' : ''}>
+                  ${roleOptions}
+                </select>
+                <label class="flex items-center gap-1.5 text-sm text-slate-600">
+                  <input type="checkbox" class="us-attivo-toggle h-4 w-4 rounded border-slate-300 text-primary-700 focus:ring-primary-500" data-id="${r.id}" ${r.attivo ? 'checked' : ''} ${isSelf ? 'disabled' : ''} />
+                  Attivo
+                </label>
+                ${!isSelf && sospensioneDisponibile ? `<button type="button" class="us-sospendi-btn rounded-lg border border-amber-300 px-2 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-50" data-id="${r.id}" data-sospeso="${!!r.sospeso}">${r.sospeso ? 'Riattiva' : 'Sospendi'}</button>` : ''}
+                ${!isSelf ? `<button type="button" class="us-reinvite-btn rounded-lg border border-slate-300 px-2 py-1.5 text-xs font-semibold text-slate-700 hover:border-primary-500" data-id="${r.id}">Reinvia invito</button>` : ''}
+                <a href="/admin/audit?adminId=${r.id}" class="text-xs font-semibold text-primary-800 hover:underline">Attività →</a>
+              </div>
             </div>
           </div>`;
       })
@@ -94,6 +102,34 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
     });
     listEl.querySelectorAll<HTMLInputElement>('.us-attivo-toggle').forEach((el) => {
       el.addEventListener('change', () => aggiornaUtente(el.dataset.id!, { attivo: el.checked }));
+    });
+    listEl.querySelectorAll<HTMLButtonElement>('.us-sospendi-btn').forEach((el) => {
+      el.addEventListener('click', async () => {
+        const giaSospeso = el.dataset.sospeso === 'true';
+        if (giaSospeso) {
+          await aggiornaUtente(el.dataset.id!, { sospeso: false });
+          return;
+        }
+        const motivo = prompt('Motivo della sospensione (visibile solo agli altri Super Admin):') ?? '';
+        if (motivo === null) return;
+        await aggiornaUtente(el.dataset.id!, { sospeso: true, sospesoMotivo: motivo });
+      });
+    });
+    listEl.querySelectorAll<HTMLButtonElement>('.us-reinvite-btn').forEach((el) => {
+      el.addEventListener('click', async () => {
+        el.disabled = true;
+        try {
+          const res = await fetch('/api/admin/users/reinvite', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+            body: JSON.stringify({ id: el.dataset.id }),
+          });
+          const data = await res.json();
+          (window as any).adminToast?.(res.ok ? data.message : (data.message || data.error), res.ok ? 'success' : 'error');
+        } finally {
+          el.disabled = false;
+        }
+      });
     });
   }
 
@@ -110,7 +146,12 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
         await caricaUtenti();
         return;
       }
-      (window as any).adminToast?.('Aggiornato correttamente.', 'success');
+      if (data.colonneNonDisponibili) {
+        (window as any).adminToast?.('Ruolo/attivo aggiornati. Sospensione/note non disponibili: migration Sprint 5.0B non ancora applicata.', 'error');
+      } else {
+        (window as any).adminToast?.('Aggiornato correttamente.', 'success');
+      }
+      await caricaUtenti();
     } catch (err) {
       (window as any).adminToast?.(String((err as Error)?.message ?? err), 'error');
     }
