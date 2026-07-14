@@ -42,6 +42,8 @@ check('MIME_CONSENTITI include image/webp', MIME_CONSENTITI.includes('image/webp
 check('MIME_CONSENTITI NON include text/html (anti upload di pagine eseguibili)', !MIME_CONSENTITI.includes('text/html'));
 check('isPostgrestTabellaAssente riconosce il codice 42P01', isPostgrestTabellaAssente({ code: '42P01' }) === true);
 check('isPostgrestTabellaAssente riconosce il messaggio "relation ... does not exist"', isPostgrestTabellaAssente({ message: 'relation "cms_media" does not exist' }) === true);
+check('isPostgrestTabellaAssente riconosce il codice PostgREST PGRST205', isPostgrestTabellaAssente({ code: 'PGRST205' }) === true);
+check('isPostgrestTabellaAssente riconosce il messaggio reale osservato in produzione', isPostgrestTabellaAssente({ message: "Could not find the table 'public.cms_media' in the schema cache" }) === true);
 check('isPostgrestTabellaAssente false per un errore generico', isPostgrestTabellaAssente({ code: '23505', message: 'duplicate key' }) === false);
 check('isPostgrestTabellaAssente false per null', isPostgrestTabellaAssente(null) === false);
 

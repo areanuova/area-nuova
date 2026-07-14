@@ -41,5 +41,15 @@ export function percorsoStorage(nomeFile: string): string {
 
 export function isPostgrestTabellaAssente(error: { code?: string; message?: string } | null | undefined): boolean {
   if (!error) return false;
-  return error.code === '42P01' || /relation .* does not exist/i.test(error.message ?? '');
+  // '42P01' = codice Postgres grezzo ("relation does not exist"); 'PGRST205'
+  // = codice PostgREST quando la tabella non è nella cache dello schema
+  // (osservato realmente in produzione: "Could not find the table
+  // 'public.cms_media' in the schema cache" — messaggio diverso da quello
+  // Postgres grezzo, va riconosciuto esplicitamente e non solo dedotto).
+  return (
+    error.code === '42P01' ||
+    error.code === 'PGRST205' ||
+    /relation .* does not exist/i.test(error.message ?? '') ||
+    /could not find the table/i.test(error.message ?? '')
+  );
 }
