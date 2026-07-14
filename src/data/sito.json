@@ -18,8 +18,8 @@
     "entra": "https://forms.gle/rxhiWPo1R4ypems66"
   },
   "banner": {
-    "attivo": true,
-    "messaggio": "[TEST SPRINT 5.0B] Messaggio di prova - da rimuovere",
+    "attivo": false,
+    "messaggio": "",
     "link": ""
   },
   "manutenzione": {
